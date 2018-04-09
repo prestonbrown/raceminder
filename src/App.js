@@ -1,19 +1,38 @@
+/**
+ * RaceMinder Copyright (c) 2018 Preston Brown & Loose Canon Racing, Inc.
+ */
+
 import React, { Component } from 'react';
 import {
   Container,
   Row,
   Col,
   Jumbotron,
-  Button
+  Button,
+
+  Input
+
 } from 'reactstrap';
 
-import RaceInfo from './components/RaceInfo';
-import CarInfo from './components/CarInfo';
 import RMNav from './components/RMNav';
+import ModalExample from './components/ModalExample';
+import DriverDropdown from './components/DriverDropdown';
 
 class App extends Component {
   constructor(props) {
     super(props);
+
+    this.state = { 
+        newRace: false, 
+        races: [],
+        drivers: [],
+        cars: []
+    };
+  }
+
+  onButtonClick(event) {
+    console.log("button was clicked!");
+    this.setState({ newRace: true });
   }
 
   render() {
@@ -28,13 +47,17 @@ class App extends Component {
               <Col>
                 <h1>Welcome to RaceMinder!</h1>
                 <p>
-                  <Button
+                  {/*<ModalExample />*/}
+                  {/*<Button
                     tag="a"
                     color="primary"
                     size="large"
                     href="/new">
                     Start New Race
-                  </Button>
+                  </Button>*/}
+
+                  <Input value={this.state.inputVal} onChange={event => this.setState({ inputVal: event.target.value })} />
+                  <Button color="primary" onClick={this.onButtonClick} color="primary" size="large">Start New Race</Button>
 
                   <Button
                     tag="a"
@@ -45,9 +68,8 @@ class App extends Component {
                   </Button>
 
                 </p>
-                <RaceInfo />
 
-                <CarInfo />
+                <DriverDropdown driverNames={this.state.drivers.map(driver => { return driver.name; })}/>
               </Col>
             </Row>
           </Container>

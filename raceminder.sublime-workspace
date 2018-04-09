@@ -1,0 +1,1525 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"LIBXML",
+				"LIBXML_NOERROR"
+			],
+			[
+				"plat",
+				"platform_id"
+			],
+			[
+				"preg_",
+				"preg_match"
+			],
+			[
+				"monthly",
+				"monthly_max_pageviews"
+			],
+			[
+				"compute",
+				"computeEstimatedSales"
+			],
+			[
+				"SolrSearchForm_added_r",
+				"SolrSearchForm_added_range_specific"
+			],
+			[
+				"phantom",
+				"phantomJsCmd"
+			],
+			[
+				"drop",
+				"dropDownListControlGroup"
+			],
+			[
+				"tr",
+				"textarea"
+			],
+			[
+				"array_m",
+				"array_merge"
+			],
+			[
+				"get",
+				"get\tGet Elements"
+			],
+			[
+				"array_",
+				"array_walk"
+			],
+			[
+				"replace",
+				"ereg_replace"
+			],
+			[
+				"callback",
+				"  Applies the callback to the elements in given arrays"
+			],
+			[
+				"available",
+				"availablePoints"
+			],
+			[
+				"cou",
+				"count  (function)"
+			],
+			[
+				"strrep",
+				"str_replace"
+			],
+			[
+				"mailing_Add",
+				"mailing_address2"
+			],
+			[
+				"str_rep",
+				"str_replace"
+			],
+			[
+				"ICON_CART",
+				"ICON_SHOPPING_CART  (constant)"
+			],
+			[
+				"ICON_LIS",
+				"ICON_LIST_ALT  (constant)"
+			],
+			[
+				"ICON_R",
+				"ICON_REMOVE  (constant)"
+			],
+			[
+				"strr",
+				"str_replace  (function)"
+			],
+			[
+				"array_k",
+				"array_key_exists"
+			],
+			[
+				"model",
+				"model"
+			],
+			[
+				"getParam",
+				"getParam"
+			],
+			[
+				"id",
+				"id"
+			],
+			[
+				"record",
+				"records  (variable)"
+			],
+			[
+				"valid",
+				"validateValue  (function)"
+			],
+			[
+				"match",
+				"match  (variable)"
+			],
+			[
+				"false",
+				"false"
+			],
+			[
+				"content",
+				"content"
+			],
+			[
+				"title",
+				"PDF_set_info_title"
+			],
+			[
+				"subs",
+				"indent_subsequent_lines"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					""
+				],
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					"Rsync Dev Environment"
+				],
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					"Deploy To Production"
+				]
+			],
+			[
+				"Packages/User/Capistrano Deploy.sublime-build",
+				"Rsync Dev Environment"
+			]
+		],
+		[
+			[
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					""
+				],
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/User/Capistrano Deploy.sublime-build",
+					"Deploy To Production"
+				]
+			],
+			[
+				"Packages/User/Capistrano Deploy.sublime-build",
+				"Run"
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "pkip",
+		"selected_items":
+		[
+			[
+				"pkip",
+				"Package Control: Install Package"
+			],
+			[
+				"reinde",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"file diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"fmt",
+				"phpfmt: format now"
+			],
+			[
+				"array",
+				"PhpArrayConverter: Convert array"
+			],
+			[
+				"svn file move",
+				"SVN: (File) Move…"
+			],
+			[
+				"file comm",
+				"SVN: (File) Commit"
+			],
+			[
+				"svn update",
+				"SVN: Update"
+			],
+			[
+				"file revert",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn statu",
+				"SVN: Status"
+			],
+			[
+				"svn status",
+				"SVN: Status"
+			],
+			[
+				"vn s",
+				"SVN: Status"
+			],
+			[
+				"fil ecomm",
+				"SVN: (File) Commit"
+			],
+			[
+				"file rever",
+				"SVN: (File) Revert"
+			],
+			[
+				"file update",
+				"SVN: (File) Update"
+			],
+			[
+				"fiel diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"svn file rev",
+				"SVN: (File) Revert"
+			],
+			[
+				"file rev",
+				"File: Revert"
+			],
+			[
+				"file add",
+				"SVN: (File) Add"
+			],
+			[
+				"file log",
+				"SVN: (File) Log"
+			],
+			[
+				"reind",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"file commit",
+				"SVN: (File) Commit"
+			],
+			[
+				"format",
+				"phpfmt: format now"
+			],
+			[
+				"fmtr",
+				"phpfmt: reorganize content of class"
+			],
+			[
+				"svn up",
+				"SVN: Update"
+			],
+			[
+				"svn comm",
+				"SVN: Commit…"
+			],
+			[
+				"svn blame",
+				"SVN: (File) Blame"
+			],
+			[
+				"svn upd",
+				"SVN: Update"
+			],
+			[
+				"reid",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"fle diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"file dif",
+				"SVN: (File) Diff"
+			],
+			[
+				"file cmom",
+				"SVN: (File) Commit"
+			],
+			[
+				"fil ediff",
+				"SVN: (File) Diff"
+			],
+			[
+				"vn update",
+				"SVN: Update"
+			],
+			[
+				"fil eocmm",
+				"SVN: (File) Commit"
+			],
+			[
+				"filre vert",
+				"SVN: (File) Revert"
+			],
+			[
+				"php",
+				"PhpArrayConverter: Convert array"
+			],
+			[
+				"psr",
+				"phpfmt: toggle PSR2"
+			],
+			[
+				"phparr",
+				"PhpArrayConverter: Convert array"
+			],
+			[
+				"phpar",
+				"PhpArrayConverter: Convert array"
+			],
+			[
+				"file resolv",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"svn com",
+				"SVN: Commit…"
+			],
+			[
+				"svn move",
+				"SVN: (File) Move…"
+			],
+			[
+				"file di",
+				"SVN: (File) Diff"
+			],
+			[
+				"pkc inst",
+				"Package Control: Install Package"
+			],
+			[
+				"reiond",
+				"HTMLPrettify: Set `node` Path"
+			],
+			[
+				"svn resolve",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"fiel comm",
+				"SVN: (File) Commit"
+			],
+			[
+				"file ocmm",
+				"SVN: (File) Commit"
+			],
+			[
+				"svn file blame",
+				"SVN: (File) Blame"
+			],
+			[
+				"svn file rever",
+				"SVN: (File) Revert"
+			],
+			[
+				"fild fif",
+				"SVN: (File) Diff"
+			],
+			[
+				"file blame",
+				"SVN: (File) Blame"
+			],
+			[
+				"svn revert",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn file bla",
+				"SVN: (File) Blame"
+			],
+			[
+				"svn tatus",
+				"SVN: Status"
+			],
+			[
+				"file fif",
+				"SVN: (File) Diff"
+			],
+			[
+				"file resol",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"html",
+				"HTMLPrettify"
+			],
+			[
+				"fmt n",
+				"phpfmt: format now"
+			],
+			[
+				"file c omm",
+				"SVN: (File) Commit"
+			],
+			[
+				"foramt",
+				"phpfmt: format now"
+			],
+			[
+				"svn file diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"file d",
+				"SVN: (File) Diff"
+			],
+			[
+				"file reso",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"file dele",
+				"File: Delete"
+			],
+			[
+				"svn file resol",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"svn clean",
+				"SVN: Cleanup"
+			],
+			[
+				"file rena",
+				"File: Rename"
+			],
+			[
+				"diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"file info",
+				"SVN: (File) Info"
+			],
+			[
+				"svn cleanup",
+				"SVN: Cleanup"
+			],
+			[
+				"f ile diff",
+				"SVN: (File) Diff"
+			],
+			[
+				"filresv",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"svn file de",
+				"SVN: (File) Delete"
+			],
+			[
+				"file del",
+				"SVN: (File) Delete"
+			],
+			[
+				"svn file del",
+				"SVN: (File) Delete"
+			],
+			[
+				"comment",
+				"Toggle Comment"
+			],
+			[
+				"filre re",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn stat",
+				"SVN: Status"
+			],
+			[
+				"svn diff",
+				"SVN: Diff"
+			],
+			[
+				"file status",
+				"SVN: (File) Status"
+			],
+			[
+				"file dfif",
+				"SVN: (File) Diff"
+			],
+			[
+				"file dee",
+				"File: Delete"
+			],
+			[
+				"file rename",
+				"File: Rename"
+			],
+			[
+				"fcom",
+				"SVN: (File) Commit"
+			],
+			[
+				"file move",
+				"SVN: (File) Move…"
+			],
+			[
+				"fmt ",
+				"phpfmt: format now"
+			],
+			[
+				"file delete",
+				"File: Delete"
+			],
+			[
+				"pkg in p",
+				"Package Control: Install Package"
+			],
+			[
+				"pkg ",
+				"Package Control: List Packages"
+			],
+			[
+				"pkg i ",
+				"Package Control: Install Package"
+			],
+			[
+				"filre v",
+				"SVN: (File) Revert"
+			],
+			[
+				"file resolve",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"svn file comm",
+				"SVN: (File) Commit"
+			],
+			[
+				"svn file revert",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn file log",
+				"SVN: (File) Log"
+			],
+			[
+				"filer evert",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn udpate",
+				"SVN: Update"
+			],
+			[
+				"toggle comm",
+				"Toggle Comment"
+			],
+			[
+				"fiel dif",
+				"SVN: (File) Diff"
+			],
+			[
+				"svnupdate",
+				"SVN: Update"
+			],
+			[
+				" file resoi",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"fmt now",
+				"phpfmt: format now"
+			],
+			[
+				"fiel resolve",
+				"SVN: (File) Resolve, Interactive…"
+			],
+			[
+				"svn mv",
+				"SVN: (File) Move…"
+			],
+			[
+				"svn commit",
+				"SVN: Commit…"
+			],
+			[
+				"svn file delete",
+				"SVN: (File) Delete"
+			],
+			[
+				"filre evert",
+				"SVN: (File) Revert"
+			],
+			[
+				"svn move ",
+				"SVN: (File) Move…"
+			],
+			[
+				"fmmt now",
+				"phpfmt: format now"
+			],
+			[
+				"svn file dele",
+				"SVN: (File) Delete"
+			],
+			[
+				"psr2",
+				"phpfmt: toggle PSR2"
+			],
+			[
+				"psr1",
+				"phpfmt: toggle PSR1"
+			],
+			[
+				"toggle",
+				"phpfmt: toggle PSR1"
+			],
+			[
+				"move",
+				"File: Move"
+			],
+			[
+				"rename",
+				"File: Rename"
+			],
+			[
+				"file com",
+				"SVN: (File) Commit"
+			],
+			[
+				"fmt no",
+				"phpfmt: format now"
+			],
+			[
+				"fil comm",
+				"SVN: (File) Commit"
+			],
+			[
+				"fiel add",
+				"SVN: (File) Add"
+			],
+			[
+				"svn stau",
+				"SVN: Status"
+			],
+			[
+				"svn del",
+				"SVN: (File) Delete"
+			],
+			[
+				"file delet",
+				"SVN: (File) Delete"
+			],
+			[
+				"svn fi del",
+				"SVN: (File) Delete"
+			],
+			[
+				"svn stta",
+				"SVN: Status"
+			],
+			[
+				"delete",
+				"File: Delete"
+			],
+			[
+				"phpfmt",
+				"phpfmt: format now"
+			]
+		],
+		"width": 500.0
+	},
+	"console":
+	{
+		"height": 125.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/pbrown/Code/raceminder"
+	],
+	"file_history":
+	[
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_AutoProfile.php",
+		"/Users/pbrown/Code/eti/protected/models/UserList.php",
+		"/Users/pbrown/Code/eti/protected/controllers/SearchController.php",
+		"/Users/pbrown/Code/eti/protected/config/deploy.rb",
+		"/Users/pbrown/Code/eti/protected/commands/SendSpyNotificationsCommand.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522952455/SVN",
+		"/Users/pbrown/Code/eti/protected/controllers/UserController.php",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_SearchForAmazon.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522858722/SVN",
+		"/Users/pbrown/Code/eti/protected/components/WebUser.php",
+		"/Users/pbrown/Code/eti/protected/components/ETISession.php",
+		"/Users/pbrown/Code/eti/protected/components/Controller.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522858644/SVN",
+		"/Users/pbrown/Code/eti/protected/components/RequireOAuth2Login.php",
+		"/Users/pbrown/Code/eti/protected/controllers/api/v2/Oauth2Controller.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522855113/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522854978/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522854914/SVN",
+		"/Users/pbrown/Code/eti/vendor/bshaffer/oauth2-server-php/src/OAuth2/Server.php",
+		"/Users/pbrown/Code/eti/vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/AuthorizeController.php",
+		"/Users/pbrown/Code/eti/vendor/bshaffer/oauth2-server-php/src/OAuth2/OpenID/Controller/AuthorizeController.php",
+		"/Users/pbrown/Code/eti/vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/AuthorizeControllerInterface.php",
+		"/Users/pbrown/Code/eti/vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/ResourceController.php",
+		"/Users/pbrown/Code/eti/protected/views/layouts/bootstrap_main.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522847150/SVN",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_SearchForFacebook.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522846372/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522845499/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522845477/SVN",
+		"/Users/pbrown/Code/eti/protected/migrations/m180323_141001_magento_children.php",
+		"/Users/pbrown/Code/eti/protected/models/WebsiteToPlatform.php",
+		"/Users/pbrown/Code/eti/protected/models/Website.php",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_UpdatePlatform.php",
+		"/Users/pbrown/Code/eti/protected/views/shared/_techDetails.php",
+		"/Users/pbrown/Code/eti/protected/views/platform/view.php",
+		"/Users/pbrown/Code/eti/protected/models/Platform.php",
+		"/Users/pbrown/Code/eti/protected/models/Company.php",
+		"/Users/pbrown/Code/eti/protected/controllers/WebsiteController.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522701151/SVN",
+		"/Users/pbrown/Code/eti/protected/views/shared/_blogBlock.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522701139/SVN",
+		"/Users/pbrown/Code/eti/protected/views/site/_blog.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522701110/SVN",
+		"/Users/pbrown/Code/eti/protected/components/ETIFeed.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522701079/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522701043/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522700964/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522697017/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522696616/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522696577/SVN",
+		"/Users/pbrown/Code/eti/protected/views/emails/recommendedBrands.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522683540/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522683489/SVN",
+		"/Users/pbrown/Code/eti/protected/views/admin/website/editview.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522679904/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522679879/SVN",
+		"/Users/pbrown/Code/eti/protected/controllers/SiteController.php",
+		"/Users/pbrown/Code/eti/protected/config/main.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522677617/SVN",
+		"/Users/pbrown/Code/eti/vendor/dg/rss-php/src/Feed.php",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/caching/CCache.php",
+		"/Users/pbrown/Code/eti/protected/config/console.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522337188/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522337135/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522331365/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522331193/SVN",
+		"/Users/pbrown/Code/eti/protected/modules/rbam/extensions/alphapager/ApListView.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522181246/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522168077/SVN",
+		"/Users/pbrown/Code/eti/protected/components/PlatformCrawler.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522167690/SVN",
+		"/Users/pbrown/Code/eti/protected/views/admin/website/audit.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522162642/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522162191/SVN",
+		"/Users/pbrown/Code/eti/protected/views/userlist/view-new.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522107545/SVN",
+		"/Users/pbrown/Code/eti/protected/views/search/results-new.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522107530/SVN",
+		"/Users/pbrown/Code/eti/protected/commands/ScratchCommand.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522081741/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522081590/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522081258/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522081224/SVN",
+		"/Users/pbrown/Code/eti/protected/commands/UpdateActiveProxyServersCommand.php",
+		"/Users/pbrown/Code/eti/protected/components/ETIProxyServers.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522080849/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522080732/SVN",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/db/ar/CActiveRecord.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522080367/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522079343/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1522079319/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521830310/SVN",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/web/CHttpSession.php",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/db/schema/CDbCriteria.php",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/db/CDbCommand.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521829958/SVN",
+		"/Users/pbrown/Code/eti/protected/views/website/view-new.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521829930/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521824818/SVN",
+		"/Users/pbrown/Code/eti/protected/models/LoginForm.php",
+		"/Users/pbrown/Code/eti/protected/commands/CheckUserSessionsCommand.php",
+		"/Users/pbrown/Code/eti/protected/components/IncrementPageViews.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521823308/SVN",
+		"/Users/pbrown/Code/eti/vendor/symfony/dom-crawler/Crawler.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521823233/SVN",
+		"/Users/pbrown/Code/eti/protected/views/platform/trend/_platformRow.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521822837/SVN",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/db/CDbMigration.php",
+		"/Users/pbrown/Code/eti/protected/components/ETIBaseGoogleCrawlCommand.php",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_SearchForLinkedIn.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521813670/SVN",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_SearchForTwitter.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521813657/SVN",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_SearchForInstagram.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521813643/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521813620/SVN",
+		"/Users/pbrown/Code/eti/protected/components/resque-workers/Worker_Base.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521749613/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521749579/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521663175/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521663130/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521658939/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521658907/SVN",
+		"/Users/pbrown/Code/eti/protected/components/AppendSessionInfo.php",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521651695/SVN",
+		"/var/folders/tj/x16j50z91c3bcs_ptn80_cvw0000gn/T/sublime-svn-1521651670/SVN",
+		"/Users/pbrown/Code/eti/vendor/yiisoft/yii/framework/web/auth/CWebUser.php",
+		"/Users/pbrown/Code/eti/protected/models/YiiSession.php"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 38.0
+	},
+	"input":
+	{
+		"height": 35.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 181.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.svn":
+	{
+		"height": 100.0
+	},
+	"output.xdebug":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/User/Capistrano Deploy.sublime-build",
+	"project": "raceminder.sublime-project",
+	"replace":
+	{
+		"height": 70.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"workerauto",
+				"protected/components/resque-workers/Worker_AutoProfile.php"
+			],
+			[
+				"website",
+				"protected/models/Website.php"
+			],
+			[
+				"website.",
+				"protected/models/Website.php"
+			],
+			[
+				"searchcon",
+				"protected/controllers/SearchController.php"
+			],
+			[
+				"userlist",
+				"protected/models/UserList.php"
+			],
+			[
+				"etiactivere",
+				"protected/components/ETIActiveRecord.php"
+			],
+			[
+				"userlist.php",
+				"protected/models/UserList.php"
+			],
+			[
+				"spynoti",
+				"protected/commands/SendSpyNotificationsCommand.php"
+			],
+			[
+				"deploy",
+				"protected/config/deploy.rb"
+			],
+			[
+				"autoprofileview",
+				"protected/views/website/autoprofile-view.php"
+			],
+			[
+				"websitescreen",
+				"protected/views/website/_screenshotBlock.php"
+			],
+			[
+				"contuserc",
+				"protected/controllers/UserController.php"
+			],
+			[
+				"contsitec",
+				"protected/controllers/SiteController.php"
+			],
+			[
+				"compwebuser",
+				"protected/components/WebUser.php"
+			],
+			[
+				"competisess",
+				"protected/components/ETISession.php"
+			],
+			[
+				"controller.",
+				"protected/components/Controller.php"
+			],
+			[
+				"compcont",
+				"protected/components/Controller.php"
+			],
+			[
+				"workersearchforama",
+				"protected/components/resque-workers/Worker_SearchForAmazon.php"
+			],
+			[
+				"affiliate",
+				"protected/components/resque-workers/Worker_SearchForAffiliate.php"
+			],
+			[
+				"udateaff",
+				"protected/commands/UpdateWebsiteAffiliateUrlCommand.php"
+			],
+			[
+				"oauth2con",
+				"protected/controllers/api/v2/Oauth2Controller.php"
+			],
+			[
+				"oauth2cont",
+				"protected/controllers/api/v2/Oauth2Controller.php"
+			],
+			[
+				"oauthauthorize",
+				"vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/AuthorizeController.php"
+			],
+			[
+				"oauth2serve",
+				"vendor/bshaffer/oauth2-server-php/src/OAuth2/Server.php"
+			],
+			[
+				"baseauthcont",
+				"vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/AuthorizeController.php"
+			],
+			[
+				"authcontinter",
+				"vendor/bshaffer/oauth2-server-php/src/OAuth2/Controller/AuthorizeControllerInterface.php"
+			],
+			[
+				"oauth2server",
+				"vendor/bshaffer/oauth2-server-php/src/OAuth2/Server.php"
+			],
+			[
+				"requireoauth2",
+				"protected/components/RequireOAuth2Login.php"
+			],
+			[
+				"bootmain",
+				"protected/views/layouts/bootstrap_main.php"
+			],
+			[
+				"workerinsta",
+				"protected/components/resque-workers/Worker_SearchForInstagram.php"
+			],
+			[
+				"company.",
+				"protected/models/Company.php"
+			],
+			[
+				"webs",
+				"protected/models/Website.php"
+			],
+			[
+				"workersearface",
+				"protected/components/resque-workers/Worker_SearchForFacebook.php"
+			],
+			[
+				"websiteeditv",
+				"protected/views/admin/website/editview.php"
+			],
+			[
+				"websitecont",
+				"protected/controllers/WebsiteController.php"
+			],
+			[
+				"recentwt",
+				"protected/views/shared/_recentTweetsBlock.php"
+			],
+			[
+				"websiteautoview",
+				"protected/views/website/autoprofile-view.php"
+			],
+			[
+				"main.php",
+				"protected/config/main.php"
+			],
+			[
+				"feed.",
+				"vendor/dg/rss-php/src/Feed.php"
+			],
+			[
+				"ccache.",
+				"vendor/yiisoft/yii/framework/caching/CCache.php"
+			],
+			[
+				"dgfeed",
+				"vendor/dg/rss-php/src/Feed.php"
+			],
+			[
+				"etifeed",
+				"protected/components/ETIFeed.php"
+			],
+			[
+				"blog",
+				"protected/views/site/_blog.php"
+			],
+			[
+				"console",
+				"protected/config/console.php"
+			],
+			[
+				"platform",
+				"protected/models/Platform.php"
+			],
+			[
+				"platofrmview",
+				"protected/views/platform/view.php"
+			],
+			[
+				"platview",
+				"protected/modules/rbam/extensions/alphapager/ApListView.php"
+			],
+			[
+				"websitetop",
+				"protected/models/WebsiteToPlatform.php"
+			],
+			[
+				"platformcraw",
+				"protected/components/PlatformCrawler.php"
+			],
+			[
+				"techl",
+				"protected/views/shared/_techDetails.php"
+			],
+			[
+				"scratchc",
+				"protected/commands/ScratchCommand.php"
+			],
+			[
+				"websiteaudit",
+				"protected/views/admin/website/audit.php"
+			],
+			[
+				"magento",
+				"protected/migrations/m180323_141001_magento_children.php"
+			],
+			[
+				"scratch",
+				"protected/commands/ScratchCommand.php"
+			],
+			[
+				"platformview",
+				"protected/views/platform/view.php"
+			],
+			[
+				"platform.",
+				"protected/models/Platform.php"
+			],
+			[
+				"_tech",
+				"protected/views/shared/_techDetails.php"
+			],
+			[
+				"cactivere",
+				"vendor/yiisoft/yii/framework/db/ar/CActiveRecord.php"
+			],
+			[
+				"websitetoplat",
+				"protected/models/WebsiteToPlatform.php"
+			],
+			[
+				"websiteoplat",
+				"protected/models/WebsiteToPlatform.php"
+			],
+			[
+				"",
+				"protected/migrations/m180323_141001_magento_children.php"
+			],
+			[
+				"techdeta",
+				"protected/views/shared/_techDetails.php"
+			],
+			[
+				"websiteviewn",
+				"protected/views/website/view-new.php"
+			],
+			[
+				"latformcarw",
+				"protected/components/PlatformCrawler.php"
+			],
+			[
+				"crawler",
+				"vendor/symfony/dom-crawler/Crawler.php"
+			],
+			[
+				"_platform",
+				"protected/views/platform/trend/_platformRow.php"
+			],
+			[
+				"cdbcriteria",
+				"vendor/yiisoft/yii/framework/db/schema/CDbCriteria.php"
+			],
+			[
+				"cdbcon",
+				"vendor/yiisoft/yii/framework/db/CDbCommand.php"
+			],
+			[
+				"cdbmig",
+				"vendor/yiisoft/yii/framework/db/CDbMigration.php"
+			],
+			[
+				"worlinkedin",
+				"protected/components/resque-workers/Worker_SearchForLinkedIn.php"
+			],
+			[
+				"workertwti",
+				"protected/components/resque-workers/Worker_SearchForTwitter.php"
+			],
+			[
+				"workerbase",
+				"protected/components/resque-workers/Worker_Base.php"
+			],
+			[
+				"workeraut",
+				"protected/components/resque-workers/Worker_AutoProfile.php"
+			],
+			[
+				"userlistview",
+				"protected/views/userlist/view-new.php"
+			],
+			[
+				"results",
+				"protected/views/search/results-new.php"
+			],
+			[
+				"etibasegooglec",
+				"protected/components/ETIBaseGoogleCrawlCommand.php"
+			],
+			[
+				"main.",
+				"protected/config/main.php"
+			],
+			[
+				"etiproxyserver",
+				"protected/components/ETIProxyServers.php"
+			],
+			[
+				"workerface",
+				"protected/components/resque-workers/Worker_SearchForFacebook.php"
+			],
+			[
+				"appendses",
+				"protected/components/AppendSessionInfo.php"
+			],
+			[
+				"appensessioninfo",
+				"protected/components/AppendSessionInfo.php"
+			],
+			[
+				"chttpsess",
+				"vendor/yiisoft/yii/framework/web/CHttpSession.php"
+			],
+			[
+				"bootstrapmain",
+				"protected/views/layouts/bootstrap_main.php"
+			],
+			[
+				"csession",
+				"vendor/yiisoft/yii/framework/web/CHttpSession.php"
+			],
+			[
+				"webuser",
+				"protected/components/WebUser.php"
+			],
+			[
+				"etises",
+				"protected/components/ETISession.php"
+			],
+			[
+				"yiisess",
+				"protected/models/YiiSession.php"
+			],
+			[
+				"controll",
+				"protected/components/Controller.php"
+			],
+			[
+				"incrementpa",
+				"protected/components/IncrementPageViews.php"
+			],
+			[
+				"knownip",
+				"protected/models/KnownIp.php"
+			],
+			[
+				"checksess",
+				"protected/commands/CheckUserSessionsCommand.php"
+			],
+			[
+				"admsitec",
+				"protected/controllers/admin/SiteController.php"
+			],
+			[
+				"compcontroller.php",
+				"protected/components/Controller.php"
+			],
+			[
+				"cwebuser",
+				"vendor/yiisoft/yii/framework/web/auth/CWebUser.php"
+			],
+			[
+				"incrementpageviews",
+				"protected/components/IncrementPageViews.php"
+			],
+			[
+				"stat.",
+				"protected/models/Stat.php"
+			],
+			[
+				"appensess",
+				"protected/components/AppendSessionInfo.php"
+			],
+			[
+				"_users",
+				"protected/views/admin/site/_users.php"
+			],
+			[
+				"carrayd",
+				"vendor/yiisoft/yii/framework/web/CArrayDataProvider.php"
+			],
+			[
+				"cdatapro",
+				"vendor/yiisoft/yii/framework/web/CDataProvider.php"
+			],
+			[
+				"csort",
+				"vendor/yiisoft/yii/framework/web/CSort.php"
+			],
+			[
+				"cdataprov",
+				"vendor/yiisoft/yii/framework/web/CDataProvider.php"
+			],
+			[
+				"checku",
+				"protected/commands/CheckUserSessionsCommand.php"
+			],
+			[
+				"autoview",
+				"protected/views/executive/autoprofile-view.php"
+			],
+			[
+				"deploy.rb",
+				"protected/config/deploy.rb"
+			],
+			[
+				"companycon",
+				"protected/controllers/CompanyController.php"
+			],
+			[
+				"smallweb",
+				"protected/views/company/_smallWebsite.php"
+			],
+			[
+				"companyview",
+				"protected/views/company/view-new.php"
+			],
+			[
+				"rbamstyl",
+				"protected/modules/rbam/assets/css/styles.css"
+			],
+			[
+				"layoutmain",
+				"protected/modules/rbam/views/layouts/main.php"
+			],
+			[
+				"rbam",
+				"protected/modules/rbam/RbamModule.php"
+			],
+			[
+				"ccontroller",
+				"vendor/yiisoft/yii/framework/web/CController.php"
+			],
+			[
+				"cappl",
+				"vendor/yiisoft/yii/framework/base/CApplication.php"
+			],
+			[
+				"controller.php",
+				"protected/components/Controller.php"
+			],
+			[
+				"cwebus",
+				"vendor/yiisoft/yii/framework/web/auth/CWebUser.php"
+			],
+			[
+				"requirelog",
+				"protected/components/RequireLogin.php"
+			],
+			[
+				"etifor",
+				"protected/components/ETIFormatter.php"
+			],
+			[
+				"user.",
+				"protected/models/User.php"
+			],
+			[
+				"admusers",
+				"protected/views/admin/site/_users.php"
+			],
+			[
+				"admusergrid",
+				"protected/views/admin/customer/_userGrid.php"
+			],
+			[
+				"user.php",
+				"protected/models/User.php"
+			],
+			[
+				"ccache",
+				"vendor/yiisoft/yii/framework/caching/CCache.php"
+			],
+			[
+				"admusercont",
+				"protected/controllers/admin/UserController.php"
+			],
+			[
+				"geopirea",
+				"protected/extensions/GeoIp2/Database/Reader.php"
+			],
+			[
+				"yiisession",
+				"protected/models/YiiSession.php"
+			],
+			[
+				"etisession",
+				"protected/components/ETISession.php"
+			],
+			[
+				"yiigrid",
+				"vendor/yiisoft/yii/framework/zii/widgets/assets/gridview/jquery.yiigridview.js"
+			],
+			[
+				"etigrid",
+				"protected/components/ETIGridView.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Code/eti-chrome/eti-chrome.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"removeOldEs",
+				"removeOldEsps"
+			],
+			[
+				"inlineRadi",
+				"inlineRadioButtonListControlGroup"
+			],
+			[
+				"setPathOfAlias",
+				"setPathOfAlias"
+			]
+		],
+		"width": 791.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 221.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
