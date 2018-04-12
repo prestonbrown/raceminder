@@ -25,7 +25,7 @@ class App extends Component {
     this.state = { 
         newRace: false, 
         races: [],
-        drivers: [],
+        drivers: [ {name: 'Preston'}, {name: 'Cody'}, {name: 'Max'} ],
         cars: []
     };
   }
@@ -33,6 +33,10 @@ class App extends Component {
   onButtonClick(event) {
     console.log("button was clicked!");
     this.setState({ newRace: true });
+  }
+
+  selectDriver(driver) {
+    console.log('driver selected:', driver);
   }
 
   render() {
@@ -69,7 +73,7 @@ class App extends Component {
 
                 </p>
 
-                <DriverDropdown driverNames={this.state.drivers.map(driver => { return driver.name; })}/>
+                <DriverDropdown onSelect={this.selectDriver} driverNames={this.state.drivers.map(driver => { return driver.name; })}/>
               </Col>
             </Row>
           </Container>

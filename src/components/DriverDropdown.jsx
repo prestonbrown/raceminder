@@ -6,9 +6,10 @@ export default class DriverDropdown extends Component {
 		super(props);
 
 		this.toggle = this.toggle.bind(this);
-		this.state = { 
+		this.state = {
+			value: '- Select a Driver -',
 			dropdownOpen: false,
-			driverNames: [ this.props.driverNames ] 
+			driverNames: this.props.driverNames
 		};
 	}
 
@@ -16,35 +17,26 @@ export default class DriverDropdown extends Component {
 		this.setState({ dropdownOpen: !this.state.dropdownOpen });
 	}
 
-	/*
-	addDriver(name) {
-		var driverNames = this.state.driverNames;
-		if (driverNames.indexOf(name) === -1) {
-			driverNames.push(name);
-			this.setState({ driverNames });
-		}
+	select(event) {
+		this.setState({
+			dropdownOpen: !this.state.dropdownOpen,
+			value: event.target.innerText
+		});
+		this.props.onSelect(event.target.innerText);
 	}
-
-	removeDriver(name) {
-		var driverNames = this.state.driverNames;
-		var index = driverNames.indexOf(name);
-		if (index !== -1) {
-			driverNames.splice(index, 1);
-			this.setState({ driverNames });
-		}
-	}
-	*/
 
 	render() {
 		return (
 		<Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
 			<DropdownToggle caret>
-				Drivers
+				{this.state.value}
 			</DropdownToggle>
 
 			<DropdownMenu>
 				{
-					this.state.driverNames && this.state.driverNames.map((name, index) => <DropdownItem key={index}>{name}</DropdownItem>)
+					this.state.driverNames.map((name, index) =>
+						<DropdownItem onClick={this.select.bind(this)} key={index}>{name}</DropdownItem>
+					)
 				}
 			</DropdownMenu>
 		</Dropdown>
