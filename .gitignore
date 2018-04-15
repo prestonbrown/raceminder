@@ -21,3 +21,5 @@ yarn-debug.log*
 yarn-error.log*
 
 raceminder.sublime-project
+raceminder.sublime-workspace
+
