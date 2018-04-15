@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Collapse,
 
@@ -35,12 +36,12 @@ export default class RMNav extends Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <NavbarBrand href="/"><img src="/favicon.ico" alt="raceminder" width="32" /></NavbarBrand>
+          <NavbarBrand tag={Link} to="/"><img src="/favicon.ico" alt="raceminder" width="32" /></NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/components/">Components</NavLink>
+                <NavLink tag={Link} to="/drivers/">Drivers</NavLink>
               </NavItem>
               <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>

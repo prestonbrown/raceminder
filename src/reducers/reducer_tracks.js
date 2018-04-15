@@ -1,8 +1,6 @@
 import _ from 'lodash';
 
-import { SELECT_DRIVER } from '../actions/index';
-
-const initialState = {
+let initialState = {
     1: { 
       id: 1,
       name: 'VIR Full',
@@ -24,6 +22,8 @@ const initialState = {
       length: 3.4
     }
 };
+
+initialState = localStorage.getItem('tracks') ? JSON.parse(localStorage.getItem('tracks')) : initialState;
 
 export default function(state = initialState, action) {
   switch(action.type) {

@@ -6,6 +6,7 @@
 
 export const SELECT_DRIVER = 'SELECT_DRIVER';
 export const CREATE_RACE = 'CREATE_RACE';
+export const CREATE_CAR = 'CREATE_CAR';
 
 export function selectDriver(id) {
   return {
@@ -24,4 +25,12 @@ export function createRace(values) {
     type: CREATE_RACE,
     payload: values
   };
+}
+
+export function createCar(values) {
+  console.log('firing action CREATE_CAR');
+  return {
+    type: CREATE_CAR,
+    payload: values
+  }
 }

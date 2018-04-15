@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { SELECT_DRIVER } from '../actions/index';
 
-const initialState = {
+let initialState = {
   selectedDriverId: null,
   driverList: {
     1: { 
@@ -39,6 +39,8 @@ const initialState = {
     }
   }
 };
+
+initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : initialState;
 
 export default function(state = initialState, action) {
   switch(action.type) {

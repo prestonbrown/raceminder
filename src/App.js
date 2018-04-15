@@ -14,6 +14,8 @@ import DriversCreate from './components/DriversCreate';
 import DriversView from './components/DriversView';
 import DriversIndex from './components/DriversIndex';
 
+import CarsCreate from './components/CarsCreate';
+
 import RacesCreate from './components/RacesCreate';
 import RacesView from './components/RacesView';
 import RacesIndex from './components/RacesIndex';
@@ -21,25 +23,24 @@ import RacesIndex from './components/RacesIndex';
 import Dashboard from './components/Dashboard';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div>
 
-        <RMNav />
         <BrowserRouter>
           <div>
+            <RMNav />
             <Switch>
               <Route path="/drivers/create" component={DriversCreate} />
               <Route path="/drivers/:id" component={DriversView} />
               <Route path="/drivers/" component={DriversIndex} />
 
+              <Route path="/cars/create" component={CarsCreate} />
+              <Route path="/cars/:id" component={CarsCreate} />
+
               {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
               <Route path="/races/create" render={() => <RacesCreate />} />
-              <Route path="/races/:id" component={RacesView} />
+              <Route path="/races/:id" component={RacesCreate} />
               <Route path="/races/" component={RacesIndex} />
               <Route path="/" component={Dashboard} />
            </Switch>
