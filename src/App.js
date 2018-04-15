@@ -1,42 +1,28 @@
 /**
- * RaceMinder Copyright (c) 2018 Preston Brown & Loose Canon Racing, Inc.
+ * RaceMinder Race Information System
+ * Copyright (c) 2018 Preston Brown & Loose Canon Racing LLC.
+ * License: MIT
  */
 
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
 import React, { Component } from 'react';
-import {
-  Container,
-  Row,
-  Col,
-  Jumbotron,
-  Button,
-
-  Input
-
-} from 'reactstrap';
 
 import RMNav from './components/RMNav';
-import ModalExample from './components/ModalExample';
-import DriverDropdown from './components/DriverDropdown';
+
+import DriversCreate from './components/DriversCreate';
+import DriversView from './components/DriversView';
+import DriversIndex from './components/DriversIndex';
+
+import RacesCreate from './components/RacesCreate';
+import RacesView from './components/RacesView';
+import RacesIndex from './components/RacesIndex';
+
+import Dashboard from './components/Dashboard';
 
 class App extends Component {
   constructor(props) {
     super(props);
-
-    this.state = { 
-        newRace: false, 
-        races: [],
-        drivers: [ {name: 'Preston'}, {name: 'Cody'}, {name: 'Max'} ],
-        cars: []
-    };
-  }
-
-  onButtonClick(event) {
-    console.log("button was clicked!");
-    this.setState({ newRace: true });
-  }
-
-  selectDriver(driver) {
-    console.log('driver selected:', driver);
   }
 
   render() {
@@ -44,40 +30,21 @@ class App extends Component {
       <div>
 
         <RMNav />
+        <BrowserRouter>
+          <div>
+            <Switch>
+              <Route path="/drivers/create" component={DriversCreate} />
+              <Route path="/drivers/:id" component={DriversView} />
+              <Route path="/drivers/" component={DriversIndex} />
 
-        <Jumbotron>
-          <Container>
-            <Row>
-              <Col>
-                <h1>Welcome to RaceMinder!</h1>
-                <p>
-                  {/*<ModalExample />*/}
-                  {/*<Button
-                    tag="a"
-                    color="primary"
-                    size="large"
-                    href="/new">
-                    Start New Race
-                  </Button>*/}
-
-                  <Input value={this.state.inputVal} onChange={event => this.setState({ inputVal: event.target.value })} />
-                  <Button color="primary" onClick={this.onButtonClick} color="primary" size="large">Start New Race</Button>
-
-                  <Button
-                    tag="a"
-                    color="success"
-                    size="large"
-                    href="/existing">
-                    Manage Existing Race
-                  </Button>
-
-                </p>
-
-                <DriverDropdown onSelect={this.selectDriver} driverNames={this.state.drivers.map(driver => { return driver.name; })}/>
-              </Col>
-            </Row>
-          </Container>
-        </Jumbotron>
+              {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
+              <Route path="/races/create" render={() => <RacesCreate />} />
+              <Route path="/races/:id" component={RacesView} />
+              <Route path="/races/" component={RacesIndex} />
+              <Route path="/" component={Dashboard} />
+           </Switch>
+         </div>
+        </BrowserRouter>
       </div>
     );
   }

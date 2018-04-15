@@ -35,7 +35,7 @@ export default class RMNav extends Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <NavbarBrand href="/"><img src="favicon.ico" alt="raceminder" width="32" /></NavbarBrand>
+          <NavbarBrand href="/"><img src="/favicon.ico" alt="raceminder" width="32" /></NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>

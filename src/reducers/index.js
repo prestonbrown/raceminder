@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
-//import BooksReducer from './reducer_books';
+import driversReducer from './reducer_drivers';
+import { reducer as formReducer } from 'redux-form';
 
 const rootReducer = combineReducers({
-	//books: BooksReducer
+	drivers: driversReducer,
+  form: formReducer
 });
 
 export default rootReducer;
