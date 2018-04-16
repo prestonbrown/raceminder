@@ -1,15 +1,32 @@
+/**
+ * RaceMinder Race Information System
+ * Copyright (c) 2018 Preston Brown & Loose Canon Racing LLC.
+ * License: MIT
+ */
+
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 
+import Moment from 'moment';
+import momentLocalizer from 'react-widgets-moment';
+
 import { Field, reduxForm } from 'redux-form';
 import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
-import { Multiselect } from 'react-widgets';
+import { Multiselect, DateTimePicker } from 'react-widgets';
 
 import { createRace } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
+
+const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
+  <DateTimePicker
+    onChange={onChange}
+    format="DD MMM YYYY hh::mm:ss"
+    time={showTime}
+    value={!value ? null : new Date(value)}
+  />
 
 class RacesCreate extends Component {
   constructor(props) {
@@ -19,10 +36,16 @@ class RacesCreate extends Component {
       redirect: false,
       edit: false
     };
+
+    Moment.locale('en');
+    momentLocalizer();
   }
 
   componentWillMount() {
-    const { id } = this.props.match.params;
+    let id = null;
+    if (this.props.match && this.props.match.params.id) {
+      id = this.props.match.params.id;
+    }
     const { races } = this.props;
     const race = races && id ? races[id] : null;
 
@@ -155,8 +178,8 @@ class RacesCreate extends Component {
           <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
           <Field label="Drivers" name="drivers" component={this.renderDriversMultiSelect.bind(this)} />
-          <Field label="Start Time" name="start" type="datetime" component={this.renderField} />
-          <Field label="End Time" name="end" type="datetime" component={this.renderField} />
+          <Field label="Start Time" name="start" component={renderDateTimePicker} />
+          <Field label="End Time" name="end" component={renderDateTimePicker} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
