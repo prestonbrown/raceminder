@@ -13,20 +13,25 @@ import Moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
 
 import { Field, reduxForm } from 'redux-form';
-import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
+import { Col, Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
 import { Multiselect, DateTimePicker } from 'react-widgets';
 
 import { createRace } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
-const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
-  <DateTimePicker
-    onChange={onChange}
-    format="DD MMM YYYY hh::mm:ss"
-    time={showTime}
-    value={!value ? null : new Date(value)}
-  />
+const renderDateTimePicker = ({ input: { onChange, value }, showTime, field }) =>
+  <FormGroup row>
+    <Label sm={2}></Label>
+    <Col sm={10}>
+      <DateTimePicker
+        onChange={onChange}
+        format="DD MMM YYYY hh::mm:ss"
+        time={showTime}
+        value={!value ? null : new Date(value)}
+      />
+    </Col>
+  </FormGroup>
 
 class RacesCreate extends Component {
   constructor(props) {
@@ -49,30 +54,38 @@ class RacesCreate extends Component {
     const { races } = this.props;
     const race = races && id ? races[id] : null;
 
-    if (race) {  
+    if (race) {
+      console.log('edit race initial values: ', race);
       this.setState({ edit: true });
+      this.setState({ id: id });
       this.props.initialize(race);
     }
   }
 
   onSubmit(values) {
     // this === our component
-    console.log(values);
-    this.props.createRace(values);
+    //console.log(values);
+    const raceValues = values;
+    if (this.state.id) {
+      raceValues.id = this.state.id;
+    }
+    this.props.createRace(raceValues);
     this.setState({ redirect: true });
   }
 
   renderField(field) {
     const {meta: {touched, error}} = field;
     return (
-      <FormGroup>
-        <Label>{field.label}</Label>
-        <Input 
-          valid={touched && error ? false : (touched ? true : null) } 
-          invalid={touched && error ? true : false } 
-          {...field.input} 
-          type={field.type} 
-          />
+      <FormGroup row>
+        <Label sm={2}>{field.label}</Label>
+        <Col sm={10}>
+          <Input 
+            valid={touched && error ? false : (touched ? true : null) } 
+            invalid={touched && error ? true : false } 
+            {...field.input} 
+            type={field.type} 
+            />
+        </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
       );    
@@ -111,8 +124,7 @@ class RacesCreate extends Component {
           <option key='' value=''>- Select a Car -</option>
           {_.map(this.props.cars, car => <option key={car.id} value={car.id}>{car.name}: {car.model}</option>)}
         </Input>
-        or
-        <Button color="secondary" tag={Link} to="/cars/create">Create New Car</Button>
+        <p>or <Button color="secondary" tag={Link} to="/cars/create" className="float-right">Create New Car</Button></p>
         <FormFeedback>{error}</FormFeedback>
         </FormGroup>
       );
@@ -130,17 +142,19 @@ class RacesCreate extends Component {
     }
 
     return (
-      <FormGroup>
-        <Label>{field.label}</Label>
-        <Multiselect 
-          defaultValue={field.input.value || []}
-          onBlur={() => field.input.onBlur()}
-          onChange={field.input.onChange}
-          data={data}
-          valueField="id"
-          textField="name"
-          inputProps={inputProps}
-          />
+      <FormGroup row>
+        <Label sm={2}>{field.label}</Label>
+        <Col sm={10}>
+          <Multiselect 
+            defaultValue={field.input.value || []}
+            onBlur={() => field.input.onBlur()}
+            onChange={field.input.onChange}
+            data={data}
+            valueField="id"
+            textField="name"
+            inputProps={inputProps}
+            />
+        </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
       );
@@ -178,8 +192,8 @@ class RacesCreate extends Component {
           <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
           <Field label="Drivers" name="drivers" component={this.renderDriversMultiSelect.bind(this)} />
-          <Field label="Start Time" name="start" component={renderDateTimePicker} />
-          <Field label="End Time" name="end" component={renderDateTimePicker} />
+          <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
+          <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
