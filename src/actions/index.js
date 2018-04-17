@@ -7,6 +7,8 @@
 export const SELECT_DRIVER = 'SELECT_DRIVER';
 
 export const CREATE_RACE = 'CREATE_RACE';
+export const CREATE_RACE_STOP = 'CREATE_RACE_STOP';
+export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
 export const DELETE_RACE = 'DELETE_RACE';
 
 export const CREATE_CAR = 'CREATE_CAR';
@@ -28,6 +30,20 @@ export function createRace(values) {
     type: CREATE_RACE,
     payload: values
   };
+}
+
+export function createRaceStop(raceId, data) {
+  return {
+    type: CREATE_RACE_STOP,
+    payload: { raceId, data }
+  }
+}
+
+export function deleteRaceStop(raceId, stopId) {
+  return {
+    type: DELETE_RACE_STOP,
+    payload: { raceId, stopId }
+  }
 }
 
 export function deleteRace(id) {
