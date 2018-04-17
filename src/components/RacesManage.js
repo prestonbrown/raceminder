@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import React, { Component } from 'react';
 import { Col, FormGroup, Label, Button, Table } from 'reactstrap';
 import { connect } from 'react-redux';
@@ -14,35 +16,33 @@ import Clock from 'react-live-clock';
 
 import { createRaceStop, deleteRaceStop } from '../actions';
 
-class PitStopRow extends Component {
-  render() {
-    return; 
-  }
-}
-
 class RacesManage extends Component {
   constructor(props) {
     super(props);
 
-    this.race = props.race;
-    console.log(this.race);
+    console.log(props.race);
 
   }
 
-  handleAddRow() {
+  handleAddStop() {
     const data = {
       start: moment().format(),
-      lap: 1,
-      length: 234,
-      fuel: 12.5,
-      driver: 2,
-      notes: "Some notes"
-    }
+      lap: null,
+      length: null,
+      fuel: null,
+      driver: null,
+      notes: ''
+    };
 
-    this.props.createRaceStop(this.race.id, data);
+    this.props.createRaceStop(this.props.race.id, data);
+  }
+
+  handleDeleteStop(id) {
+    this.props.deleteRaceStop(this.props.race.id, id);
   }
 
   renderPitStopTable() {
+    const { race } = this.props;
     return (
       <Table striped responsive>
         <thead>
@@ -55,10 +55,11 @@ class RacesManage extends Component {
             <th>Fuel Added</th>
             <th>Est. Next Stop (Lap)</th>
             <th>Notes</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {this.renderPitStopRow(null)}
+          {_.map(race.stops, stop => this.renderPitStopRow(stop))}
         </tbody>
       </Table>
       );
@@ -66,21 +67,25 @@ class RacesManage extends Component {
 
   renderPitStopRow(stop) {
     return (
-        <tr>
-          <td>TIME START</td>
-          <td>LAP#</td>
-          <td>LENGTH</td>
-          <td>NEWDRIVER</td>
-          <td>FUELREMAIN</td>
-          <td>FUELIN</td>
-          <td>ESTNEXTSTOPLAP</td>
-          <td>NOTES</td>
-        </tr>
-      );
+      <tr key={stop.id}>
+        <td>{moment(stop.start).format('LTS') || '(unset)'}</td>
+        <td>{stop.lap || '(unset)'}</td>
+        <td>{stop.length || '(unset)'}</td>
+        <td>{stop.driver || '(unset)'}</td>
+        <td>FUEL REMAINING</td>
+        <td>{stop.fuel || '(unset)'}</td>
+        <td>EST NEXT STOP LAP</td>
+        <td>{stop.notes || ''}</td>
+        <td>
+          <FontAwesomeIcon icon={faEdit} className="mr-1" />
+          <FontAwesomeIcon icon={faTrashAlt} onClick={this.handleDeleteStop.bind(this, stop.id)} />
+        </td>
+      </tr>
+    );
   }
 
   render() {
-    const race = this.race;
+    const { race } = this.props;
     let color="black";
     if (moment().isAfter(race.start)) {
       color="red";
@@ -115,7 +120,7 @@ class RacesManage extends Component {
         <FormGroup className="row">
           <div className="col">
             <div className="float-right">
-              <Button onClick={this.handleAddRow.bind(this)}><FontAwesomeIcon icon={faPlusSquare} className="mr-1" />Add</Button>
+              <Button onClick={this.handleAddStop.bind(this)}><FontAwesomeIcon icon={faPlusSquare} className="mr-1" />Add</Button>
             </div>
             <h4>Stops</h4>
             {this.renderPitStopTable()}
@@ -137,4 +142,4 @@ function mapStateToProps({ races }, ownProps) {
   return { race: races[id] };
 }
 
-export default connect(mapStateToProps, { createRaceStop, deleteRaceStop })(RacesManage)
+export default connect(mapStateToProps, { createRaceStop, deleteRaceStop })(RacesManage);

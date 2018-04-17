@@ -1,4 +1,4 @@
-import _ from 'lodash';
+//import _ from 'lodash';
 
 let initialState = {
     1: { 
@@ -29,6 +29,5 @@ export default function(state = initialState, action) {
   switch(action.type) {
     default:
     return state;
-    break;
   }
 }

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+//import _ from 'lodash';
 
 import { SELECT_DRIVER } from '../actions/index';
 
@@ -44,12 +44,12 @@ initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem
 
 export default function(state = initialState, action) {
   switch(action.type) {
-    case SELECT_DRIVER:
-    return Object.assign({}, state, { selectedDriverId: action.payload });
-    break;
+    case SELECT_DRIVER: {
+      return Object.assign({}, state, { selectedDriverId: action.payload });
+    }
 
-    default:
-    return state;
-    break;
+    default: {
+      return state;
+    }
   }
 }

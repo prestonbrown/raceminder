@@ -34,7 +34,7 @@ class RacesIndex extends Component {
       } else {
         noteIcon = '';
       }
-      return <span>{noteIcon}</span>
+      return <span>{noteIcon}</span>;
   }
 
   renderRaces() {
@@ -64,4 +64,4 @@ class RacesIndex extends Component {
   }
 }
 
-export default connect((races) => races, { deleteRace })(RacesIndex)
+export default connect((races) => races, { deleteRace })(RacesIndex);

@@ -33,9 +33,9 @@ export default function (state = initialState, action) {
     case CREATE_RACE_STOP: {
       let raceId = action.payload.raceId;
       let data = action.payload.data;
-      let race = state.races[raceId];
+      let race = state[raceId];
       if (!race.stops) {
-        race.stops = {}
+        race.stops = {};
       }
       let stopId = _.size(race.stops) + 1;
       data.id = stopId;
@@ -43,11 +43,18 @@ export default function (state = initialState, action) {
 
       newState = { ...state, [raceId]: race };
       localStorage.setItem('races', JSON.stringify(newState));
+      console.log('state.races after adding stop:', newState);
       return newState;
     }
 
     case DELETE_RACE_STOP: {
-      return state;
+      let { raceId, stopId } = action.payload;
+      let race = state[raceId];
+      race.stops = _.omit(race.stops, raceId);
+      newState = { ...state, [raceId]: race };
+      //localStorage.setItem('races', JSON.stringify(newState));
+      console.log('state.races after deleting stop:', newState);
+      return newState;
     }
 
     default: {
