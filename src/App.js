@@ -4,6 +4,9 @@
  * License: MIT
  */
 
+import 'dseg/css/dseg.css';
+import './App.css';
+
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import React, { Component } from 'react';
@@ -17,7 +20,7 @@ import DriversIndex from './components/DriversIndex';
 import CarsCreate from './components/CarsCreate';
 
 import RacesCreate from './components/RacesCreate';
-import RacesView from './components/RacesView';
+import RacesManage from './components/RacesManage';
 import RacesIndex from './components/RacesIndex';
 
 import Dashboard from './components/Dashboard';
@@ -26,7 +29,6 @@ class App extends Component {
   render() {
     return (
       <div>
-
         <BrowserRouter>
           <div>
             <RMNav />
@@ -40,6 +42,7 @@ class App extends Component {
 
               {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
               <Route path="/races/create" render={() => <RacesCreate />} />
+              <Route path="/races/manage/:id" component={RacesManage} />
               <Route path="/races/:id" component={RacesCreate} />
               <Route path="/races/" component={RacesIndex} />
               <Route path="/" component={Dashboard} />

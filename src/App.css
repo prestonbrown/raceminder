@@ -1,0 +1,23 @@
+.digital-clock-container {
+  position:  relative;
+  font-family: DSEG14-Classic;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 2rem;
+}
+
+.digital-clock-container .digital-clock-ghosts, .digital-clock-container .digital-clock {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.digital-clock-container .digital-clock {
+  color: red;
+}
+
+.digital-clock-container .digital-clock-ghosts {
+  color: rgba(0, 0, 0, .15);
+  width:  100%;
+}

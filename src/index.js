@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import { compose, createStore, applyMiddleware } from 'redux';
 
 //import fontawesome from '@fortawesome/fontawesome';
 //import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -14,6 +14,9 @@ import App from './App';
 import reducers from './reducers';
 import registerServiceWorker from './registerServiceWorker';
 
+//import DevTools from './components/DevTools';
+
+//const createStoreWithMiddleware = compose(applyMiddleware(reduxPromise), DevTools.instrument())(createStore);
 const createStoreWithMiddleware = applyMiddleware(reduxPromise)(createStore);
 
 ReactDOM.render(

@@ -7,7 +7,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, withRouter } from 'react-router-dom';
 
 import Moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
@@ -20,7 +20,7 @@ import { createRace } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
-const renderDateTimePicker = ({ input: { onChange, value }, showTime, field }) =>
+const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
   <FormGroup row>
     <Label sm={2}></Label>
     <Col sm={10}>
@@ -31,7 +31,7 @@ const renderDateTimePicker = ({ input: { onChange, value }, showTime, field }) =
         value={!value ? null : new Date(value)}
       />
     </Col>
-  </FormGroup>
+  </FormGroup>;
 
 class RacesCreate extends Component {
   constructor(props) {
@@ -64,11 +64,12 @@ class RacesCreate extends Component {
 
   onSubmit(values) {
     // this === our component
-    //console.log(values);
     const raceValues = values;
     if (this.state.id) {
       raceValues.id = this.state.id;
     }
+
+    //console.log('submitted raceValues: ', raceValues);
     this.props.createRace(raceValues);
     this.setState({ redirect: true });
   }
@@ -84,11 +85,11 @@ class RacesCreate extends Component {
             invalid={touched && error ? true : false } 
             {...field.input} 
             type={field.type} 
-            />
+          />
         </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
-      );    
+    );    
   }
 
   renderTrackField(field) {
@@ -106,8 +107,8 @@ class RacesCreate extends Component {
           {_.map(this.props.tracks, track => <option key={track.id} value={track.id}>{track.name}</option>)}
         </Input>
         <FormFeedback>{error}</FormFeedback>
-        </FormGroup>
-      );
+      </FormGroup>
+    );
   }
 
   renderCarField(field) {
@@ -126,12 +127,12 @@ class RacesCreate extends Component {
         </Input>
         <p>or <Button color="secondary" tag={Link} to="/cars/create" className="float-right">Create New Car</Button></p>
         <FormFeedback>{error}</FormFeedback>
-        </FormGroup>
-      );
+      </FormGroup>
+    );
   }
 
   renderDriversMultiSelect(field) {
-    const {meta: {touched, error}} = field;
+    const { meta: { touched, error }, input } = field;
 
     const data = _.map(this.props.drivers, driver => driver);
     const inputProps = {};
@@ -145,19 +146,20 @@ class RacesCreate extends Component {
       <FormGroup row>
         <Label sm={2}>{field.label}</Label>
         <Col sm={10}>
-          <Multiselect 
-            defaultValue={field.input.value || []}
-            onBlur={() => field.input.onBlur()}
-            onChange={field.input.onChange}
+          <Multiselect
+            { ...input }
+            onBlur={() => input.onBlur()}
+            value={input.value || []} // requires value to be an array
             data={data}
+            //defaultValue={input.value || []}
             valueField="id"
             textField="name"
             inputProps={inputProps}
-            />
+          />
         </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
-      );
+    );
   }
 
   renderDriversSelect(field) {
@@ -172,7 +174,7 @@ class RacesCreate extends Component {
           {_.map(this.props.drivers, (driver) => <option key={driver.id}>{driver.name}</option>)}
         </select>
       </FormGroup>
-      );
+    );
   }
 
   render() {
@@ -191,17 +193,17 @@ class RacesCreate extends Component {
           <Field label="Race Name" name="name" type="text" component={this.renderField} />
           <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
-          <Field label="Drivers" name="drivers" component={this.renderDriversMultiSelect.bind(this)} />
+          <Field label="Drivers" name="drivers" parse={(values, name) => { if (!values) return; let result = values.map(value => value.id); console.log('parse resulting values', result); return result }} component={this.renderDriversMultiSelect.bind(this)} />
           <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
           <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
-            <Button color="secondary" tag={Link} to="/">Cancel</Button>
+            <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>
           </div>
         </Form>
       </div>
-      );
+    );
   }
 }
 
@@ -234,4 +236,4 @@ export default reduxForm({
   // optional: fields argument with names of Fields
   //fields: _.keys(FIELDS),
   validate
-})(RacesCreate);
+})(withRouter(RacesCreate));
