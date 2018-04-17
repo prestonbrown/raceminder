@@ -31,18 +31,29 @@ export default function (state = initialState, action) {
     }
 
     case CREATE_RACE_STOP: {
-      let raceId = action.payload.raceId;
-      let data = action.payload.data;
-      let race = state[raceId];
-      if (!race.stops) {
-        race.stops = {};
-      }
-      let stopId = _.size(race.stops) + 1;
-      data.id = stopId;
-      race.stops[stopId] = data;
+      let { raceId, stop } = action.payload;
 
-      newState = { ...state, [raceId]: race };
-      localStorage.setItem('races', JSON.stringify(newState));
+      // lookup the correct race
+      let race = state[raceId];
+      let stopId = null;
+      if (!stop.id) {
+        // create a stop id
+        stopId = _.size(race.stops) + 1;
+        stop.id = stopId;
+      } else {
+        stopId = stop.id;
+      }
+
+      // add the stop to the race
+      newState = {
+        ...state,
+        // update our race object with the new stops array
+        [raceId]: {
+          ...race,
+          stops: Object.assign({}, race.stops, { stopId: stop })
+        }
+      }
+
       console.log('state.races after adding stop:', newState);
       return newState;
     }
@@ -50,8 +61,16 @@ export default function (state = initialState, action) {
     case DELETE_RACE_STOP: {
       let { raceId, stopId } = action.payload;
       let race = state[raceId];
-      race.stops = _.omit(race.stops, raceId);
-      newState = { ...state, [raceId]: race };
+
+      let stops = _.omit(state[raceId].stops, stopId);
+      newState = { 
+        ...state, 
+        [raceId]: {
+          ...race,
+          stops: stops
+        }
+      }
+
       //localStorage.setItem('races', JSON.stringify(newState));
       console.log('state.races after deleting stop:', newState);
       return newState;
