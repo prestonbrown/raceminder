@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect, withRouter } from 'react-router-dom';
 
-import Moment from 'moment';
+import moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
 
 import { Field, reduxForm } from 'redux-form';
@@ -42,7 +42,7 @@ class RacesCreate extends Component {
       edit: false
     };
 
-    Moment.locale('en');
+    moment.locale('en');
     momentLocalizer();
   }
 

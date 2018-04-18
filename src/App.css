@@ -21,3 +21,13 @@
   color: rgba(0, 0, 0, .15);
   width:  100%;
 }
+
+.stop-watch {
+  font-size: 4em;
+  background: black;
+  min-height: 1.5em;
+}
+
+.stop-watch .digital-clock-container .digital-clock-ghosts {
+  color: rgba(255, 0, 0, .25);  
+}

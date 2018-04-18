@@ -1,9 +1,15 @@
 import _ from 'lodash';
 
 import React, { Component } from 'react';
-import { Col, FormGroup, Label, Button, Table, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { 
+  Col, Form, FormGroup, 
+  Label, Input, Button, Table, 
+  Modal, ModalHeader, ModalBody, ModalFooter 
+} from 'reactstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+
+import { Field, reduxForm } from 'redux-form';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faEdit from '@fortawesome/fontawesome-free-regular/faEdit'
@@ -12,7 +18,11 @@ import faClock from '@fortawesome/fontawesome-free-regular/faClock';
 import faPlusSquare from '@fortawesome/fontawesome-free-regular/faPlusSquare';
 
 import moment from 'moment';
+import momentLocalizer from 'react-widgets-moment';
+
 import Clock from 'react-live-clock';
+
+import PitStopForm from './PitStopForm';
 
 import { createRaceStop, deleteRaceStop } from '../actions';
 
@@ -20,32 +30,41 @@ class StopWatch extends Component {
   constructor(props) {
     super(props);
 
+    this.start = new moment();
+    this.intervalId = null;
     this.state = {
-      currentCount: 0,
-      start: new moment(),
+      currentMs: 0
     };
   }
 
   componentWillMount() {
-    var intervalId = setInterval(this.timer, 100);
-    this.setState({ intervalId });
+    this.intervalId = setInterval(this.timer, 51);
+  }
+
+  componentDidMount() {
+    this.props.setClickAction(this.clickAction.bind(this));
+  }
+
+  clickAction() {    
+    clearInterval(this.intervalId);
+    const stop = new moment();
+    this.props.handleStop && this.props.handleStop(this.start, stop);
   }
 
   componentWillUnmount() {
-    clearInterval(this.state.intervalId);
-    const stop = new moment();
-    console.log('in stopwatch, start:', this.state.start, 'stop:', stop);
-    this.props.handleTimerStop && this.props.handleTimerStop(this.state.start, stop);
+    clearInterval(this.intervalId);
+    //const stop = new moment();
+    //this.props.handleStop && this.props.handleStop(this.start, stop);
   }
 
   timer = () => {
-    this.setState({ currentCount: this.state.currentCount + 10 });
+    this.setState({ currentMs: this.state.currentMs + 51 });
   }
 
   formatMilliSeconds(ms) {
-    let remainderMs = (ms % 60).toString().padStart(2, "0");
-    let seconds = Math.floor(ms / 60 % 60).toString().padStart(2, "0");
-    let minutes = Math.floor(ms / 60 / 60 % 60).toString().padStart(2, "0");
+    let remainderMs = Math.floor(ms / 10 % 100).toString().padStart(2, "0");
+    let seconds = Math.floor(ms / 1000 % 60).toString().padStart(2, "0");
+    let minutes = Math.floor(ms / 1000 / 60 % 60).toString().padStart(2, "0");
 
     return `${minutes}:${seconds}:${remainderMs}`;
   }
@@ -55,7 +74,7 @@ class StopWatch extends Component {
       <div className="digital-clock-container">
         <div className="digital-clock-ghosts">88:88:88</div>
         <div className="digital-clock">
-          {this.formatMilliSeconds(this.state.currentCount)}
+          {this.formatMilliSeconds(this.state.currentMs)}
         </div>
       </div>
     );
@@ -67,8 +86,17 @@ class PitStopModal extends Component {
     super(props);
 
     this.state = {
-      isOpen: props.isOpen
+      isOpen: props.isOpen,
+      start: null,
+      stop: null,
+      stopped: false,
+      stopId: null
     };
+
+    moment.locale('en');
+    momentLocalizer();
+
+    this.handleTimerStop = this.handleTimerStop.bind(this);
   }
 
   toggle = () => {
@@ -78,8 +106,46 @@ class PitStopModal extends Component {
   }
 
   handleTimerStop(start, stop) {
-    console.log('start:',start);
-    console.log('stop:', stop);
+    const { race } = this.props;
+    this.setState({ start: start, stop: stop, stopped: true, stopId: _.size(race.stops) + 1});
+    this.props.createRaceStop(race.id, {
+      start: start.format('Y-MM-DDTH:mm:ss'),
+      stop: stop.format('Y-MM-DDTH:mm:ss')
+    });
+  }
+
+  renderForm() {
+    return (
+      <section>
+        <ModalHeader toggle={this.toggle}>Pit Stop Details</ModalHeader>
+        <ModalBody>
+          <PitStopForm raceId={this.props.race.id} stopId={this.state.stopId} />
+        </ModalBody>
+        {/*
+        <ModalFooter>
+          <Button type="submit" color="primary" className="mr-1">Save</Button>
+          <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+        </ModalFooter>        
+        */}
+      </section>
+    );
+  }
+
+  renderStopWatch() {
+    return (
+      <section>
+        <ModalHeader toggle={this.toggle}>Start Pit Stop</ModalHeader>
+        <ModalBody>
+          <div className="stop-watch text-center">
+              <StopWatch setClickAction={click => this.sendClickToChild = click} handleStop={this.handleTimerStop} />
+          </div>
+          {this.props.children}
+        </ModalBody>
+        <ModalFooter>
+          <Button className="btn-block" color="danger" onClick={() => this.sendClickToChild()}>Stop Stopwatch</Button>
+        </ModalFooter>
+      </section>
+    );
   }
 
   render() {
@@ -88,22 +154,14 @@ class PitStopModal extends Component {
         <Button className="btn-block" color="danger" onClick={this.toggle}>Start Pit Stop</Button>
 
         <Modal isOpen={this.state.isOpen} toggle={this.toggle} className={this.props.className}>
-          <ModalHeader toggle={this.toggle}>Start Pit Stop</ModalHeader>
-          <ModalBody>
-            <div className="h1 text-center">
-                <StopWatch handleStop={this.handleTimerStop} />
-            </div>
-            {this.props.children}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.toggle} className="mr-1">Save</Button>
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-          </ModalFooter>
+          {!this.state.stopped ? this.renderStopWatch() : this.renderForm()}
         </Modal>
       </div>
       );    
   }
 }
+
+PitStopModal = connect(null, { createRaceStop })(PitStopModal);
 
 class RacesManage extends Component {
   constructor(props) {
@@ -231,7 +289,7 @@ class RacesManage extends Component {
 
         {/* ability to open modal */}
         <FormGroup>
-          <PitStopModal>
+          <PitStopModal race={race}>
           </PitStopModal>
         </FormGroup>
         

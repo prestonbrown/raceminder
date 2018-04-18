@@ -50,7 +50,7 @@ export default function (state = initialState, action) {
         // update our race object with the new stops array
         [raceId]: {
           ...race,
-          stops: Object.assign({}, race.stops, { stopId: values })
+          stops: Object.assign({}, race.stops, { [stopId]: values })
         }
       };
 
