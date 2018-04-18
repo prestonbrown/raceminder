@@ -3,7 +3,7 @@
   font-family: DSEG14-Classic;
   font-weight: bold;
   font-style: italic;
-  font-size: 2rem;
+  min-height: 1em;
 }
 
 .digital-clock-container .digital-clock-ghosts, .digital-clock-container .digital-clock {

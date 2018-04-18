@@ -32,10 +32,10 @@ export function createRace(values) {
   };
 }
 
-export function createRaceStop(raceId, data) {
+export function createRaceStop(raceId, values) {
   return {
     type: CREATE_RACE_STOP,
-    payload: { raceId, data }
+    payload: { raceId, values }
   }
 }
 

@@ -55,7 +55,7 @@ export default function (state = initialState, action) {
       };
 
       localStorage.setItem('races', JSON.stringify(newState));
-      console.log('state.races after adding stop:', newState);
+      //console.log('state.races after adding stop:', newState);
       return newState;
     }
 
@@ -73,7 +73,7 @@ export default function (state = initialState, action) {
       };
 
       localStorage.setItem('races', JSON.stringify(newState));
-      console.log('state.races after deleting stop:', newState);
+      //console.log('state.races after deleting stop:', newState);
       return newState;
     }
 
