@@ -1,7 +1,7 @@
 //import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect, dispatch } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, withRouter } from 'react-router-dom';
 
 import { Field, reduxForm } from 'redux-form';
 import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
@@ -16,7 +16,8 @@ class CarsCreate extends Component {
     super(props);
 
     this.state = {
-      redirect: false
+      redirect: false,
+      edit: false
     };
   }
 
@@ -69,7 +70,8 @@ class CarsCreate extends Component {
     // if the form has been submitted, redirect
     // will be set.
     if (this.state.redirect) {
-      return <Redirect to="/" />;
+      this.props.history.goBack();
+      return null;
     }
 
     return (
@@ -122,4 +124,5 @@ export default reduxForm({
   // optional: fields argument with names of Fields
   //fields: _.keys(FIELDS),
   validate
-})(CarsCreate);
+})(withRouter(CarsCreate));
+

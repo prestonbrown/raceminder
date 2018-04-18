@@ -183,7 +183,8 @@ class RacesCreate extends Component {
     // if the form has been submitted, redirect
     // will be set.
     if (this.state.redirect) {
-      return <Redirect to="/races/" />;
+      this.props.history.goBack();
+      return null;
     }
 
     return (
