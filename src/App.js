@@ -14,10 +14,10 @@ import React, { Component } from 'react';
 import RMNav from './components/RMNav';
 
 import DriversCreate from './components/DriversCreate';
-import DriversView from './components/DriversView';
 import DriversIndex from './components/DriversIndex';
 
 import CarsCreate from './components/CarsCreate';
+import CarsIndex from './components/CarsIndex';
 
 import RacesCreate from './components/RacesCreate';
 import RacesManage from './components/RacesManage';
@@ -34,11 +34,12 @@ class App extends Component {
             <RMNav />
             <Switch>
               <Route path="/drivers/create" component={DriversCreate} />
-              <Route path="/drivers/:id" component={DriversView} />
+              <Route path="/drivers/:id" render={() => <DriversCreate />} />
               <Route path="/drivers/" component={DriversIndex} />
 
               <Route path="/cars/create" component={CarsCreate} />
               <Route path="/cars/:id" component={CarsCreate} />
+              <Route path="/cars/" component={CarsIndex} />              
 
               {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
               <Route path="/races/create" render={() => <RacesCreate />} />

@@ -1,51 +1,35 @@
-//import _ from 'lodash';
+import _ from 'lodash';
 
-import { SELECT_DRIVER } from '../actions/index';
+import { CREATE_DRIVER, DELETE_DRIVER } from '../actions/index';
 
-let initialState = {
-  selectedDriverId: null,
-  driverList: {
-    1: { 
-      id: 1,
-      name: 'Preston Brown'
-    },
-    2: {
-      id: 2,
-      name: 'Cody Forbes'
-    },
-    3: {
-      id: 3,
-      name: 'Max Wobbles'
-    },
-    4: {
-      id: 4,
-      name: 'Peter Monin'
-    },
-    5: {
-      id: 5,
-      name: 'Sean Crane'
-    },
-    6: {
-      id: 6,
-      name: 'Jean-Sebastien Sauriol'
-    },
-    7: {
-      id: 7,
-      name: 'Tyler Rohrer'
-    },
-    8: {
-      id: 8,
-      name: 'Michael Reilly'
-    }
-  }
-};
-
-initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : initialState;
+let initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : {};
 
 export default function(state = initialState, action) {
+  let newState = null;
+
   switch(action.type) {
-    case SELECT_DRIVER: {
-      return Object.assign({}, state, { selectedDriverId: action.payload });
+
+    case CREATE_DRIVER: {
+      let driver = action.payload;
+      let driverId = null;
+
+      if (!driver.id) {
+        // need to create a random id
+        driverId = _.size(state) + 1;
+        driver.id = driverId;
+      } else {
+        driverId = driver.id;
+      }
+
+      newState = { ...state, [driverId]: driver };
+      localStorage.setItem('drivers', JSON.stringify(newState));
+      return newState;
+    }
+
+    case DELETE_DRIVER: {
+      newState = _.omit(state, action.payload);
+      localStorage.setItem('drivers', JSON.stringify(newState));
+      return newState;      
     }
 
     default: {

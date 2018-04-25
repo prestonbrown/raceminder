@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { compose, createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 
 //import fontawesome from '@fortawesome/fontawesome';
 //import FontAwesomeIcon from '@fortawesome/react-fontawesome';

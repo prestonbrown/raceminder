@@ -4,20 +4,43 @@
  * License: MIT
  */
 
-export const SELECT_DRIVER = 'SELECT_DRIVER';
+export const CREATE_DRIVER = 'CREATE_DRIVER';
+export const DELETE_DRIVER = 'DELETE_DRIVER';
+
+export const CREATE_CAR = 'CREATE_CAR';
+export const DELETE_CAR = 'DELETE_CAR';
 
 export const CREATE_RACE = 'CREATE_RACE';
 export const CREATE_RACE_STOP = 'CREATE_RACE_STOP';
 export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
 export const DELETE_RACE = 'DELETE_RACE';
 
-export const CREATE_CAR = 'CREATE_CAR';
-
-export function selectDriver(id) {
+export function createDriver(values) {
   return {
-    type: SELECT_DRIVER,
+    type: CREATE_DRIVER,
+    payload: values
+  };
+}
+
+export function deleteDriver(id) {
+  return {
+    type: DELETE_DRIVER,
     payload: id
-  }
+  };
+}
+
+export function createCar(values) {
+  return {
+    type: CREATE_CAR,
+    payload: values
+  };
+}
+
+export function deleteCar(id) {
+  return {
+    type: DELETE_CAR,
+    payload: id
+  };
 }
 
 export function createRace(values) {
@@ -50,12 +73,5 @@ export function deleteRace(id) {
   return {
     type: DELETE_RACE,
     payload: id
-  }
-}
-
-export function createCar(values) {
-  return {
-    type: CREATE_CAR,
-    payload: values
   }
 }

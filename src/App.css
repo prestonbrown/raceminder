@@ -1,3 +1,40 @@
+/*img {
+  min-height: 100px;
+  mind-width: 100px;
+  text-align: center;
+}
+
+img:before {
+  content: " ";
+
+  display: block;
+  position: absolute;
+  top: -10px;
+  left: 0;
+  height: calc(100% + 10px);
+  width: 100%;
+  background-color: rgb(230,230,230);
+  outline: 2px dotted rgb(200,200,200);
+  outline-offset: -5px;
+  outline-radius: 2px;
+}
+
+img:after {
+  content: "No Image Loaded";
+  display: block;
+  font-size: 16px;
+  font-style: normal;
+  font-family: FontAwesome;
+  color: rgb(100,100,100);
+
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+*/
+
 .digital-clock-container {
   position:  relative;
   font-family: DSEG14-Classic;

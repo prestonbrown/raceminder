@@ -11,9 +11,9 @@ import faTrashAlt from '@fortawesome/fontawesome-free-regular/faTrashAlt';
 
 import { Link } from 'react-router-dom';
 
-import { deleteDriver } from '../actions';
+import { deleteCar } from '../actions';
 
-class DriversIndex extends Component {
+class CarsIndex extends Component {
   constructor(props) {
     super(props);
 
@@ -21,17 +21,17 @@ class DriversIndex extends Component {
   }
 
   onDeleteClick(id) {
-    this.props.deleteDriver(id);
+    this.props.deleteCar(id);
   }
 
-  renderDrivers() {
-    return _.map(this.props.drivers, driver =>
-      <li className="list-group-item" key={driver.id}>
-        <Link to={`/drivers/${driver.id}`}>{driver.firstname} {driver.lastname}</Link>
+  renderCars() {
+    return _.map(this.props.cars, car =>
+      <li className="list-group-item" key={car.id}>
+        <Link to={`/cars/${car.id}`}>{car.firstname} {car.name}</Link>
         <div className="float-right">
           <div className="btn-group">
-            <Link to={`/drivers/${driver.id}`} className="mr-1"><FontAwesomeIcon icon={faEdit} /></Link>
-            <a href=""><FontAwesomeIcon icon={faTrashAlt} onClick={() => this.onDeleteClick(driver.id)} /></a>
+            <Link to={`/cars/${car.id}`} className="mr-1"><FontAwesomeIcon icon={faEdit} /></Link>
+            <a href=""><FontAwesomeIcon icon={faTrashAlt} onClick={() => this.onDeleteClick(car.id)} /></a>
           </div>
         </div>
       </li>
@@ -42,16 +42,16 @@ class DriversIndex extends Component {
     return (
       <div>
         <div className="float-right">
-          <Button tag={Link} to="/drivers/create" color="primary">New Driver</Button>
+          <Button tag={Link} to="/cars/create" color="primary">New Car</Button>
         </div>  
-        <h3>Drivers</h3>
+        <h3>Cars</h3>
 
         <ul className="list-group">
-          {this.renderDrivers()}
+          {this.renderCars()}
         </ul>
       </div>
       );
   }
 }
 
-export default connect((drivers) => drivers, { deleteDriver })(DriversIndex);
+export default connect((cars) => cars, { deleteCar })(CarsIndex);

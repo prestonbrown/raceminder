@@ -43,6 +43,13 @@ export default class RMNav extends Component {
               <NavItem>
                 <NavLink tag={Link} to="/drivers/">Drivers</NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink tag={Link} to="/cars/">Cars</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} to="/races/">Races</NavLink>
+              </NavItem>
+              {/*
               <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
                   Options
@@ -60,6 +67,7 @@ export default class RMNav extends Component {
                   </DropdownItem>
                 </DropdownMenu>
               </UncontrolledDropdown>
+              */}
             </Nav>
           </Collapse>
         </Navbar>
