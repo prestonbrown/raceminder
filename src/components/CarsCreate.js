@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, change } from 'redux-form';
 import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
 //import { Multiselect } from 'react-widgets';
 
@@ -14,16 +14,33 @@ import { createCar } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
+const readFileAsDataURI = (inputFile) => {
+  const temporaryFileReader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    temporaryFileReader.onerror = () => {
+      temporaryFileReader.abort();
+      reject(new DOMException("Problem parsing input file."));
+    };
+
+    temporaryFileReader.onload = () => {
+      resolve(temporaryFileReader.result);
+    };
+    temporaryFileReader.readAsDataURL(inputFile);
+  });
+};
+
 const adaptFileEventToValue = delegate => e => {
   delegate(e.target.files[0]);
   if (e.target.files[0]) {
-    // convert picture to DataURL (Base64)
-    let reader = new FileReader();
-    reader.addEventListener('load', function() {
-      document.getElementsByClassName('ReactCrop__image')[0].src = reader.result;
-    }, false);
-
-    reader.readAsDataURL(e.target.files[0]);
+    readFileAsDataURI(e.target.files[0])
+      .then(data => { 
+        let img = document.getElementsByClassName('ReactCrop__image')[0];
+        img.dataset.fromFile = true;
+        img.src = data;
+        //this.props.change('picture', data);
+    })
+      .catch(err => console.error(err));
   }
 };
 
@@ -35,7 +52,6 @@ const FileInput = ({
   return (
     <input
       onChange={adaptFileEventToValue(onChange)}
-      onBlur={adaptFileEventToValue(onBlur)}
       type="file"
       {...props.input}
       {...props}
@@ -73,6 +89,20 @@ class CarsCreate extends Component {
   }
 
   onImageLoaded = image => {
+    if (!image.dataset.fromFile) {
+      this.setState({ 
+        crop: { 
+          x: 0, 
+          y: 0, 
+          width: 0, 
+          height: 0,
+          aspect: 1 
+        }, 
+        pixelCrop: null 
+      });
+      return;
+    }
+
     this.setState({
       crop: makeAspectCrop({
         x: 0,
@@ -88,12 +118,16 @@ class CarsCreate extends Component {
     const img = document.getElementsByClassName('ReactCrop__image')[0];
     const { pixelCrop } = this.state;
 
+    if (!pixelCrop) {
+      return;
+    }
+
     canvas.width = pixelCrop.width;
     canvas.height = pixelCrop.height;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(
-      document.getElementsByClassName('ReactCrop__image')[0],
+      img,
       pixelCrop.x,
       pixelCrop.y,
       pixelCrop.width,
@@ -103,6 +137,7 @@ class CarsCreate extends Component {
       pixelCrop.width,
       pixelCrop.height);
 
+    /*
     console.log('displaying crop on canvas');
     // convert to blob
     return new Promise((resolve, reject) => {
@@ -111,25 +146,35 @@ class CarsCreate extends Component {
         resolve(file);
       }, 'image/jpeg');
     });
+    */
+
+    let data = canvas.toDataURL('image/jpeg');
+    img.dataset.fromFile = "";
+    img.src = data;
+    this.props.change('picture', data);
+    this.setState({crop: { width: 0, height: 0 }});
   }
 
   onSubmit(values) {
     // this === our component
-    console.log(values);
-    return;
 
-    if (values.picture) {
-      // convert picture to DataURL (Base64)
-      let reader = new FileReader();
-      reader.addEventListener('load', function() {
-        // do something here
-      }, false);
+    new Promise((resolve, reject) => {
+      if (values.picture && values.picture.name) {
+        // convert picture to DataURL (Base64)
+        readFileAsDataURI(values.picture)
+          .then(data => values.picture = data)
+          .catch(err => console.log(err));
+      }
+      resolve();
+    })
+      .then(() => {
+        console.log(values);
+        return;
 
-      reader.readAsDataURL(values.picture);
-    }
-
-    this.props.createCar(values);
-    this.setState({ redirect: true });
+        this.props.createCar(values);
+        this.setState({ redirect: true });
+      })
+      .catch(err => console.error(err));
   }
 
   renderField(field) {
@@ -198,12 +243,14 @@ class CarsCreate extends Component {
                 name="preview" 
                 src="" 
                 onChange={crop => { this.setState({ crop }); }} 
-                onComplete={(crop, pixelCrop) => {console.log('crop:',crop); console.log('pixel crop:',pixelCrop); this.setState({ pixelCrop }); }}
+                onComplete={(crop, pixelCrop) => {this.setState({ pixelCrop }); }}
                 onImageLoaded={this.onImageLoaded.bind(this)} 
               />
             </div>
-            <Button name="crop" onClick={this.cropImage}>Crop</Button>
+            <Button name="crop" disabled={!this.state.pixelCrop} onClick={this.cropImage}>Crop</Button>
           </FormGroup>
+
+          <canvas id="canvas" />
 
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
