@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 
-import { Field, reduxForm, change } from 'redux-form';
-import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
-//import { Multiselect } from 'react-widgets';
+import { Field, reduxForm, change, formValueSelector } from 'redux-form';
+import { Form, FormGroup, Label, Input, FormFeedback, Button, 
+  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -13,6 +13,237 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { createCar } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
+
+class CropModal extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: props.isOpen,
+      crop: { aspect: 1 },
+      processed: false
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    //console.log('in getDerivedStateFromProps, nextProps:',nextProps,', prevState:', prevState);
+    if (nextProps.isOpen !== prevState.isOpen) {
+      return {
+        isOpen: nextProps.isOpen
+      };
+    }
+
+    // no state update necessary
+    return null;
+  }
+
+  lanczosCreate(lobes) {
+    return function(x) {
+      if (x > lobes) {
+        return 0;
+      }
+
+      x *= Math.PI;
+      if (Math.abs(x) < 1e-16) {
+        return 1;
+      }
+
+      let xx = x / lobes;
+      return Math.sin(x) * Math.sin(xx) / x / xx;
+    };
+  }
+
+  toggle = () => {
+    this.setState({
+      isOpen: !this.state.isOpen,
+      processed: false
+    });
+  }
+
+  handleClose = () => {
+    const img = document.getElementsByClassName('ReactCrop__image')[0];
+    const { pixelCrop } = this.state;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+      img,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height);
+
+    let data = canvas.toDataURL('image/jpeg', 0.7);
+    img.src = data;
+
+    this.setState({ crop: { width: 0, height: 0 } });
+
+    // callback to update preview
+    this.props.onCrop(data);
+    this.setState({ isOpen: false });
+  }
+
+  /**
+   * Hermite resize - fast image resize/resample using Hermite filter. 1 cpu version!
+   * 
+   * @param {HtmlElement} canvas
+   * @param {int} width
+   * @param {int} height
+   * @param {boolean} resize_canvas if true, canvas will be resized. Optional.
+   */
+  resampleImage(canvas, width, height, resizeCanvas = false) {
+    let width_source = canvas.width;
+    let height_source = canvas.height;
+    width = Math.round(width);
+    height = Math.round(height);
+
+    let ratio_w = width_source / width;
+    let ratio_h = height_source / height;
+    let ratio_w_half = Math.ceil(ratio_w / 2);
+    let ratio_h_half = Math.ceil(ratio_h / 2);
+
+    let ctx = canvas.getContext("2d");
+    let img = ctx.getImageData(0, 0, width_source, height_source);
+    let img2 = ctx.createImageData(width, height);
+    let data = img.data;
+    let data2 = img2.data;
+
+    for (let j = 0; j < height; j++) {
+      for (let i = 0; i < width; i++) {
+        let x2 = (i + j * width) * 4;
+        let weight = 0;
+        let weights = 0;
+        let weights_alpha = 0;
+        let gx_r = 0;
+        let gx_g = 0;
+        let gx_b = 0;
+        let gx_a = 0;
+        let center_y = (j + 0.5) * ratio_h;
+        let yy_start = Math.floor(j * ratio_h);
+        let yy_stop = Math.ceil((j + 1) * ratio_h);
+        for (let yy = yy_start; yy < yy_stop; yy++) {
+          let dy = Math.abs(center_y - (yy + 0.5)) / ratio_h_half;
+          let center_x = (i + 0.5) * ratio_w;
+          let w0 = dy * dy; //pre-calc part of w
+          let xx_start = Math.floor(i * ratio_w);
+          let xx_stop = Math.ceil((i + 1) * ratio_w);
+          for (let xx = xx_start; xx < xx_stop; xx++) {
+            let dx = Math.abs(center_x - (xx + 0.5)) / ratio_w_half;
+            let w = Math.sqrt(w0 + dx * dx);
+            if (w >= 1) {
+              //pixel too far
+              continue;
+            }
+
+            //hermite filter
+            weight = 2 * w * w * w - 3 * w * w + 1;
+            let pos_x = 4 * (xx + yy * width_source);
+            //alpha
+            gx_a += weight * data[pos_x + 3];
+            weights_alpha += weight;
+            //colors
+            if (data[pos_x + 3] < 255)
+              weight = weight * data[pos_x + 3] / 250;
+            gx_r += weight * data[pos_x];
+            gx_g += weight * data[pos_x + 1];
+            gx_b += weight * data[pos_x + 2];
+            weights += weight;
+          }
+        }
+        data2[x2] = gx_r / weights;
+        data2[x2 + 1] = gx_g / weights;
+        data2[x2 + 2] = gx_b / weights;
+        data2[x2 + 3] = gx_a / weights_alpha;
+      }
+    }
+
+    //clear and resize canvas
+    if (resizeCanvas === true) {
+      canvas.width = width;
+      canvas.height = height;
+    } else {
+      ctx.clearRect(0, 0, width_source, height_source);
+    }
+
+    //draw
+    ctx.putImageData(img2, 0, 0);
+  }
+
+  onImageLoaded = image => {
+    if (this.state.processed) {
+      return;
+    }
+
+    //console.log('in onImageLoaded, image:', image)
+    /*
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+
+    const rWidth = Math.round(image.width * (512 / image.height));
+    const rHeight = 512;
+    console.log('rWidth:',rWidth,', rHeight:',rHeight);
+    // OR do this:
+    //this.resampleImage(canvas, rWidth, rHeight);
+
+    if (image.height > 512) {
+        image.width = rWidth;
+        image.height = rHeight;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0, image.width, image.height);
+      
+    image.src = canvas.toDataURL('image/jpeg');
+    */
+
+    console.log('in onimageloaded');
+    this.setState({
+      crop: makeAspectCrop({
+        x: 0,
+        y: 0,
+        width: 100,
+        aspect: 1,
+      }, image.width / image.height),
+      processed: true
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        <Modal isOpen={this.state.isOpen} toggle={this.toggle} className={this.props.className}>
+          <ModalHeader toggle={this.toggle}>Crop Car Picture</ModalHeader>
+          <ModalBody>
+            <div style={{minWidth: '150px', maxWidth: '150px', minHeight: '150px', background: '#F2F2F2', outline: '2px dashed #000', outlineOffset: '-10px' }}>
+              <ReactCrop 
+                crop={this.state.crop} 
+                name="crop" 
+                src={this.props.picture ? this.props.picture : ''} 
+                onChange={crop => { this.setState({ crop }); }} 
+                onComplete={(crop, pixelCrop) => {this.setState({ pixelCrop }); }}
+                onImageLoaded={this.onImageLoaded.bind(this)} 
+              />
+            </div>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button color="primary" onClick={this.handleClose}>Save</Button>
+            <Button color="secondary" onClick={() => this.toggle}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
+      </div>
+    );
+  }
+}
 
 const readFileAsDataURI = (inputFile) => {
   const temporaryFileReader = new FileReader();
@@ -31,21 +262,25 @@ const readFileAsDataURI = (inputFile) => {
 };
 
 const adaptFileEventToValue = delegate => e => {
-  delegate(e.target.files[0]);
-  if (e.target.files[0]) {
-    readFileAsDataURI(e.target.files[0])
-      .then(data => { 
-        let img = document.getElementsByClassName('ReactCrop__image')[0];
-        img.dataset.fromFile = true;
-        img.src = data;
-        //this.props.change('picture', data);
+  // convert File object to DataURI
+  readFileAsDataURI(e.target.files[0])
+    .then(data => { 
+      delegate(data);
     })
-      .catch(err => console.error(err));
-  }
+    .catch(err => console.error(err));
+
+  //delegate(e.target.files[0]);
+
+  /*
+  let img = document.getElementsByClassName('ReactCrop__image')[0];
+  img.dataset.fromFile = true;
+  img.src = data;
+  //this.props.change('picture', data);
+  */
 };
 
 const FileInput = ({ 
-  input: { value: omitValue, onChange, onBlur, ...inputProps }, 
+  input: { value: omitValue, onChange, onClick, onBlur, ...inputProps }, 
   meta: omitMeta, 
   ...props 
   }) => {
@@ -66,9 +301,6 @@ class CarsCreate extends Component {
     this.state = {
       redirect: false,
       edit: false,
-      crop: {
-        aspect: 1,
-      }
     };
   }
 
@@ -88,73 +320,6 @@ class CarsCreate extends Component {
     }
   }
 
-  onImageLoaded = image => {
-    if (!image.dataset.fromFile) {
-      this.setState({ 
-        crop: { 
-          x: 0, 
-          y: 0, 
-          width: 0, 
-          height: 0,
-          aspect: 1 
-        }, 
-        pixelCrop: null 
-      });
-      return;
-    }
-
-    this.setState({
-      crop: makeAspectCrop({
-        x: 0,
-        y: 0,
-        width: 100,
-        aspect: 1,
-      }, image.width / image.height),
-    });
-  }
-
-  cropImage = () => { 
-    const canvas = document.createElement('canvas');
-    const img = document.getElementsByClassName('ReactCrop__image')[0];
-    const { pixelCrop } = this.state;
-
-    if (!pixelCrop) {
-      return;
-    }
-
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-    const ctx = canvas.getContext('2d');
-
-    ctx.drawImage(
-      img,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      pixelCrop.width,
-      pixelCrop.height);
-
-    /*
-    console.log('displaying crop on canvas');
-    // convert to blob
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(file => {
-        file.name = "Preview";
-        resolve(file);
-      }, 'image/jpeg');
-    });
-    */
-
-    let data = canvas.toDataURL('image/jpeg');
-    img.dataset.fromFile = "";
-    img.src = data;
-    this.props.change('picture', data);
-    this.setState({crop: { width: 0, height: 0 }});
-  }
-
   onSubmit(values) {
     // this === our component
 
@@ -168,8 +333,7 @@ class CarsCreate extends Component {
       resolve();
     })
       .then(() => {
-        console.log(values);
-        return;
+        console.log('submitted values for car:',values);
 
         this.props.createCar(values);
         this.setState({ redirect: true });
@@ -178,7 +342,7 @@ class CarsCreate extends Component {
   }
 
   renderField(field) {
-    const {meta: {touched, error}, autoFocus } = field;
+    const { meta: { touched, error }, autoFocus } = field;
     return (
       <FormGroup>
         <Label>{field.label}</Label>
@@ -194,26 +358,19 @@ class CarsCreate extends Component {
       );    
   }
 
-  /*
-  renderTrackField(field) {
-    const {meta: {touched, error}} = field;
+  handleCrop(data) {
+    let headStr = 'data:image/jpeg;base64,';
+    console.log('original picture size:', Math.round((this.props.pictureValue.length - headStr.length) * 3/4/1024) + 'k');
+    //console.log('new cropped picture size:', Math.round((data.length - headStr.length) * 3/4/1024) + 'k');
+    this.props.change('picture', data);
 
-    return (
-      <FormGroup>
-        <Label>{field.label}</Label>
-        <Input 
-          valid={touched && error ? false : (touched ? true : null) } 
-          invalid={touched && error ? true : false } 
-          {...field.input} 
-          type="select">
-          <option key='' value=''>- Select a Track -</option>
-          {_.map(this.props.tracks, track => <option key={track.id} value={track.id}>{track.name}</option>)}
-        </Input>
-          <FormFeedback>{error}</FormFeedback>
-        </FormGroup>
-      );
+    console.log('after change, picture size:',Math.round((this.props.pictureValue.length - headStr.length) * 3/4/1024) + 'k');
+
+    // make sure we tell modal to get gone
+    this.setState({ modalOpen: false });
+    let img = document.getElementById('preview');
+    img.src = data;
   }
-  */
 
   render() {
     const { handleSubmit, pristine, submitting } = this.props;
@@ -227,7 +384,10 @@ class CarsCreate extends Component {
 
     return (
       <div>
-        <h3>Create New Car</h3>
+        <div>
+          <img id="preview" className="float-right rounded-circle mr-1" src={this.props.pictureValue} alt="Car Preview" style={{ maxWidth: '100px', maxHeight: '100px', width: '100px', height: '100px', boxShadow: '0 4px 10px 0 rgba(0,0,0,0.6)' }} />
+        </div>
+        <h3 className="clearfix">Create New Car</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
           <Field label="Car Name / Number" name="name" type="text" autoFocus component={this.renderField} />
           <Field label="Make / Model" name="model" type="text" component={this.renderField} />
@@ -236,21 +396,18 @@ class CarsCreate extends Component {
 
           <FormGroup>
             <Label>Picture</Label>
-            <Field name="picture" type="file" component={FileInput} />
-            <div style={{minWidth: '150px', maxWidth: '150px', minHeight: '150px', background: '#F2F2F2', outline: '2px dashed #000', outlineOffset: '-10px' }}>
-              <ReactCrop 
-                crop={this.state.crop} 
-                name="preview" 
-                src="" 
-                onChange={crop => { this.setState({ crop }); }} 
-                onComplete={(crop, pixelCrop) => {this.setState({ pixelCrop }); }}
-                onImageLoaded={this.onImageLoaded.bind(this)} 
-              />
-            </div>
-            <Button name="crop" disabled={!this.state.pixelCrop} onClick={this.cropImage}>Crop</Button>
+            <Field 
+              name="picture" 
+              type="file" 
+              accept="image/*" 
+              onChange={() => { console.log('setting state for modal to open'); this.setState({ modalOpen: true }); }}
+              component={FileInput} 
+            />
+            <CropModal 
+              isOpen={this.state.modalOpen} 
+              onCrop={this.handleCrop.bind(this)}
+              picture={this.props.pictureValue} />
           </FormGroup>
-
-          <canvas id="canvas" />
 
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
@@ -284,14 +441,21 @@ function validate(values) {
   return errors;
 }
 
-const mapStateToProps = (state) => ({ cars: state.cars });
-
-CarsCreate = connect(mapStateToProps, { createCar })(CarsCreate);
-
-export default reduxForm({
+CarsCreate = reduxForm({
   form: 'CarsCreateForm',
   // optional: fields argument with names of Fields
   //fields: _.keys(FIELDS),
   validate
 })(withRouter(CarsCreate));
 
+// decorate with connect to read form values.
+const selector = formValueSelector('CarsCreateForm');
+
+function mapStateToProps(state, ownProps) {
+  return { 
+    pictureValue: selector(state, 'picture'),
+    cars: state.cars 
+  }
+}
+
+export default connect(mapStateToProps, { createCar, change })(CarsCreate);
