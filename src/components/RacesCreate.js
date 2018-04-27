@@ -115,17 +115,21 @@ class RacesCreate extends Component {
     const {meta: {touched, error}} = field;
 
     return (
-      <FormGroup>
-        <Label>{field.label}</Label>
-        <Input 
-          valid={touched && error ? false : (touched ? true : null) } 
-          invalid={touched && error ? true : false } 
-          {...field.input} 
-          type="select">
-          <option key='' value=''>- Select a Car -</option>
-          {_.map(this.props.cars, car => <option key={car.id} value={car.id}>{car.name}: {car.model}</option>)}
-        </Input>
-        <p>or <Button color="secondary" tag={Link} to="/cars/create" className="float-right">Create New Car</Button></p>
+      <FormGroup className="row">
+        <Label sm={2}>{field.label}</Label>
+        <Col sm={4}>
+          <Input 
+            valid={touched && error ? false : (touched ? true : null) } 
+            invalid={touched && error ? true : false } 
+            {...field.input} 
+            type="select">
+            <option key='' value=''>- Select a Car -</option>
+            {_.map(this.props.cars, car => <option key={car.id} value={car.id}>{car.name}: {car.model}</option>)}
+          </Input>
+        </Col>
+        <Col sm={4}>
+          <p>or <Button color="secondary" tag={Link} to="/cars/create">Create New Car</Button></p>
+        </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
     );

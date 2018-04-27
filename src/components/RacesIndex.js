@@ -3,6 +3,7 @@ import moment from 'moment';
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faEdit from '@fortawesome/fontawesome-free-regular/faEdit'
@@ -38,6 +39,15 @@ class RacesIndex extends Component {
   }
 
   renderRaces() {
+    if (!this.props.races.length) {
+      return (
+        <div>
+          <h6>No Races Exist Yet.</h6>
+          <Button className="btn-block" color="primary" tag={Link} to="/races/create">Create Race</Button>
+        </div>
+        );
+    }
+
     return _.map(this.props.races, race =>
       <li className="list-group-item" key={race.id}>
         <Link to={`/races/manage/${race.id}`}>{race.name}</Link>{this.renderNoteIcon(race)}
