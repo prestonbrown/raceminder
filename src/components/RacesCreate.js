@@ -138,7 +138,7 @@ class RacesCreate extends Component {
   renderDriversMultiSelect(field) {
     const { meta: { touched, error }, input } = field;
 
-    const data = _.map(this.props.drivers, driver => driver);
+    const data = _.map(this.props.drivers, driver => ({ id: driver.id, name: driver.firstname + ' ' + driver.lastname }));
     const inputProps = {};
     if (touched && error) {
       inputProps.invalid = '';
@@ -175,7 +175,7 @@ class RacesCreate extends Component {
         <Label>{field.label}</Label>
         <select {...field.input}>
           <option key="">Choose a Driver</option>
-          {_.map(this.props.drivers, (driver) => <option key={driver.id}>{driver.name}</option>)}
+          {_.map(this.props.drivers, (driver) => <option key={driver.id}>{driver.firstname} {driver.lastname}</option>)}
         </select>
       </FormGroup>
     );
@@ -198,7 +198,7 @@ class RacesCreate extends Component {
           <Field label="Race Name" name="name" type="text" component={this.renderField} />
           <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
-          <Field label="Drivers" name="drivers" parse={(values, name) => { if (!values) return; let result = values.map(value => value.id); console.log('parse resulting values', result); return result }} component={this.renderDriversMultiSelect.bind(this)} />
+          <Field label="Drivers" name="drivers" parse={(values, name) => { if (!values) return; return values.map(value => value.id) }} component={this.renderDriversMultiSelect.bind(this)} />
           <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
           <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
@@ -231,7 +231,7 @@ function validate(values) {
 }
 
 function mapStateToProps({ drivers, tracks, cars, races }) {
-  return { drivers: drivers.driverList, tracks, cars, races };
+  return { drivers, tracks, cars, races };
 }
 
 RacesCreate = connect(mapStateToProps, { createRace })(RacesCreate);

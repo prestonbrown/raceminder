@@ -237,7 +237,7 @@ class CropModal extends Component {
 
           <ModalFooter>
             <Button color="primary" onClick={this.handleClose}>Save</Button>
-            <Button color="secondary" onClick={() => this.toggle}>Cancel</Button>
+            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </div>
@@ -270,13 +270,6 @@ const adaptFileEventToValue = delegate => e => {
     .catch(err => console.error(err));
 
   //delegate(e.target.files[0]);
-
-  /*
-  let img = document.getElementsByClassName('ReactCrop__image')[0];
-  img.dataset.fromFile = true;
-  img.src = data;
-  //this.props.change('picture', data);
-  */
 };
 
 const FileInput = ({ 
@@ -395,12 +388,14 @@ class CarsCreate extends Component {
           <Field label="Desired Fuel Reserve" name="desiredFuelReserve" type="number" component={this.renderField} />
 
           <FormGroup>
-            <Label>Picture</Label>
+            <Label for="picture-file" className="btn btn-secondary">Choose a Picture</Label>
             <Field 
               name="picture" 
               type="file" 
               accept="image/*" 
               onChange={() => { console.log('setting state for modal to open'); this.setState({ modalOpen: true }); }}
+              className="d-none"
+              id="picture-file"
               component={FileInput} 
             />
             <CropModal 

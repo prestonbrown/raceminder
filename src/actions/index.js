@@ -13,6 +13,8 @@ export const DELETE_CAR = 'DELETE_CAR';
 export const CREATE_RACE = 'CREATE_RACE';
 export const CREATE_RACE_STOP = 'CREATE_RACE_STOP';
 export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
+export const CREATE_RACE_STINT = 'CREATE_RACE_STINT';
+export const DELETE_RACE_STINT = 'DELETE_RACE_STINT';
 export const DELETE_RACE = 'DELETE_RACE';
 
 export function createDriver(values) {
@@ -69,6 +71,19 @@ export function deleteRaceStop(raceId, stopId) {
   }
 }
 
+export function createRaceStint(raceId, values) {
+  return {
+    type: CREATE_RACE_STINT,
+    payload: { raceId, values }
+  }
+}
+
+export function deleteRaceStint(raceId, stopId) {
+  return {
+    type: DELETE_RACE_STINT,
+    payload: { raceId, stopId }
+  }
+}
 export function deleteRace(id) {
   return {
     type: DELETE_RACE,

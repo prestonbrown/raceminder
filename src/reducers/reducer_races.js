@@ -1,6 +1,9 @@
 import _ from 'lodash';
 
-import { CREATE_RACE, DELETE_RACE, CREATE_RACE_STOP, DELETE_RACE_STOP } from '../actions/index';
+import { CREATE_RACE, DELETE_RACE, 
+  CREATE_RACE_STOP, DELETE_RACE_STOP,
+  CREATE_RACE_STINT, DELETE_RACE_STINT
+} from '../actions/index';
 
 let initialState = localStorage.getItem('races') ? JSON.parse(localStorage.getItem('races')) : {};
 
@@ -63,12 +66,11 @@ export default function (state = initialState, action) {
       let { raceId, stopId } = action.payload;
       let race = state[raceId];
 
-      let stops = _.omit(state[raceId].stops, stopId);
       newState = { 
         ...state, 
         [raceId]: {
           ...race,
-          stops: stops
+          stops: _.omit(state[raceId].stops, stopId)
         }
       };
 
@@ -77,6 +79,49 @@ export default function (state = initialState, action) {
       return newState;
     }
 
+    case CREATE_RACE_STINT: {
+      let { raceId, values } = action.payload;
+
+      // lookup the correct race
+      let race = state[raceId];
+      let stintId = null;
+      if (!values.id) {
+        // create a stop id
+        stintId = _.size(race.stints) + 1;
+        values.id = stintId;
+      } else {
+        stintId = values.id;
+      }
+
+      // add the stop to the race
+      newState = {
+        ...state,
+        // update our race object with the new stops array
+        [raceId]: {
+          ...race,
+          stints: Object.assign({}, race.stints, { [stintId]: values })
+        }
+      };
+
+      localStorage.setItem('races', JSON.stringify(newState));
+      return newState;
+    }
+
+    case DELETE_RACE_STINT: {
+      let { raceId, stintId } = action.payload;
+      let race = state[raceId];
+      newState = { 
+        ...state, 
+        [raceId]: {
+          ...race,
+          stints: _.omit(state[raceId].stints, stintId)
+        }
+      };
+
+      localStorage.setItem('races', JSON.stringify(newState));
+      //console.log('state.races after deleting stop:', newState);
+      return newState;
+    }
     default: {
       return state;
     }

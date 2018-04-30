@@ -54,4 +54,4 @@ class DriversIndex extends Component {
   }
 }
 
-export default connect((drivers) => drivers, { deleteDriver })(DriversIndex);
+export default connect(drivers => drivers, { deleteDriver })(DriversIndex);

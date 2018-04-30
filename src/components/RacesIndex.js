@@ -3,12 +3,13 @@ import moment from 'moment';
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import { Button, UncontrolledTooltip } from 'reactstrap';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faEdit from '@fortawesome/fontawesome-free-regular/faEdit'
 import faTrashAlt from '@fortawesome/fontawesome-free-regular/faTrashAlt';
 import faClock from '@fortawesome/fontawesome-free-regular/faClock';
+import faRoad from '@fortawesome/fontawesome-free-solid/faRoad';
 
 import { Link } from 'react-router-dom';
 
@@ -29,17 +30,34 @@ class RacesIndex extends Component {
       let noteIcon = null;
       if (this.now.isBefore(race.start)) {
         let start = moment(race.start);
-        noteIcon = <span className="ml-1" title={'Upcoming: starts ' + start.fromNow()}><FontAwesomeIcon icon={faClock} /></span>;
+        return (
+          <span>
+            <span className="ml-1" id={`race-note-${race.id}`}>
+              <FontAwesomeIcon icon={faClock} />
+            </span>
+            <UncontrolledTooltip target={`race-note-${race.id}`}>
+              Upcoming: starts {start.fromNow()}
+            </UncontrolledTooltip>
+          </span>
+        );
       } else if (this.now.isAfter(race.start) && this.now.isBefore(race.end)) {
-        noteIcon = 'ACTIVE';
+        return 'ACTIVE';
       } else {
-        noteIcon = '';
-      }
-      return <span>{noteIcon}</span>;
+        let end = moment(race.end);
+        return (
+          <span>
+            <span className="ml-1" id={`race-note-${race.id}`}>
+              <FontAwesomeIcon icon={faRoad} />
+            </span>
+            <UncontrolledTooltip target={`race-note-${race.id}`}>
+              Ended {end.fromNow()}
+            </UncontrolledTooltip>
+          </span>
+        );      }
   }
 
   renderRaces() {
-    if (!this.props.races.length) {
+    if (!this.props.races) {
       return (
         <div>
           <h6>No Races Exist Yet.</h6>
@@ -54,7 +72,7 @@ class RacesIndex extends Component {
         <div className="float-right">
           <div className="btn-group">
             <Link to={`/races/${race.id}`} className="mr-1"><FontAwesomeIcon icon={faEdit} /></Link>
-            <FontAwesomeIcon icon={faTrashAlt} onClick={() => this.onDeleteClick(race.id)} />
+            <a href=""><FontAwesomeIcon icon={faTrashAlt} onClick={() => this.onDeleteClick(race.id)} /></a>
           </div>
         </div>
       </li>
@@ -74,4 +92,4 @@ class RacesIndex extends Component {
   }
 }
 
-export default connect((races) => races, { deleteRace })(RacesIndex);
+export default connect(races => races, { deleteRace })(RacesIndex);
