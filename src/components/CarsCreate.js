@@ -385,7 +385,7 @@ class CarsCreate extends Component {
     return (
       <div>
         <div>
-          <img id="preview" className="float-right rounded-circle mr-1" src={this.props.pictureValue} alt="Car Preview" style={{ maxWidth: '100px', maxHeight: '100px', width: '100px', height: '100px', boxShadow: '0 4px 10px 0 rgba(0,0,0,0.6)' }} />
+          <img id="preview" className="float-right rounded-circle mr-1" src={this.props.pictureValue} alt="Car Preview" style={{ maxWidth: '100px', maxHeight: '100px', width: '100px', height: '100px', border: '2px solid white', boxShadow: '0 4px 10px 0 rgba(0,0,0,0.6)' }} />
         </div>
         <h3 className="clearfix">Create New Car</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
