@@ -100,8 +100,12 @@ export default function (state = initialState, action) {
       // first, make new stints
       stints = Object.assign({}, race.stints, { [stintId]: values });
       // sort stints by start time
-      stints = _.fromPairs(_.sortBy(_.toPairs(stints), a => moment(a.start)).reverse());
-      
+      stints = _.toPairs(stints);
+      console.log('stints before sorting',stints);
+      stints = _.sortBy(stints, val => { console.log('got val:',val); return val[1].start; });
+      stints = _.fromPairs(stints);
+      console.log('transformed stints:',stints);
+
       newState = {
         ...state,
         // update our race object with the new stops array

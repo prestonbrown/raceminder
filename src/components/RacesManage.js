@@ -365,10 +365,10 @@ class RacesManage extends Component {
     let end = moment(stint.end);
     let start = moment(stint.start);
     let now = moment();
-    if (now > end) {
-      after = 'table-secondary';
-    } else if (start < now) {
+    if (start < now && end > now) {
       after = 'table-warning';
+    } else if (end < now) {
+      after = 'table-secondary';
     }
 
     return (
