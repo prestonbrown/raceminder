@@ -61,32 +61,32 @@ export function createRaceStop(raceId, values) {
   return {
     type: CREATE_RACE_STOP,
     payload: { raceId, values }
-  }
+  };
 }
 
 export function deleteRaceStop(raceId, stopId) {
   return {
     type: DELETE_RACE_STOP,
     payload: { raceId, stopId }
-  }
+  };
 }
 
 export function createRaceStint(raceId, values) {
   return {
     type: CREATE_RACE_STINT,
     payload: { raceId, values }
-  }
+  };
 }
 
-export function deleteRaceStint(raceId, stopId) {
+export function deleteRaceStint(raceId, stintId) {
   return {
     type: DELETE_RACE_STINT,
-    payload: { raceId, stopId }
-  }
+    payload: { raceId, stintId }
+  };
 }
 export function deleteRace(id) {
   return {
     type: DELETE_RACE,
     payload: id
-  }
+  };
 }

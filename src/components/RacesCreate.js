@@ -202,6 +202,7 @@ class RacesCreate extends Component {
           <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
           <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
+          <Field label="Default Stint Length (hrs)" name="stintLength" type="number" component={this.renderField} />          
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
             <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>

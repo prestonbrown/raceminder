@@ -166,8 +166,8 @@ class PitStopModal extends Component {
     const { race } = this.props;
     this.setState({ start: start, stop: stop, stopped: true, stopId: _.size(race.stops) + 1});
     this.props.createRaceStop(race.id, {
-      start: start.format('Y-MM-DDTH:mm:ss'),
-      stop: stop.format('Y-MM-DDTH:mm:ss')
+      start: start.format('Y-MM-DDTHH:mm:ss'),
+      stop: stop.format('Y-MM-DDTHH:mm:ss')
     });
   }
 
@@ -226,13 +226,22 @@ class RacesManage extends Component {
 
     this.state = {
       pitStopModalOpen: false,
-      viewSelected: STOPS,
+      viewSelected: STINTS,
       activeStopId: null,
       activeStintId: null,
       stintModalOpen: false
     };
 
     console.log('RacesManage got race props: ', props.race);
+  }
+
+  componentDidMount() {
+    // refresh once a minute
+    this.interval = setInterval(() => { console.log('refreshing table'); this.setState(this.state); }, 60000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   onViewSelected = viewSelected => {
@@ -249,7 +258,7 @@ class RacesManage extends Component {
 
   handleAddStop() {
     const data = {
-      start: moment().format(),
+      start: moment().format('Y-MM-DDTHH:mm:ss'),
       lap: null,
       length: null,
       fuel: null,
@@ -265,22 +274,46 @@ class RacesManage extends Component {
   }
 
   handleAddStint() {
+    // get stop time of last stint
+    const stints = this.props.race.stints;
+    const race = this.props.race;
+    let stintId = 1;
+    let start = null;
+    let end = null;
+
+    if (!_.isEmpty(stints)) {
+      const lastStint = stints[Object.keys(stints).slice(-1)[0]];
+      stintId = lastStint.id + 1;
+      start = lastStint.end;
+    } else {
+      start = this.props.race.start;
+    }
+
+    end = moment(start);
+    end = end.add(race.stintLength ? race.stintLength : 2, 'hours').format('Y-MM-DDTHH:mm:ss');
+
     const data = {
-      start: moment().format(),
-      stop: null,
+      start,
+      end,
       driver: null,
       notes: ''
     };
 
+    console.log(data);
+
     this.props.createRaceStint(this.props.race.id, data);
+
+    // open stint dialog to edit it
+    this.setState({ stintModalOpen: true, activeStintId: stintId });
   }
 
   handleDeleteStint(id) {
     this.props.deleteRaceStint(this.props.race.id, id);
+    //console.log('stint ' + id + ' deleted');
   }
 
   handleStintModalClose = () => {
-    console.log('closing stint modal via state');
+    //console.log('closing stint modal via state');
     this.setState({ stintModalOpen: false});
   }
 
@@ -306,18 +339,18 @@ class RacesManage extends Component {
   renderPitStopTable() {
     const { race } = this.props;
     return (
-      <Table striped responsive>
+      <Table hover responsive>
         <thead>
           <tr>
-            <th>Start Time</th>
-            <th>Lap #</th>
-            <th>Stop Length</th>
-            <th>New Driver</th>
-            <th>Est. Fuel Remaining</th>
-            <th>Fuel Added</th>
-            <th>Est. Next Stop (Lap)</th>
-            <th>Notes</th>
-            <th>Action</th>
+            <th scope="col">Start Time</th>
+            <th scope="col">Lap #</th>
+            <th scope="col">Stop Length</th>
+            <th scope="col">New Driver</th>
+            <th scope="col">Est. Fuel Remaining</th>
+            <th scope="col">Fuel Added</th>
+            <th scope="col">Est. Next Stop (Lap)</th>
+            <th scope="col">Notes</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -328,12 +361,22 @@ class RacesManage extends Component {
   }
 
   renderStintRow(stint) {
+    let after = '';
+    let end = moment(stint.end);
+    let start = moment(stint.start);
+    let now = moment();
+    if (now > end) {
+      after = 'table-secondary';
+    } else if (start < now) {
+      after = 'table-warning';
+    }
+
     return (
-      <tr key={stint.id}>
+      <tr key={stint.id} className={after}>
         <td>{moment(stint.start).format('LTS') || '(unset)'}</td>
-        <td>{moment(stint.stop).format('LTS') || '(unset)'}</td>
+        <td>{moment(stint.end).format('LTS') || '(unset)'}</td>
         <td>{stint.driver && (this.props.drivers[stint.driver].firstname + ' ' + this.props.drivers[stint.driver].lastname) || '(unset)'}</td>
-        <td>{stint.notes || ''}</td>
+        <td style={{ maxWidth: '500px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stint.notes || ''}</td>
         <td>
           <Button color="link" onClick={() => this.setState({ activeStintId: stint.id, stintModalOpen: true })}><FontAwesomeIcon icon={faEdit} /></Button>
           <Button color="link"><FontAwesomeIcon icon={faTrashAlt} onClick={this.handleDeleteStint.bind(this, stint.id)} /></Button>
@@ -345,20 +388,20 @@ class RacesManage extends Component {
   renderStintTable() {
     const { race } = this.props;
     return (
-      <Table striped responsive>
-        <thead>
-          <tr>
-            <th>Start Time</th>
-            <th>Stop Time</th>
-            <th>Driver</th>
-            <th>Notes</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {_.map(race.stints, stint => this.renderStintRow(stint))}
-        </tbody>
-      </Table>
+          <Table hover responsive>
+            <thead>
+              <tr>
+                <th scope="col">Start Time</th>
+                <th scope="col">Stop Time</th>
+                <th scope="col">Driver</th>
+                <th scope="col">Notes</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {_.map(race.stints, stint => this.renderStintRow(stint))}
+            </tbody>
+          </Table>
       );
   }
 
@@ -426,17 +469,17 @@ class RacesManage extends Component {
             <ButtonGroup>
               <Button 
                 color="primary" 
-                onClick={() => this.onViewSelected(STOPS)} 
-                active={this.state.viewSelected === STOPS}
-              >
-                Stops
-              </Button>
-              <Button 
-                color="primary" 
                 onClick={() => this.onViewSelected(STINTS)} 
                 active={this.state.viewSelected === STINTS}
               >
                 Stints
+              </Button>
+              <Button 
+                color="primary" 
+                onClick={() => this.onViewSelected(STOPS)} 
+                active={this.state.viewSelected === STOPS}
+              >
+                Stops
               </Button>
             </ButtonGroup>
 

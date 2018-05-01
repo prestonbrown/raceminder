@@ -23,17 +23,25 @@ class StintForm extends Component {
     const { race, stintId } = this.props;
     const stint = race.stints[stintId];
 
+    /*
     console.log('stint form got race:', race);
     console.log('stint form got stint:', stint);    
     console.log('stint form got stintId:', stintId);        
+    */
     if (stint) {
       this.props.initialize(stint);
     }
   }
 
+  /**
+   * Disabled for now.
+   */
   fixDate(value) {
+    console.log('in fixDate for value:',value);
+    return value;
+
     if (value === null) {
-      return moment().format('Y-MM-DDTH:mm:ss');
+      return moment().format('Y-MM-DDTHH:mm:ss');
     }
     value = value.slice(0, 19);
     console.log('value:',value);
@@ -46,8 +54,8 @@ class StintForm extends Component {
       return value;
     }
     
-    console.log('returning formatted value:',v.format('Y-MM-DDTH:mm:ss'));
-    return v.format('Y-MM-DDTH:mm:ss'); 
+    console.log('returning formatted value:',v.format('Y-MM-DDTHH:mm:ss'));
+    return v.format('Y-MM-DDTHH:mm:ss'); 
     */
   }
 
@@ -63,12 +71,12 @@ class StintForm extends Component {
 
         <FormGroup>
           <Label>Ends</Label>
-          <Field name="stop" format={this.fixDate} component="input" className="form-control" type="datetime-local" step="1" />
+          <Field name="end" format={this.fixDate} component="input" className="form-control" type="datetime-local" step="1" />
         </FormGroup>
 
         <FormGroup>
           <Label>Driver</Label>
-          <Field name="driver" component="select">
+          <Field name="driver" component="select" className="form-control">
             <option key='' value=''>- Select a Driver -</option>
             {_.map(this.props.drivers, ({ id, firstname, lastname }) => <option key={id} value={id}>{firstname} {lastname}</option>)}
           </Field>
@@ -76,7 +84,7 @@ class StintForm extends Component {
 
         <FormGroup>
           <Label>Notes</Label>
-          <Field name="notes" component="textarea" />
+          <Field name="notes" component="textarea" rows="3" className="form-control" />
         </FormGroup>
       </Form>
     );
