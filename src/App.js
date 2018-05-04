@@ -10,6 +10,7 @@ import './App.css';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import React, { Component } from 'react';
+import { Container } from 'reactstrap';
 
 import RMNav from './components/RMNav';
 
@@ -32,23 +33,25 @@ class App extends Component {
         <BrowserRouter>
           <div>
             <RMNav />
-            <Switch>
-              <Route path="/drivers/create" component={DriversCreate} />
-              <Route path="/drivers/:id" render={() => <DriversCreate />} />
-              <Route path="/drivers/" component={DriversIndex} />
+            <Container fluid>
+              <Switch>
+                <Route path="/drivers/create" component={DriversCreate} />
+                <Route path="/drivers/:id" render={() => <DriversCreate />} />
+                <Route path="/drivers/" component={DriversIndex} />
 
-              <Route path="/cars/create" component={CarsCreate} />
-              <Route path="/cars/:id" component={CarsCreate} />
-              <Route path="/cars/" component={CarsIndex} />              
+                <Route path="/cars/create" component={CarsCreate} />
+                <Route path="/cars/:id" component={CarsCreate} />
+                <Route path="/cars/" component={CarsIndex} />              
 
-              {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
-              <Route path="/races/create" render={() => <RacesCreate />} />
-              <Route path="/races/manage/:id" component={RacesManage} />
-              <Route path="/races/:id" component={RacesCreate} />
-              <Route path="/races/" component={RacesIndex} />
-              <Route path="/" component={Dashboard} />
-           </Switch>
-         </div>
+                {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
+                <Route path="/races/create" render={() => <RacesCreate />} />
+                <Route path="/races/manage/:id" component={RacesManage} />
+                <Route path="/races/:id" component={RacesCreate} />
+                <Route path="/races/" component={RacesIndex} />
+                <Route path="/" component={Dashboard} />
+             </Switch>
+            </Container>
+          </div>
         </BrowserRouter>
       </div>
     );

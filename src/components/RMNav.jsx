@@ -10,10 +10,6 @@ import {
   NavItem,
   NavLink,
 
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
 } from 'reactstrap';
 
 export default class RMNav extends Component {

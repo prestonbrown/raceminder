@@ -27,7 +27,6 @@ class RacesIndex extends Component {
   }
 
   renderNoteIcon(race) {
-      let noteIcon = null;
       if (this.now.isBefore(race.start)) {
         let start = moment(race.start);
         return (

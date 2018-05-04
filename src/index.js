@@ -9,10 +9,14 @@ import { createStore, applyMiddleware } from 'redux';
 import reduxPromise from 'redux-promise';
 
 import './index.css';
-import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import reducers from './reducers';
 import registerServiceWorker from './registerServiceWorker';
+
+if (process.env.NODE_ENV !== 'production') {
+  localStorage.setItem('debug', 'raceminder:*');
+}
 
 //import DevTools from './components/DevTools';
 

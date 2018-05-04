@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import moment from 'moment';
 
 import { CREATE_RACE, DELETE_RACE, 
   CREATE_RACE_STOP, DELETE_RACE_STOP,
@@ -42,7 +41,7 @@ export default function (state = initialState, action) {
       let stops = race.stops;
       let stopId = null;
       if (!values.id) {
-        const lastStop = stops[Object.keys(stops).slice(-1)[0]];
+        const lastStop = _.isEmpty(stops) ? { id: 0 } : stops[Object.keys(stops).slice(-1)[0]];
         stopId = lastStop.id + 1;
         values.id = stopId;
       } else {
@@ -89,7 +88,7 @@ export default function (state = initialState, action) {
       let stints = race.stints;
       let stintId = null;
       if (!values.id) {
-        const lastStint = stints[Object.keys(stints).slice(-1)[0]]
+        const lastStint = _.isEmpty(stints) ? { id: 0 } : stints[Object.keys(stints).slice(-1)[0]];
         stintId = lastStint ? lastStint.id + 1 : 1;
         values.id = stintId;
       } else {
@@ -99,19 +98,13 @@ export default function (state = initialState, action) {
       // add the stint to the race
       // first, make new stints
       stints = Object.assign({}, race.stints, { [stintId]: values });
-      // sort stints by start time
-      stints = _.toPairs(stints);
-      console.log('stints before sorting',stints);
-      stints = _.sortBy(stints, val => { console.log('got val:',val); return val[1].start; });
-      stints = _.fromPairs(stints);
-      console.log('transformed stints:',stints);
 
       newState = {
         ...state,
         // update our race object with the new stops array
         [raceId]: {
           ...race,
-          stints
+          stints,
         }
       };
 

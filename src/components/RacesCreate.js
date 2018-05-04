@@ -14,12 +14,14 @@ import momentLocalizer from 'react-widgets-moment';
 
 import { Field, reduxForm } from 'redux-form';
 import { Col, Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
-import { Multiselect, DateTimePicker } from 'react-widgets';
+import { Multiselect } from 'react-widgets';
+import InputMask from 'react-input-mask';
 
 import { createRace } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
+/*
 const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
   <FormGroup row>
     <Label sm={2}></Label>
@@ -32,6 +34,7 @@ const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
       />
     </Col>
   </FormGroup>;
+*/
 
 class RacesCreate extends Component {
   constructor(props) {
@@ -75,16 +78,16 @@ class RacesCreate extends Component {
   }
 
   renderField(field) {
-    const {meta: {touched, error}} = field;
+    const {meta: {touched, error}, label, input, ...rest} = field;
     return (
       <FormGroup row>
-        <Label sm={2}>{field.label}</Label>
+        <Label sm={2}>{label}</Label>
         <Col sm={10}>
           <Input 
             valid={touched && error ? false : (touched ? true : null) } 
             invalid={touched && error ? true : false } 
-            {...field.input} 
-            type={field.type} 
+            {...input} 
+            {...rest}
           />
         </Col>
         <FormFeedback>{error}</FormFeedback>
@@ -198,10 +201,48 @@ class RacesCreate extends Component {
           <Field label="Race Name" name="name" type="text" component={this.renderField} />
           <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
-          <Field label="Drivers" name="drivers" parse={(values, name) => { if (!values) return; return values.map(value => value.id) }} component={this.renderDriversMultiSelect.bind(this)} />
+          <Field label="Drivers" name="drivers" parse={values => { if (!values) return; return values.map(value => value.id); }} component={this.renderDriversMultiSelect.bind(this)} />
           <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
           <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
+          <Field 
+            label="Average Lap Time" 
+            parse={(val) => { 
+              let mins = parseInt(val.slice(0, 1), 10);
+              let tensSecs = parseInt(val.slice(2,3), 10);
+              let secs = parseInt(val.slice(3), 10);
+              let res = 0;
+              if (mins) {
+                res += mins * 60;
+              }
+              if (tensSecs) {
+                res += tensSecs * 10;
+              }
+              if (secs) {
+                res += secs;
+              }
+
+              //console.log('mins',mins,'tensSecs',tensSecs,'secs',secs);
+              //console.log('parsed result in seconds:',res);
+              return res;
+            }}
+            format={(val) => { 
+              if (!val) { 
+                return ''; 
+              } 
+              let mins = parseInt(val / 60, 10);
+              let secs = parseInt(val % 60, 10);
+              let res = `${mins}:${secs}`;
+              //console.log('format input:',val,', result:',res, 'String(val % 60)',String(val%60)); 
+              return res; 
+            }}
+            name="avgLapTime" 
+            mask="C:AB" 
+            tag={InputMask} 
+            maskChar="_" 
+            formatChars={{ 'C': '[1-9]', 'A': '[0-5]', 'B': '[0-9]' }} 
+            component={this.renderField} 
+          />
           <Field label="Default Stint Length (hrs)" name="stintLength" type="number" component={this.renderField} />          
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>

@@ -386,7 +386,8 @@ class CarsCreate extends Component {
           <Field label="Make / Model" name="model" type="text" component={this.renderField} />
           <Field label="Fuel Capacity" name="fuelCapacity" type="number" component={this.renderField} />
           <Field label="Desired Fuel Reserve" name="desiredFuelReserve" type="number" component={this.renderField} />
-
+          <Field label="Est. Avg. MPG" name="mpg" type="number" component={this.renderField} />
+          
           <FormGroup>
             <Label for="picture-file" className="btn btn-secondary">Choose a Picture</Label>
             <Field 
