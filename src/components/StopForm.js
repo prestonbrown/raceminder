@@ -16,15 +16,11 @@ momentLocalizer();
 
 class StopForm extends Component {
   componentWillMount() {
-    console.log('in stopform componentwillmount, props',this.props);
-    const { race, stopId, activeStintId } = this.props;
+    const { race, stopId } = this.props;
     const stop = race.stops[stopId];
-
-    console.log('stop form got race:', race);
-    console.log('stop form got stop:', stop);    
-    console.log('stop form got stopId:', stopId);        
+   
+    console.log('stopform will mount, stop:',stop)
     if (stop) {
-      //console.log('edit stop initial values: ', stop);
       this.props.initialize(stop);
     }
   }
@@ -51,6 +47,9 @@ class StopForm extends Component {
 
   render() {
     const { handleSubmit, pristine, reset, submitting } = this.props;
+    const duration = this.props.endValue && this.props.startValue ?
+      moment(moment(this.props.endValue).diff(moment(this.props.startValue))).format('mm:ss') :
+      '';
 
     return (
       <Form onSubmit={handleSubmit}>
@@ -62,13 +61,13 @@ class StopForm extends Component {
 
           <Col xs={6} className="form-group">
             <Label>Ended At</Label>
-            <Field name="stop" component="input" className="form-control form-control-sm" type="datetime-local" step="1" />
+            <Field name="end" component="input" className="form-control form-control-sm" type="datetime-local" step="1" />
           </Col>
         </Row>
 
         <Row className="form-row">
           <Col xs={4}>
-            <Label>Duration: <strong>{moment(moment(this.props.stopValue).diff(moment(this.props.startValue))).format('mm:ss')}</strong></Label>
+            <Label>Duration: <strong>{duration}</strong></Label>
           </Col>
         </Row>
 
@@ -83,7 +82,7 @@ class StopForm extends Component {
 
         <Row className="form-row">
           <Col xs={4}>
-            <Label>Relieving Driver</Label>
+            <Label>New Driver</Label>
           </Col>
           <Col xs={8}>
             <Field name="driver" component="select" className="form-control form-control-sm">
@@ -147,12 +146,12 @@ const selector = formValueSelector('StopForm');
 function mapStateToProps(state, ownProps) {
   const drivers = state.drivers;
   const startValue = selector(state, 'start');
-  const stopValue = selector(state, 'stop');
+  const endValue = selector(state, 'end');
 
   return { 
     drivers, 
     startValue,
-    stopValue
+    endValue
   };
 }
 

@@ -4,12 +4,9 @@ import React, { Component } from 'react';
 import { 
   Row, Col, FormGroup, 
   Button, ButtonGroup, Table, 
-  Modal, ModalHeader, ModalBody, ModalFooter 
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-
-import { submit } from 'redux-form';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTrashAlt from '@fortawesome/fontawesome-free-regular/faTrashAlt';
@@ -21,162 +18,17 @@ import momentLocalizer from 'react-widgets-moment';
 
 import Clock from 'react-live-clock';
 
-import StopForm from './StopForm';
-import StintForm from './StintForm';
-import StopWatch from './StopWatch';
+import StopModal from './StopModal';
+import StintModal from './StintModal';
 
-import { createRaceStop, deleteRaceStop, createRaceStint, deleteRaceStint } from '../actions';
+import { createRaceStop, deleteRaceStop, createStopId,
+  createRaceStint, deleteRaceStint, createStintId } from '../actions';
 
 const STOPS = 'STOPS';
 const STINTS = 'STINTS';
 
 moment.locale('en');
 momentLocalizer();
-
-const StintSubmitButton = connect()(({ dispatch }) => (
-  <Button color="primary" onClick={() => dispatch(submit('StintForm'))}>Save</Button>
-  ));
-
-const StopSubmitButton = connect()(({ dispatch }) => (
-  <Button color="primary" onClick={() => dispatch(submit('StopForm'))}>Save</Button>
-  ));
-
-class StintModal extends Component {
-  toggle = () => {
-    console.log('calling this.props.onClose');
-    this.props.onClose();
-  }
-
-  handleStintSubmit(values) {
-    console.log('stint got submitted, values:', values);
-    this.props.createRaceStint(this.props.race.id, values);
-    this.toggle();
-  }
-
-  renderForm() {
-    return (
-      <section>
-        <ModalHeader toggle={this.toggle}>Stint Details</ModalHeader>
-        <ModalBody>
-            <StintForm raceId={this.props.race.id} stintId={this.props.stintId} onSubmit={this.handleStintSubmit.bind(this)} />
-        </ModalBody>
-
-        <ModalFooter>
-          <StintSubmitButton className="mr-1" />
-          <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-        </ModalFooter>        
-      </section>
-    );
-  }
-
-  render() {
-    return (
-      <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={`${this.props.className} modal-lg`}>
-        {this.renderForm()}
-      </Modal>
-      );    
-  }
-}
-
-StintModal = connect(null, { createRaceStint })(StintModal);
-
-class StopModal extends Component {
-  constructor(props) {
-    super(props);
-
-    console.log('stopmodal props:',props);
-    this.state = {
-      start: null,
-      stop: null,
-    };
-  }
-
-  componentDidMount() {
-    console.log('stopmodal mounted, props.stopId', this.props.stopId);
-  }
-
-  toggle = () => {
-    console.log('stopmodal calling this.props.onClose');
-    this.props.onClose();    
-  }
-
-  handleTimerStop = (start, stop) => {
-    const { race } = this.props;
-
-    // compute stopId
-    const stops = _.toArray(race.stops)
-      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
-    let stopId = 1;
-
-    if (!_.isEmpty(stops)) {
-      const lastStop = stops.slice(-1)[0];
-      stopId = lastStop.id + 1;
-    }
-
-    this.props.createRaceStop(race.id, {
-      start: start.format('Y-MM-DDTHH:mm:ss'),
-      stop: stop.format('Y-MM-DDTHH:mm:ss')
-    });
-
-    this.setState({ start, stop, stopId });
-  }
-
-  handleStopSubmit(values) {
-    console.log('stop got submitted, values:', values);
-    this.props.createRaceStop(this.props.race.id, values);
-    this.toggle();
-  }
-
-  renderForm() {
-    return (
-      <section>
-        <ModalHeader toggle={this.toggle}>Pit Stop Details</ModalHeader>
-        <ModalBody>
-          <StopForm 
-            race={this.props.race} 
-            stopId={this.props.stopId} 
-            activeStintId={this.props.activeStintId} 
-            onSubmit={this.handleStopSubmit.bind(this)} 
-          />
-        </ModalBody>
-
-        <ModalFooter>
-          <StopSubmitButton className="mr-1" />
-          <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-        </ModalFooter>
-      </section>
-    );
-  }
-
-  renderStopWatch() {
-    return (
-      <section>
-        <ModalHeader toggle={this.toggle}><FontAwesomeIcon icon={faFlagCheckered} className="mr-2"/>Start Pit Stop</ModalHeader>
-        <ModalBody>
-          <div className="stop-watch text-center">
-              <StopWatch setStopTimerAction={click => this.sendClickToChild = click} handleStop={this.handleTimerStop} />
-          </div>
-          {this.props.children}
-        </ModalBody>
-        <ModalFooter>
-          <Button className="btn-block" color="danger" onClick={() => this.sendClickToChild()}>Stop Stopwatch</Button>
-        </ModalFooter>
-      </section>
-    );
-  }
-
-  render() {
-    return (
-      <div>
-        <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={this.props.className}>
-          {this.props.showTimer ? this.renderStopWatch() : this.renderForm()}
-        </Modal>
-      </div>
-      );    
-  }
-}
-
-StopModal = connect(null, { createRaceStop })(StopModal);
 
 class RacesManage extends Component {
   constructor(props) {
@@ -233,15 +85,16 @@ class RacesManage extends Component {
   handleAddStint() {
     // get stop time of last stint
     const { race } = this.props;
+    const newStintId = createStintId(race);
+
+    // sort stints by time to figure out initial time guess
     const stints = _.toArray(race.stints)
       .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
-    let stintId = 1;
     let start = null;
     let end = null;
 
     if (!_.isEmpty(stints)) {
       const lastStint = stints.slice(-1)[0];
-      stintId = lastStint.id + 1;
       start = lastStint.end;
     } else {
       start = this.props.race.start;
@@ -260,7 +113,7 @@ class RacesManage extends Component {
     this.props.createRaceStint(this.props.race.id, data);
 
     // open stint dialog to edit it
-    this.setState({ stintModalOpen: true, selectedStintId: stintId });
+    this.setState({ stintModalOpen: true, selectedStintId: newStintId });
   }
 
   handleDeleteStint(id) {
@@ -275,17 +128,11 @@ class RacesManage extends Component {
 
   handleAddStop() {
     const { race } = this.props;
-    const stops = _.toArray(race.stops)
-      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
-    let stopId = 1;
-
-    if (!_.isEmpty(stops)) {
-      const lastStop = stops.slice(-1)[0];
-      stopId = lastStop.id + 1;
-    }
+    const newStopId = createStopId(race);
 
     const data = {
-      start: moment().format('Y-MM-DDTHH:mm:ss'),
+      start: null,
+      end: null,
       lap: null,
       length: null,
       fuel: null,
@@ -296,7 +143,7 @@ class RacesManage extends Component {
     this.props.createRaceStop(this.props.race.id, data);
 
     // open stop dialog to edit it
-    this.setState({ stintModalOpen: true, selectedStopId: stopId });
+    this.setState({ stopModalOpen: true, selectedStopId: newStopId });
   }
 
   handleDeleteStop(id) {
@@ -308,20 +155,31 @@ class RacesManage extends Component {
     this.setState({ stopModalOpen: false});
   }
 
-
   renderStopRow(stop) {
+    const duration = stop.start && stop.end ? 
+      moment(moment(stop.end).diff(moment(stop.start))).format('mm:ss') : 
+      '(unset)';
+
     return (
-      <tr key={stop.id} onClick={() => this.setState({ selectedStopId: stop.id, stopModalOpen: true })} style={{cursor: 'pointer'}}>
+      <tr 
+        key={stop.id} 
+        onClick={() => this.setState({ selectedStopId: stop.id, stopModalOpen: true })} 
+        style={{cursor: 'pointer'}}
+      >
         <td>{(stop.start && moment(stop.start).format('LTS')) || '(unset)'}</td>
         <td>{stop.lap || '(unset)'}</td>
-        <td>{stop.length || '(unset)'}</td>
+        <td>{duration}</td>
         <td>{(stop.driver && (this.props.drivers[stop.driver].firstname + ' ' + this.props.drivers[stop.driver].lastname)) || '(unset)'}</td>
         <td>FUEL REMAINING</td>
         <td>{stop.fuel || '(unset)'}</td>
         <td>EST NEXT STOP LAP</td>
         <td>{stop.notes || ''}</td>
         <td className="text-right">
-          <Button color="link"><FontAwesomeIcon icon={faTrashAlt} onClick={e => { this.handleDeleteStop(stop.id); e.stopPropagation(); }} /></Button>
+          <Button color="link" onClick={e => { this.handleDeleteStop(stop.id); e.stopPropagation(); }}>
+            <FontAwesomeIcon 
+              icon={faTrashAlt} 
+            />
+          </Button>
         </td>
       </tr>
     );
@@ -329,6 +187,7 @@ class RacesManage extends Component {
 
   renderStopTable() {
     const { race } = this.props;
+    console.log('rendering race stop table, stops:',race.stops);
     return (
       <Table hover responsive>
         <thead>
@@ -363,7 +222,12 @@ class RacesManage extends Component {
     }
 
     return (
-      <tr key={stint.id} className={after} onClick={() => this.setState({ selectedStintId: stint.id, stintModalOpen: true })} style={{cursor: 'pointer'}}>
+      <tr 
+        key={stint.id} 
+        className={after} 
+        onClick={() => this.setState({ selectedStintId: stint.id, stintModalOpen: true })} 
+        style={{cursor: 'pointer'}}
+      >
         <th scope="row">{index+1}</th>
         <td>{(stint.start && moment(stint.start).format('LTS')) || '(unset)'}</td>
         <td>{stint.startingLap || '(unset)'}</td>        
@@ -372,7 +236,12 @@ class RacesManage extends Component {
         <td>{(stint.driver && (this.props.drivers[stint.driver].firstname + ' ' + this.props.drivers[stint.driver].lastname)) || '(unset)'}</td>
         <td style={{ maxWidth: '500px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stint.notes || ''}</td>
         <td className="text-right">
-          <Button color="link"><FontAwesomeIcon icon={faTrashAlt} onClick={e => { this.handleDeleteStint(stint.id); e.stopPropagation(); }} /></Button>
+          <Button color="link">
+            <FontAwesomeIcon 
+              icon={faTrashAlt} 
+              onClick={e => { this.handleDeleteStint(stint.id); e.stopPropagation(); }} 
+            />
+          </Button>
         </td>
       </tr>
     );
@@ -381,7 +250,7 @@ class RacesManage extends Component {
   renderStintTable() {
     const { race } = this.props;
 
-    // sorted stints
+    // sorted stints for display
     let stints = _.toArray(race.stints)
       .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
     return (
@@ -405,16 +274,6 @@ class RacesManage extends Component {
       );
   }
 
-  renderTimer() {
-    return (
-      <div className="digital-clock-container">
-        <div className="digital-clock-ghosts">88:88:88 88</div>
-        <Clock format={'h:mm:ss A'} ticking={true} className="digital-clock" />
-      </div>
-
-      );
-  }
-
   render() {
     const { race, track } = this.props;
     let color = 'black';
@@ -431,7 +290,12 @@ class RacesManage extends Component {
           </Col>
 
           <Col>
-            <img src={this.props.cars[this.props.race.car].picture} alt="Car" className="rounded" style={{maxWidth: '100px', maxHeight: '100px' }}/>
+            <img 
+              src={this.props.cars[this.props.race.car].picture} 
+              alt="Car" 
+              className="rounded" 
+              style={{maxWidth: '100px', maxHeight: '100px' }}
+            />
           </Col>
 
           <Col sm={4} className="text-right">
@@ -475,14 +339,15 @@ class RacesManage extends Component {
 
         <StopModal 
           race={race}
-          activeStintId={this.state.activeStintId}
           stopId={this.state.selectedStopId}
+          activeStintId={this.state.activeStintId}
           isOpen={this.state.stopModalOpen} 
           onClose={this.handleStopModalClose} />
         
         <StintModal 
           race={race} 
           stintId={this.state.selectedStintId} 
+          activeStintId={this.state.activeStintId}
           isOpen={this.state.stintModalOpen} 
           onClose={this.handleStintModalClose} />
 
@@ -492,22 +357,25 @@ class RacesManage extends Component {
               <Button 
                 color="primary" 
                 onClick={() => this.onViewSelected(STINTS)} 
-                active={this.state.viewSelected === STINTS}
-              >
+                active={this.state.viewSelected === STINTS}>
                 Stints
               </Button>
               <Button 
                 color="primary" 
                 onClick={() => this.onViewSelected(STOPS)} 
-                active={this.state.viewSelected === STOPS}
-              >
+                active={this.state.viewSelected === STOPS}>
                 Stops
               </Button>
             </ButtonGroup>
           </Col>
 
           <Col className="ml-auto text-right">
-            <Button onClick={() => this.state.viewSelected === STOPS ? this.handleAddStop() : this.handleAddStint()}><FontAwesomeIcon icon={faPlusSquare} className="mr-1" />Add</Button>
+            {this.state.viewSelected === STINTS &&
+              <Button onClick={() => this.handleAddStint()}>
+                <FontAwesomeIcon icon={faPlusSquare} className="mr-1" />
+                Add
+              </Button>
+            }
           </Col>
         </FormGroup>
 
@@ -523,7 +391,17 @@ class RacesManage extends Component {
 
 function mapStateToProps({ races, cars, drivers, tracks }, ownProps) {
   const id = ownProps.match.params.id;
-  return { race: races[id], cars, drivers, track: tracks[races[id].track] };
+  return { 
+    race: races[id], 
+    cars, 
+    drivers, 
+    track: tracks[races[id].track] 
+  };
 }
 
-export default connect(mapStateToProps, { createRaceStop, deleteRaceStop, createRaceStint, deleteRaceStint })(RacesManage);
+export default connect(mapStateToProps, { 
+  createRaceStop, 
+  deleteRaceStop, 
+  createRaceStint, 
+  deleteRaceStint 
+})(RacesManage);

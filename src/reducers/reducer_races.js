@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 import { CREATE_RACE, DELETE_RACE, 
   CREATE_RACE_STOP, DELETE_RACE_STOP,
-  CREATE_RACE_STINT, DELETE_RACE_STINT
+  CREATE_RACE_STINT, DELETE_RACE_STINT,
+  createStopId, createStintId
 } from '../actions/index';
 
 let initialState = localStorage.getItem('races') ? JSON.parse(localStorage.getItem('races')) : {};
@@ -35,15 +36,14 @@ export default function (state = initialState, action) {
 
     case CREATE_RACE_STOP: {
       let { raceId, values } = action.payload;
+      let stopId = null;
 
       // lookup the correct race
       let race = state[raceId];
-      let stops = race.stops;
-      let stopId = null;
       if (!values.id) {
-        const lastStop = _.isEmpty(stops) ? { id: 0 } : stops[Object.keys(stops).slice(-1)[0]];
-        stopId = lastStop.id + 1;
+        stopId = createStopId(race);
         values.id = stopId;
+        console.log('create race stop action handler created stopId',stopId);
       } else {
         stopId = values.id;
       }
@@ -82,29 +82,24 @@ export default function (state = initialState, action) {
 
     case CREATE_RACE_STINT: {
       let { raceId, values } = action.payload;
+      let stintId = null;
 
       // lookup the correct race
       let race = state[raceId];
-      let stints = race.stints;
-      let stintId = null;
       if (!values.id) {
-        const lastStint = _.isEmpty(stints) ? { id: 0 } : stints[Object.keys(stints).slice(-1)[0]];
-        stintId = lastStint ? lastStint.id + 1 : 1;
+        stintId = createStintId(race);
         values.id = stintId;
       } else {
         stintId = values.id;
       }
 
-      // add the stint to the race
-      // first, make new stints
-      stints = Object.assign({}, race.stints, { [stintId]: values });
-
+      // add or update the stint to the race
       newState = {
         ...state,
         // update our race object with the new stops array
         [raceId]: {
           ...race,
-          stints,
+          stints: Object.assign({}, race.stints, { [stintId]: values })
         }
       };
 

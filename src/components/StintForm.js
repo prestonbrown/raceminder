@@ -19,7 +19,6 @@ class StintForm extends Component {
     const { race, stintId } = this.props;
     const stint = race.stints[stintId];
 
-    
     console.log('stint form got race:', race);
     console.log('stint form got stint:', stint);    
     console.log('stint form got stintId:', stintId);        
@@ -67,7 +66,7 @@ class StintForm extends Component {
    * Disabled for now.
    */
   fixDate(value) {
-    console.log('in fixDate for value:',value);
+    //console.log('in fixDate for value:',value);
     return value;
 
     if (value === null) {
@@ -98,7 +97,7 @@ class StintForm extends Component {
           <Col sm={6}>
             <FormGroup>
               <Label>Starts</Label>
-              <Field name="start" format={this.fixDate} component="input" className="form-control" type="datetime-local" step="1" />
+              <Field name="start" format={this.fixDate} component="input" className="form-control form-control-sm" type="datetime-local" step="1" />
             </FormGroup>
           
             <FormGroup>
@@ -119,7 +118,7 @@ class StintForm extends Component {
           <Col sm={6}>
             <FormGroup>
               <Label>Ends</Label>
-              <Field name="end" format={this.fixDate} component="input" className="form-control" type="datetime-local" step="1" />
+              <Field name="end" format={this.fixDate} component="input" className="form-control form-control-sm" type="datetime-local" step="1" />
             </FormGroup>
     
             <FormGroup>
@@ -155,7 +154,7 @@ const selector = formValueSelector('StintForm');
 
 function mapStateToProps(state, ownProps) {
   const drivers = state.drivers;
-  const race = state.races[ownProps.raceId];
+  const { race } = ownProps;
   const track = state.tracks[race.track];
   const car = state.cars[race.car];
 
@@ -171,7 +170,6 @@ function mapStateToProps(state, ownProps) {
 
   return { 
     drivers, 
-    race,
     track,
     car,
     lpg,

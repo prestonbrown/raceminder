@@ -4,6 +4,8 @@
  * License: MIT
  */
 
+import _ from 'lodash';
+
 export const CREATE_DRIVER = 'CREATE_DRIVER';
 export const DELETE_DRIVER = 'DELETE_DRIVER';
 
@@ -57,6 +59,17 @@ export function createRace(values) {
   };
 }
 
+export function createStopId(race) {
+  const stops = _.toArray(race.stops)
+    .sort((a, b) => a.id - b.id);
+  if (_.isEmpty(stops)) {
+    return 1;
+  }
+
+  const maxStop = stops.slice(-1)[0];
+  return maxStop.id + 1;
+}
+
 export function createRaceStop(raceId, values) {
   return {
     type: CREATE_RACE_STOP,
@@ -69,6 +82,17 @@ export function deleteRaceStop(raceId, stopId) {
     type: DELETE_RACE_STOP,
     payload: { raceId, stopId }
   };
+}
+
+export function createStintId(race) {
+  const stints = _.toArray(race.stints)
+    .sort((a, b) => a.id - b.id);
+  if (_.isEmpty(stints)) {
+    return 1;
+  }
+
+  const maxStint = stints.slice(-1)[0];
+  return maxStint.id + 1;
 }
 
 export function createRaceStint(raceId, values) {
