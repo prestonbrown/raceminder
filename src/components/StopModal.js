@@ -85,20 +85,14 @@ class StopModal extends Component {
       let matches = _.filter(race.stints, stint => {
         const duration = moment.duration(moment(stint.start).diff(now));
         const timeUntil = duration.asMinutes();
-        retVal = (stint.driver === values.driver && timeUntil > 0 && timeUntil <= 15);
-        console.log('filter return value for stint.id',stint.id,',retVal',retVal);
-        return retVal;
+        return (stint.driver === values.driver && timeUntil > 0 && timeUntil <= 15);
       });
 
-      console.log('filtered stints',matches);
-
       if (matches.length) {
-        console.log('got matches:',matches);
-        let stint = matches[0];
-        stint.start = values.end;
+        const nextStint = matches[0];
+        nextStint.start = values.end;
 
-        console.log('ending next stint early:',stint);
-        this.props.createRaceStint(race.id, stint);
+        this.props.createRaceStint(race.id, nextStint);
         this.toggle();
         return;
       }
@@ -117,7 +111,6 @@ class StopModal extends Component {
       // need to copy the ending lap # to the new stint too, but we aren't
       // storing that in the stop values yet
 
-      console.log('calling createRaceStint with new stint values:',newStint);
       this.props.createRaceStint(race.id, newStint);
     }
 
