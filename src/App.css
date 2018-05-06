@@ -51,7 +51,7 @@ input::-webkit-inner-spin-button {
 @media (max-width: 575px) {
   .modal, .modal-lg {
     min-width: 100%;
-    margin: 0;
+    margin: -8px -8px;
   }
 
   .modal .modal-content {
@@ -86,9 +86,15 @@ input::-webkit-inner-spin-button {
 }
 
 .stop-watch {
-  font-size: 4em;
+  font-size: 5em;
   background: black;
   min-height: 1.5em;
+}
+
+@media (max-width: 575px) {
+  .stop-watch {
+    font-size: 4em;
+  }
 }
 
 .stop-watch .digital-clock-container .digital-clock-ghosts {

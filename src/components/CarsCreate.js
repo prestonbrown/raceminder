@@ -382,7 +382,8 @@ class CarsCreate extends Component {
         </div>
         <h3 className="clearfix">Create New Car</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-          <Field label="Car Name / Number" name="name" type="text" autoFocus component={this.renderField} />
+          <Field label="Car Name" name="name" type="text" autoFocus component={this.renderField} />
+          <Field label="Car Number" name="number" type="number" component={this.renderField} />
           <Field label="Make / Model" name="model" type="text" component={this.renderField} />
           <Field label="Fuel Capacity" name="fuelCapacity" type="number" component={this.renderField} />
           <Field label="Desired Fuel Reserve" name="desiredFuelReserve" type="number" component={this.renderField} />

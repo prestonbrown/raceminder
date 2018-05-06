@@ -22,7 +22,8 @@ import StopModal from './StopModal';
 import StintModal from './StintModal';
 
 import { createRaceStop, deleteRaceStop, createStopId,
-  createRaceStint, deleteRaceStint, createStintId } from '../actions';
+  createRaceStint, deleteRaceStint, createStintId, 
+  refreshRaceHero } from '../actions';
 
 const STOPS = 'STOPS';
 const STINTS = 'STINTS';
@@ -189,8 +190,8 @@ class RacesManage extends Component {
     const { race } = this.props;
     console.log('rendering race stop table, stops:',race.stops);
     return (
-      <Table hover responsive>
-        <thead>
+      <Table hover responsive dark sm>
+        <thead className="table-sm">
           <tr>
             <th scope="col">Start Time</th>
             <th scope="col">Lap #</th>
@@ -216,9 +217,9 @@ class RacesManage extends Component {
     let start = moment(stint.start);
     let now = moment();
     if (start < now && end > now) {
-      after = 'table-warning';
+      after = 'bg-primary';
     } else if (end < now) {
-      after = 'table-secondary';
+      after = 'bg-warning';
     }
 
     return (
@@ -228,13 +229,13 @@ class RacesManage extends Component {
         onClick={() => this.setState({ selectedStintId: stint.id, stintModalOpen: true })} 
         style={{cursor: 'pointer'}}
       >
-        <th scope="row">{index+1}</th>
+        <th className="d-none d-sm-table-cell" scope="row">{index+1}</th>
         <td>{(stint.start && moment(stint.start).format('LTS')) || '(unset)'}</td>
         <td>{stint.startingLap || '(unset)'}</td>        
-        <td>{(stint.end && moment(stint.end).format('LTS')) || '(unset)'}</td>
+        <td className="d-none d-sm-table-cell">{(stint.end && moment(stint.end).format('LTS')) || '(unset)'}</td>
         <td>{stint.endingLap || '(unset)'}</td>        
         <td>{(stint.driver && (this.props.drivers[stint.driver].firstname + ' ' + this.props.drivers[stint.driver].lastname)) || '(unset)'}</td>
-        <td style={{ maxWidth: '500px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stint.notes || ''}</td>
+        <td className="d-none d-md-table-cell" style={{ maxWidth: '500px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stint.notes || ''}</td>
         <td className="text-right">
           <Button color="link">
             <FontAwesomeIcon 
@@ -254,16 +255,16 @@ class RacesManage extends Component {
     let stints = _.toArray(race.stints)
       .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
     return (
-          <Table hover responsive>
-            <thead className="thead-dark table-sm">
+          <Table hover responsive dark>
+            <thead className="table-sm">
               <tr>
-                <th scope="col">Stint #</th>
+                <th className="d-none d-sm-table-cell" scope="col">Stint #</th>
                 <th scope="col">Start Time</th>
                 <th scope="col">Starting Lap</th>
-                <th scope="col">Stop Time</th>
+                <th className="d-none d-sm-table-cell" scope="col">Stop Time</th>
                 <th scope="col">Expected Ending Lap</th>
                 <th scope="col">Driver</th>
-                <th scope="col">Notes</th>
+                <th className="d-none d-md-table-cell" scope="col">Notes</th>
                 <th scope="col" className="text-right"></th>
               </tr>
             </thead>
@@ -284,22 +285,22 @@ class RacesManage extends Component {
     return (
       <div>
         <Row className="mb-2">
-          <Col>
-            <h3>Manage {race.name}</h3>
-            <h5>Track: {track.name}</h5>
+          <Col xs={5}>
+            <h3>{race.name}</h3>
+            <h5 className="d-none d-md-block">Track: {track.name}</h5>
           </Col>
 
-          <Col>
+          <Col xs={1}>
             <img 
               src={this.props.cars[this.props.race.car].picture} 
               alt="Car" 
-              className="rounded" 
+              className="rounded d-none d-sm-block"
               style={{maxWidth: '100px', maxHeight: '100px' }}
             />
           </Col>
 
-          <Col sm={4} className="text-right">
-            <h4>
+          <Col xs={6} className="text-right">
+            <h4 className="time-of-day">
               <div className="digital-clock-container">
                 <div className="digital-clock-ghosts">88:88:88 88</div>
                 <Clock format={'h:mm:ss A'} ticking={true} className={`text-${color} digital-clock`} />
@@ -376,6 +377,12 @@ class RacesManage extends Component {
                 Add
               </Button>
             }
+            <Button 
+              color="secondary" 
+              onClick={() => this.props.refreshRaceHero(race.id, 'champcar-s-thunder-hill-grand-prix')}>
+              Refresh RaceHero
+            </Button>
+
           </Col>
         </FormGroup>
 
@@ -403,5 +410,6 @@ export default connect(mapStateToProps, {
   createRaceStop, 
   deleteRaceStop, 
   createRaceStint, 
-  deleteRaceStint 
+  deleteRaceStint,
+  refreshRaceHero
 })(RacesManage);

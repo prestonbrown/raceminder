@@ -7,6 +7,7 @@ import { createStore, applyMiddleware } from 'redux';
 //import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 import reduxPromise from 'redux-promise';
+import thunk from 'redux-thunk';
 
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV !== 'production') {
 //import DevTools from './components/DevTools';
 
 //const createStoreWithMiddleware = compose(applyMiddleware(reduxPromise), DevTools.instrument())(createStore);
-const createStoreWithMiddleware = applyMiddleware(reduxPromise)(createStore);
+const createStoreWithMiddleware = applyMiddleware(reduxPromise, thunk)(createStore);
 
 ReactDOM.render(
   <Provider store={createStoreWithMiddleware(reducers)}>

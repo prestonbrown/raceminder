@@ -244,6 +244,7 @@ class RacesCreate extends Component {
             component={this.renderField} 
           />
           <Field label="Default Stint Length (hrs)" name="stintLength" type="number" component={this.renderField} />          
+          <Field label="RaceHero Race Name" name="raceHeroName" type="text" component={this.renderField} />
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
             <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>

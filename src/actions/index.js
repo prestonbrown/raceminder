@@ -19,6 +19,10 @@ export const CREATE_RACE_STINT = 'CREATE_RACE_STINT';
 export const DELETE_RACE_STINT = 'DELETE_RACE_STINT';
 export const DELETE_RACE = 'DELETE_RACE';
 
+export const REFRESH_RACEHERO_STARTED = 'REFRESH_RACEHERO_STARTED';
+export const REFRESH_RACEHERO_SUCCESS = 'REFRESH_RACEHERO_SUCCESS';
+export const REFRESH_RACEHERO_ERROR = 'REFRESH_RACEHERO_ERROR';
+
 export function createDriver(values) {
   return {
     type: CREATE_DRIVER,
@@ -112,5 +116,40 @@ export function deleteRace(id) {
   return {
     type: DELETE_RACE,
     payload: id
+  };
+}
+
+export function refreshRaceHero(raceId, eventName) {
+  let origin = window.location.protocol + '//' + window.location.host;
+  const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
+
+  return (dispatch, getState) => {
+    dispatch({ type: REFRESH_RACEHERO_STARTED });
+    console.log('dispatched REFRESH_RACEHERO_STARTED');
+
+    fetch(urlPrefix + '/events/' + eventName, 
+      { headers: { origin }})
+    .then(response => response.text())
+    .then(data => {
+      let re = /json_path_for_run:\s+'(\S+)?'/;
+      let match = data.match(re);
+      if (match) {
+        const url = urlPrefix + match[1];
+        return url;
+      }
+      throw new Error('No URL was found for race data');
+    })
+    .then(url => {
+      fetch(url, { headers: { origin }})
+      .then(response => response.json())
+      .then(data => {
+        dispatch({ type: REFRESH_RACEHERO_SUCCESS, payload: { raceId, data }});
+        console.log('dispatched REFRESH_RACEHERO_SUCCESS');
+      });
+    })
+    .catch(error => {
+      dispatch({ type: REFRESH_RACEHERO_ERROR, error: error})
+      console.log('dispatched REFRESH_RACEHERO_ERROR');      
+    });
   };
 }

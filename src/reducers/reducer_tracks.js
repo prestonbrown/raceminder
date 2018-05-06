@@ -20,6 +20,11 @@ let initialState = {
       id: 4,
       name: 'Watkins Glen International',
       length: 3.4
+    },
+    5: {
+      id: 5,
+      name: 'Thunder Hill West',
+      length: 3.0
     }
 };
 
