@@ -18,6 +18,8 @@ import momentLocalizer from 'react-widgets-moment';
 
 import Clock from 'react-live-clock';
 
+import Sockette from 'sockette';
+
 import StopModal from './StopModal';
 import StintModal from './StintModal';
 
@@ -49,25 +51,94 @@ class RacesManage extends Component {
   componentDidMount() {
     this.updateActiveStint(this.props);
 
+    //this.updateRaceHero();
+
     // refresh once a minute
-    this.interval = setInterval(() => { 
-      this.setState(this.state);
+    this.activeStintInterval = setInterval(() => { 
       // update active stint based on time
       this.updateActiveStint(this.props);
-    }, 60000);
+
+      // force re-render
+      // this.setState(this.state);
+      
+    }, 10000);
+
+    /*
+    this.raceHeroInterval = setInterval(() => {
+      this.updateRaceHero();
+    }, 30000);
+    */
+
+    this.raceHeroWebSocket();
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.activeStintInterval);
+    clearInterval(this.raceHeroInterval);
   }
 
   componentWillReceiveProps(newProps) {
     if (this.props.race.stints !== newProps.race.stints) {
       this.updateActiveStint(newProps);
     }
+    /*
+    if (this.props.racehero && this.props.racehero.current_lap !== newProps.racehero.current_lap) {
+      this.updateActiveStint(newProps);
+    }
+    */
+    if (newProps.racehero.error) {
+      clearInterval(this.raceHeroInterval);
+    }
+
+  }
+
+  raceHeroWebSocket = () => {
+    const ws = new Sockette('ws://ws.pusherapp.com/app/a7e468c845030a08a736?protocol=7&client=js&version=2.2.4&flash=false', {
+      timeout: 5e3,
+      maxAttempts: 10,
+      onopen: e => { 
+        console.log('Connected!', e);  
+      },
+      onmessage: e => {
+        console.log('Received:', e);
+
+        const data = JSON.parse(e.data);
+        console.log('got message data', data);
+        if (data.event && data.event === 'pusher:connection_established') {
+          const message = JSON.stringify({
+            event: 'pusher:subscribe',
+            data: {
+             channel: 'event-258-2147483660-20180504-run'
+            }
+          });
+          ws.send(message);
+        }        
+      },
+      onreconnect: e => console.log('Reconnecting...', e),
+      onmaximum: e => console.log('Stop Attempting!', e),
+      onclose: e => console.log('Closed!', e),
+      onerror: e => console.log('Error:', e)
+    });
+
+    
+
+    // disconnect 300 secs later
+    setTimeout(ws.close, 300e3);
+
+    //ws.close(); // graceful shutdown
+
+    // Reconnect 10s later
+    //setTimeout(ws.reconnect, 10e3);    
+  }
+
+
+  updateRaceHero = () => {
+    console.log('call to updateRaceHero');
+    this.props.refreshRaceHero(this.props.race);
   }
 
   updateActiveStint = props => {
+    console.log('call to update active stint');
     const now = moment();
     _.forEach(props.race.stints, stint => {
         const end = moment(stint.end);
@@ -276,7 +347,7 @@ class RacesManage extends Component {
   }
 
   render() {
-    const { race, track } = this.props;
+    const { race, track, racehero } = this.props;
     let color = 'black';
     if (moment().isAfter(race.start)) {
       color = 'red';
@@ -288,6 +359,7 @@ class RacesManage extends Component {
           <Col xs={5}>
             <h3>{race.name}</h3>
             <h5 className="d-none d-md-block">Track: {track.name}</h5>
+            <h5 className="d-none d-md-block">Lead Lap: {racehero.current_lap}</h5>
           </Col>
 
           <Col xs={1}>
@@ -377,12 +449,6 @@ class RacesManage extends Component {
                 Add
               </Button>
             }
-            <Button 
-              color="secondary" 
-              onClick={() => this.props.refreshRaceHero(race.id, 'champcar-s-thunder-hill-grand-prix')}>
-              Refresh RaceHero
-            </Button>
-
           </Col>
         </FormGroup>
 
@@ -396,13 +462,14 @@ class RacesManage extends Component {
   }
 }
 
-function mapStateToProps({ races, cars, drivers, tracks }, ownProps) {
+function mapStateToProps({ races, cars, drivers, tracks, racehero }, ownProps) {
   const id = ownProps.match.params.id;
   return { 
     race: races[id], 
     cars, 
     drivers, 
-    track: tracks[races[id].track] 
+    track: tracks[races[id].track],
+    racehero: racehero[id]
   };
 }
 

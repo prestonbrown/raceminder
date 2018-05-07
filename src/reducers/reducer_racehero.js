@@ -17,6 +17,14 @@ export default function(state = initialState, action) {
       localStorage.setItem('racehero', JSON.stringify(newState));
       return newState;
     }
+    case REFRESH_RACEHERO_ERROR: {
+      let { raceId, error } = action.payload;
+      let data = Object.assign({}, state[raceId]);
+      data.error = error;
+      newState = { ...state, [raceId]: data };
+      localStorage.setItem('racehero', JSON.stringify(newState));
+      return newState;
+    }
     default:
     return state;
   }

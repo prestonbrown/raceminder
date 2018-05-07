@@ -119,7 +119,7 @@ export function deleteRace(id) {
   };
 }
 
-export function refreshRaceHero(raceId, eventName) {
+export function refreshRaceHero(race) {
   let origin = window.location.protocol + '//' + window.location.host;
   const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
 
@@ -127,7 +127,7 @@ export function refreshRaceHero(raceId, eventName) {
     dispatch({ type: REFRESH_RACEHERO_STARTED });
     console.log('dispatched REFRESH_RACEHERO_STARTED');
 
-    fetch(urlPrefix + '/events/' + eventName, 
+    fetch(urlPrefix + '/events/' + race.raceHeroName,
       { headers: { origin }})
     .then(response => response.text())
     .then(data => {
@@ -143,12 +143,12 @@ export function refreshRaceHero(raceId, eventName) {
       fetch(url, { headers: { origin }})
       .then(response => response.json())
       .then(data => {
-        dispatch({ type: REFRESH_RACEHERO_SUCCESS, payload: { raceId, data }});
+        dispatch({ type: REFRESH_RACEHERO_SUCCESS, payload: { raceId: race.id, data }});
         console.log('dispatched REFRESH_RACEHERO_SUCCESS');
       });
     })
     .catch(error => {
-      dispatch({ type: REFRESH_RACEHERO_ERROR, error: error})
+      dispatch({ type: REFRESH_RACEHERO_ERROR, payload: { raceId: race.id, error: error}});
       console.log('dispatched REFRESH_RACEHERO_ERROR');      
     });
   };
