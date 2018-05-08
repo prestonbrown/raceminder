@@ -5,6 +5,7 @@
  */
 
 import _ from 'lodash';
+import Sockette from 'sockette';
 
 export const CREATE_DRIVER = 'CREATE_DRIVER';
 export const DELETE_DRIVER = 'DELETE_DRIVER';
@@ -22,6 +23,12 @@ export const DELETE_RACE = 'DELETE_RACE';
 export const REFRESH_RACEHERO_STARTED = 'REFRESH_RACEHERO_STARTED';
 export const REFRESH_RACEHERO_SUCCESS = 'REFRESH_RACEHERO_SUCCESS';
 export const REFRESH_RACEHERO_ERROR = 'REFRESH_RACEHERO_ERROR';
+
+export const CONNECT_RACEHERO_SOCKET_STARTED = 'CONNECT_RACEHERO_SOCKET_STARTED';
+export const CONNECT_RACEHERO_SOCKET_SUCCESS = 'CONNECT_RACEHERO_SOCKET_SUCCESS';
+export const CONNECT_RACEHERO_SOCKET_ERROR = 'CONNECT_RACEHERO_SOCKET_ERROR';
+export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
+export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
 
 export function createDriver(values) {
   return {
@@ -119,7 +126,116 @@ export function deleteRace(id) {
   };
 }
 
+const pingInterval = {};
+const ws = {};
+
+export function disconnectRaceHeroSocket(race) {
+  if (pingInterval[race.id]) {
+    clearInterval(pingInterval[race.id]);
+  }
+  if (ws[race.id]) {
+    ws[race.id].close();
+  }
+  return {
+    type: DISCONNECT_RACEHERO_SOCKET,
+    payload: { raceId: race.id }
+  }
+}
+
+export function connectRaceHeroSocket(race) {
+  let origin = window.location.protocol + '//' + window.location.host;
+  const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
+
+  if (!race.raceHeroName) {
+    return {
+      type: CONNECT_RACEHERO_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'No race hero race name is set for this race.' }
+    };
+  }
+
+  return (dispatch, getState) => {
+    dispatch({ type: CONNECT_RACEHERO_SOCKET_STARTED });
+    console.log('dispatched CONNECT_RACEHERO_SOCKET_STARTED');
+
+    fetch(urlPrefix + '/events/' + race.raceHeroName,
+      { headers: { origin }})
+    .then(response => response.text())
+    .then(data => {
+      let re = /new PusherService("(\S+)?")/;
+      let match = data.match(re);
+      let pusherAppId = null;
+      let channel = null;
+      if (!match) {
+        throw new Error('No Pusher application ID found');
+      }
+      pusherAppId = match[1];
+
+      re = /push_service\.subscribe("(\S+)?")/;
+      match = data.match(re);
+      if (!match) {
+        throw new Error('No Pusher event ID found');
+      }
+      channel = match[1];
+
+      ws[race.id] = new Sockette('ws://ws.pusherapp.com/app/' + pusherAppId + '?protocol=7&client=js&version=2.2.4&flash=false', {
+        timeout: 5e3,
+        maxAttempts: 10,
+        onopen: e => { 
+          console.log('Sockette Connected!', e);  
+        },
+        onmessage: e => {
+          console.log('Sockette Received:', e);
+
+          const data = JSON.parse(e.data);
+          console.log('got message data', data);
+          if (data.event && data.event === 'pusher:connection_established') {
+            const message = JSON.stringify({
+              event: 'pusher:subscribe',
+              data: {
+               channel
+              }
+            });
+            ws.send(message);
+          }
+
+          if (data.event && data.event == 'pusher_internal:subscription_succeeded') {
+            dispatch({ type: CONNECT_RACEHERO_SOCKET_SUCCESS, payload: { raceId: race.id, channel }});
+            pingInterval[race.id] = setInterval(() => {
+              ws[race.id].send(JSON.stringify({
+                event: 'pusher:ping',
+                data: {}
+              }));
+            }, 119e3);
+          }
+
+          if (data.event && data.event) {
+            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: data.data }});
+          }
+        },
+        onreconnect: e => console.log('Sockette Reconnecting...', e),
+        onmaximum: e => console.log('Sockette Stop Attempting!', e),
+        onclose: e => { console.log('Sockette Closed!', e); if (pingInterval[race.id]) { clearInterval(pingInterval[race.id]); } },
+        onerror: e => { console.log('Sockette Error:', e); ws[race.id].close(); }
+      });
+    })
+    .catch(error => {
+      dispatch({ type: CONNECT_RACEHERO_SOCKET_ERROR, payload: { raceId: race.id, error: error}});
+      console.log('dispatched CONNECT_RACEHERO_SOCKET_ERROR');
+      if (ws[race.id]) {
+        ws[race.id].close();
+      }
+    });
+  };  
+}
+
 export function refreshRaceHero(race) {
+  if (!race.raceHeroName) {
+    return {
+      type: REFRESH_RACEHERO_ERROR,
+      payload: { raceId: race.id, error: 'No race hero race name is set for this race. '}
+    };
+  }
+
   let origin = window.location.protocol + '//' + window.location.host;
   const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
 

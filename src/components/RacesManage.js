@@ -25,7 +25,7 @@ import StintModal from './StintModal';
 
 import { createRaceStop, deleteRaceStop, createStopId,
   createRaceStint, deleteRaceStint, createStintId, 
-  refreshRaceHero } from '../actions';
+  refreshRaceHero, connectRaceHeroSocket } from '../actions';
 
 const STOPS = 'STOPS';
 const STINTS = 'STINTS';
@@ -51,7 +51,9 @@ class RacesManage extends Component {
   componentDidMount() {
     this.updateActiveStint(this.props);
 
-    //this.updateRaceHero();
+    //this.props.refreshRaceHero(this.props.race);
+
+    this.props.connectRaceHeroSocket(this.props.race);
 
     // refresh once a minute
     this.activeStintInterval = setInterval(() => { 
@@ -65,16 +67,14 @@ class RacesManage extends Component {
 
     /*
     this.raceHeroInterval = setInterval(() => {
-      this.updateRaceHero();
+      this.props.refreshRaceHero(this.props.race);
     }, 30000);
     */
-
-    this.raceHeroWebSocket();
   }
 
   componentWillUnmount() {
     clearInterval(this.activeStintInterval);
-    clearInterval(this.raceHeroInterval);
+    //clearInterval(this.raceHeroInterval);
   }
 
   componentWillReceiveProps(newProps) {
@@ -87,54 +87,9 @@ class RacesManage extends Component {
     }
     */
     if (newProps.racehero.error) {
-      clearInterval(this.raceHeroInterval);
+      //clearInterval(this.raceHeroInterval);
     }
 
-  }
-
-  raceHeroWebSocket = () => {
-    const ws = new Sockette('ws://ws.pusherapp.com/app/a7e468c845030a08a736?protocol=7&client=js&version=2.2.4&flash=false', {
-      timeout: 5e3,
-      maxAttempts: 10,
-      onopen: e => { 
-        console.log('Connected!', e);  
-      },
-      onmessage: e => {
-        console.log('Received:', e);
-
-        const data = JSON.parse(e.data);
-        console.log('got message data', data);
-        if (data.event && data.event === 'pusher:connection_established') {
-          const message = JSON.stringify({
-            event: 'pusher:subscribe',
-            data: {
-             channel: 'event-258-2147483660-20180504-run'
-            }
-          });
-          ws.send(message);
-        }        
-      },
-      onreconnect: e => console.log('Reconnecting...', e),
-      onmaximum: e => console.log('Stop Attempting!', e),
-      onclose: e => console.log('Closed!', e),
-      onerror: e => console.log('Error:', e)
-    });
-
-    
-
-    // disconnect 300 secs later
-    setTimeout(ws.close, 300e3);
-
-    //ws.close(); // graceful shutdown
-
-    // Reconnect 10s later
-    //setTimeout(ws.reconnect, 10e3);    
-  }
-
-
-  updateRaceHero = () => {
-    console.log('call to updateRaceHero');
-    this.props.refreshRaceHero(this.props.race);
   }
 
   updateActiveStint = props => {
@@ -359,7 +314,9 @@ class RacesManage extends Component {
           <Col xs={5}>
             <h3>{race.name}</h3>
             <h5 className="d-none d-md-block">Track: {track.name}</h5>
-            <h5 className="d-none d-md-block">Lead Lap: {racehero.current_lap}</h5>
+            {racehero &&
+              <h5 className="d-none d-md-block">Lead Lap: {racehero.current_lap}</h5>
+            }
           </Col>
 
           <Col xs={1}>
@@ -478,5 +435,6 @@ export default connect(mapStateToProps, {
   deleteRaceStop, 
   createRaceStint, 
   deleteRaceStint,
-  refreshRaceHero
+  refreshRaceHero,
+  connectRaceHeroSocket
 })(RacesManage);
