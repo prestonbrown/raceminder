@@ -198,7 +198,7 @@ export function connectRaceHeroSocket(race) {
             ws.send(message);
           }
 
-          if (data.event && data.event == 'pusher_internal:subscription_succeeded') {
+          if (data.event && data.event === 'pusher_internal:subscription_succeeded') {
             dispatch({ type: CONNECT_RACEHERO_SOCKET_SUCCESS, payload: { raceId: race.id, channel }});
             pingInterval[race.id] = setInterval(() => {
               ws[race.id].send(JSON.stringify({
