@@ -18,8 +18,6 @@ import momentLocalizer from 'react-widgets-moment';
 
 import Clock from 'react-live-clock';
 
-import Sockette from 'sockette';
-
 import StopModal from './StopModal';
 import StintModal from './StintModal';
 
