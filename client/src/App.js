@@ -27,6 +27,23 @@ import RacesIndex from './components/RacesIndex';
 import Dashboard from './components/Dashboard';
 
 class App extends Component {
+  componentDidMount() {
+    this.callApi();
+  }
+
+  callApi() {
+    fetch('/api/ping')
+    .then(response => {
+      response.json()
+      .then(function(data) {
+        console.log('got API response:',data);
+      })
+    })
+    .catch(err => {
+      console.log('fetch() error:',err);
+    });
+  }
+
   render() {
     return (
       <div>
