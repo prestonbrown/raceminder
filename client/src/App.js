@@ -12,7 +12,12 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 
+import * as routes from './routes';
+
 import RMNav from './components/RMNav';
+
+import SignInPage from './components/SignInPage';
+import AccountPage from './components/AccountPage';
 
 import DriversCreate from './components/DriversCreate';
 import DriversIndex from './components/DriversIndex';
@@ -52,20 +57,23 @@ class App extends Component {
             <RMNav />
             <Container fluid>
               <Switch>
-                <Route path="/drivers/create" component={DriversCreate} />
-                <Route path="/drivers/:id" render={() => <DriversCreate />} />
-                <Route path="/drivers/" component={DriversIndex} />
+                <Route exact path={routes.SIGN_IN} component={() => <SignInPage />} />
+                <Route exact path={routes.ACCOUNT} component={() => <AccountPage />} />
 
-                <Route path="/cars/create" component={CarsCreate} />
-                <Route path="/cars/:id" component={CarsCreate} />
-                <Route path="/cars/" component={CarsIndex} />              
+                <Route path={`${routes.DRIVERS}/create`} component={DriversCreate} />
+                <Route path={`${routes.DRIVERS}/:id`} render={() => <DriversCreate />} />
+                <Route path={`${routes.DRIVERS}/drivers/`} component={DriversIndex} />
 
-                {/*<Route path="/races/create" render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
-                <Route path="/races/create" render={() => <RacesCreate />} />
-                <Route path="/races/manage/:id" component={RacesManage} />
-                <Route path="/races/:id" component={RacesCreate} />
-                <Route path="/races/" component={RacesIndex} />
-                <Route path="/" component={Dashboard} />
+                <Route path={`${routes.CARS}/create`} component={CarsCreate} />
+                <Route path={`${routes.CARS}/:id`} component={CarsCreate} />
+                <Route path={`${routes.CARS}/`} component={CarsIndex} />              
+
+                {/*<Route path={`${routes.RACES}/create`} render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
+                <Route path={`${routes.RACES}/create`} render={() => <RacesCreate />} />
+                <Route path={`${routes.RACES}/manage/:id`} component={RacesManage} />
+                <Route path={`${routes.RACES}/:id`} component={RacesCreate} />
+                <Route path={`${routes.RACES}/`} component={RacesIndex} />
+                <Route path={`${routes.HOME}`} component={Dashboard} />
              </Switch>
             </Container>
           </div>
