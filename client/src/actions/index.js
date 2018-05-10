@@ -208,8 +208,10 @@ export function connectRaceHeroSocket(race) {
             }, 119e3);
           }
 
-          if (data.event && data.event) {
+          if (data.event && data.event == 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: data.data }});
+          } else if (data.event) {
+            console.log('unknown pusher event:',data);
           }
         },
         onreconnect: e => console.log('Sockette Reconnecting...', e),
