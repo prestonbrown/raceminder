@@ -16,7 +16,7 @@ import * as routes from './routes';
 
 import RMNav from './components/RMNav';
 
-import SignInPage from './components/SignInPage';
+import SignInPage from './components/SignIn';
 import AccountPage from './components/AccountPage';
 
 import DriversCreate from './components/DriversCreate';
