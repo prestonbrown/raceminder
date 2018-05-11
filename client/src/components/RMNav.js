@@ -38,6 +38,7 @@ export default class RMNav extends Component {
   }
 
   render() {
+    const { authUser } = this.props;
     return (
       <div>
         <Navbar color="light" light expand="md">
@@ -55,14 +56,12 @@ export default class RMNav extends Component {
                 <NavLink tag={Link} to="/races/">Races</NavLink>
               </NavItem>
 
+              { authUser && 
               <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
                   User
                 </DropdownToggle>
                 <DropdownMenu right>
-                  <DropdownItem>
-                    <Link to={routes.SIGN_IN}>Sign In</Link>
-                  </DropdownItem>
                   <DropdownItem>
                     <Link to={routes.ACCOUNT}>Account Preferences</Link>
                   </DropdownItem>
@@ -72,6 +71,7 @@ export default class RMNav extends Component {
                   <SignOutDropdownItem />
                 </DropdownMenu>
               </UncontrolledDropdown>
+              }
 
             </Nav>
           </Collapse>

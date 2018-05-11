@@ -7,12 +7,16 @@
 import 'dseg/css/dseg.css';
 import './App.css';
 
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Switch } from 'react-router-dom';
 
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 
+import { firebase } from './firebase';
+
 import * as routes from './routes';
+
+import Route from './components/AuthRoute';
 
 import RMNav from './components/RMNav';
 
@@ -32,8 +36,22 @@ import RacesIndex from './components/RacesIndex';
 import Dashboard from './components/Dashboard';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      authUser: null
+    };
+  }
+
   componentDidMount() {
     this.callApi();
+
+    firebase.auth.onAuthStateChanged(authUser => {
+      authUser
+        ? this.setState(() => ({ authUser }))
+        : this.setState(() => ({ authUser: null }));
+    });
   }
 
   callApi() {
@@ -42,7 +60,7 @@ class App extends Component {
       response.json()
       .then(function(data) {
         console.log('got API response:',data);
-      })
+      });
     })
     .catch(err => {
       console.log('fetch() error:',err);
@@ -50,11 +68,16 @@ class App extends Component {
   }
 
   render() {
+    if (!this.state.authUser) {
+      return this.props.history.push(routes.SIGN_IN);
+    }
+
     return (
       <div>
         <BrowserRouter>
+          { !this.state.authUser && this.props.history.push(routes.SIGN_IN) }
           <div>
-            <RMNav />
+            <RMNav authUser={this.state.authUser} />
             <Container fluid>
               <Switch>
                 <Route exact path={routes.SIGN_IN} component={() => <SignInPage />} />
@@ -73,7 +96,7 @@ class App extends Component {
                 <Route path={`${routes.RACES}/manage/:id`} component={RacesManage} />
                 <Route path={`${routes.RACES}/:id`} component={RacesCreate} />
                 <Route path={`${routes.RACES}/`} component={RacesIndex} />
-                <Route path={`${routes.HOME}`} component={Dashboard} />
+                <Route path={`${routes.HOME}`} render={() => <Dashboard authUser={this.state.authUser} />} />
              </Switch>
             </Container>
           </div>

@@ -8,18 +8,26 @@ import {
 
 import { Link } from 'react-router-dom';
 
+import * as routes from '../routes';
+
 export default class Dashboard extends Component {
   render() {
+    const { authUser } = this.props;
+
     return (
      <Jumbotron>
         <Container>
           <Row>
             <Col>
               <h1>Welcome to RaceMinder!</h1>
+              {authUser ? (
               <div className="btn-toolbar">
                 <Link to="/races/create" className="btn btn-primary">New Race</Link>
                 <Link to="/races/" className="btn btn-secondary">Existing Races</Link>
               </div>
+              ) : (
+                <Link to={routes.SIGN_IN} className="btn btn-primary">Sign In</Link>
+              )}
             </Col>
           </Row>
         </Container>
