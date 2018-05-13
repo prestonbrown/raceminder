@@ -1,4 +1,5 @@
 //import _ from 'lodash';
+import dotProp from 'dot-prop-immutable';
 
 import { 
   REFRESH_RACEHERO_STARTED, 
@@ -13,17 +14,12 @@ const initialState = localStorage.getItem('racehero') ? JSON.parse(localStorage.
 export default function(state = initialState, action) {
   let newState = null;
   switch(action.type) {
-    case REFRESH_RACEHERO_SUCCESS: {
-      let { raceId, data } = action.payload;
-      newState = { ...state, [raceId]: data };
-      localStorage.setItem('racehero', JSON.stringify(newState));
-      return newState;
-    }
+    case REFRESH_RACEHERO_SUCCESS:
     case RACEHERO_SOCKET_PUSH: {
       let { raceId, data } = action.payload;
       newState = { ...state, [raceId]: data };
-      localStorage.setItem('racehero', JSON.stringify(newState));
-      return newState;      
+      newState = dotProp.delete(newState, 'error');
+      return newState;
     }
     case CONNECT_RACEHERO_SOCKET_ERROR:
     case REFRESH_RACEHERO_ERROR: {

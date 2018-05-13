@@ -68,14 +68,9 @@ class App extends Component {
   }
 
   render() {
-    if (!this.state.authUser) {
-      return this.props.history.push(routes.SIGN_IN);
-    }
-
     return (
       <div>
         <BrowserRouter>
-          { !this.state.authUser && this.props.history.push(routes.SIGN_IN) }
           <div>
             <RMNav authUser={this.state.authUser} />
             <Container fluid>

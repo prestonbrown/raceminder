@@ -142,6 +142,22 @@ export function disconnectRaceHeroSocket(race) {
   }
 }
 
+function normalizeRaceHeroRaceName(str) {
+  return str
+    .toLowerCase()
+    .replace(/ /g,'-')
+    .replace(/[^\w-]+/g,'');
+
+  // this alternative would avoid double/triple consecutive dashes
+  /*
+  return Text
+        .toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-')
+        ;
+   */
+}
+
 export function connectRaceHeroSocket(race) {
   let origin = window.location.protocol + '//' + window.location.host;
   const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
@@ -153,15 +169,19 @@ export function connectRaceHeroSocket(race) {
     };
   }
 
+  const raceHeroRaceName = normalizeRaceHeroRaceName(race.raceHeroName);
+  console.log('race hero race name manipulated to ',raceHeroRaceName);
+
   return (dispatch, getState) => {
     dispatch({ type: CONNECT_RACEHERO_SOCKET_STARTED });
     console.log('dispatched CONNECT_RACEHERO_SOCKET_STARTED');
 
-    fetch(urlPrefix + '/events/' + race.raceHeroName,
+    fetch(urlPrefix + '/events/' + raceHeroRaceName,
       { headers: { origin }})
     .then(response => response.text())
     .then(data => {
-      let re = /new PusherService("(\S+)?")/;
+      //let re = /new PusherService("(\S+)?")/;
+      let re = /push_service_token: '(\S+)'/;
       let match = data.match(re);
       let pusherAppId = null;
       let channel = null;
@@ -170,7 +190,8 @@ export function connectRaceHeroSocket(race) {
       }
       pusherAppId = match[1];
 
-      re = /push_service\.subscribe("(\S+)?")/;
+      //re = /push_service\.subscribe("(\S+)?")/;
+      re = /push_service_channel: '(\S+)'/;
       match = data.match(re);
       if (!match) {
         throw new Error('No Pusher event ID found');
@@ -184,10 +205,10 @@ export function connectRaceHeroSocket(race) {
           console.log('Sockette Connected!', e);  
         },
         onmessage: e => {
-          console.log('Sockette Received:', e);
+          //console.log('Sockette Received:', e);
 
           const data = JSON.parse(e.data);
-          console.log('got message data', data);
+          //console.log('got message data', data);
           if (data.event && data.event === 'pusher:connection_established') {
             const message = JSON.stringify({
               event: 'pusher:subscribe',
@@ -195,7 +216,8 @@ export function connectRaceHeroSocket(race) {
                channel
               }
             });
-            ws.send(message);
+            ws[race.id].send(message);
+            return;
           }
 
           if (data.event && data.event === 'pusher_internal:subscription_succeeded') {
@@ -206,10 +228,11 @@ export function connectRaceHeroSocket(race) {
                 data: {}
               }));
             }, 119e3);
+            return;
           }
 
           if (data.event && data.event == 'payload') {
-            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: data.data }});
+            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data) }});
           } else if (data.event) {
             console.log('unknown pusher event:',data);
           }
@@ -245,7 +268,10 @@ export function refreshRaceHero(race) {
     dispatch({ type: REFRESH_RACEHERO_STARTED });
     console.log('dispatched REFRESH_RACEHERO_STARTED');
 
-    fetch(urlPrefix + '/events/' + race.raceHeroName,
+    const raceHeroRaceName = normalizeRaceHeroRaceName(race.raceHeroName);
+    console.log('race hero race name manipulated to ',raceHeroRaceName);
+
+    fetch(urlPrefix + '/events/' + raceHeroRaceName,
       { headers: { origin }})
     .then(response => response.text())
     .then(data => {
