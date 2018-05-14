@@ -2,8 +2,6 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { connect } from 'react-redux';
-import { selectitem } from '../actions';
-
 class RMDropdown extends Component {
   constructor(props) {
     super(props);

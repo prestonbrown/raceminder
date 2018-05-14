@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 
-import 'typeface-roboto';
-import 'typeface-roboto-condensed';
-
 //import fontawesome from '@fortawesome/fontawesome';
 //import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 

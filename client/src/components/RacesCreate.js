@@ -17,7 +17,7 @@ import { Col, Form, FormGroup, Label, Input, FormFeedback, Button } from 'reacts
 import { Multiselect } from 'react-widgets';
 import InputMask from 'react-input-mask';
 
-import { createRace } from '../actions';
+import { createRace, createTrack, fetchTracks } from '../actions';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
@@ -50,6 +50,8 @@ class RacesCreate extends Component {
   }
 
   componentWillMount() {
+    this.props.fetchTracks();
+
     let id = null;
     if (this.props.match && this.props.match.params.id) {
       id = this.props.match.params.id;
@@ -277,7 +279,7 @@ function mapStateToProps({ drivers, tracks, cars, races }) {
   return { drivers, tracks, cars, races };
 }
 
-RacesCreate = connect(mapStateToProps, { createRace })(RacesCreate);
+RacesCreate = connect(mapStateToProps, { createRace, createTrack, fetchTracks })(RacesCreate);
 
 export default reduxForm({
   form: 'RacesCreateForm',

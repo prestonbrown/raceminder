@@ -31,21 +31,37 @@ export const CONNECT_RACEHERO_SOCKET_ERROR = 'CONNECT_RACEHERO_SOCKET_ERROR';
 export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
 export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
 
-const tracksRef = firebase.database().ref('tracks');
+export const FETCH_TRACKS = 'FETCH_TRACKS';
+
+const tracksRef = firebase.database().ref().child('tracks');
+
+tracksRef.on('child_added', snap => console.log('got child_added, snapshot:',snap));
+
+//export const createTrack = newTrack => async dispatch => { console.log('in createTrack, values:',newTrack); return tracksRef.push(newTrack); }
 
 export function createTrack(values) {
-  tracksRef.push(values);
+  return dispatch => {
+    const id = tracksRef.push().key;
+    values.id = id;
+    tracksRef.child(id).set(values);
+  };
 }
 
 export function deleteTrack(key) {
-  const itemRef = firebase.database().ref(`/tracks/${key}`);
-  itemRef.remove();
+  return dispatch => {
+    tracksRef.child(key).remove();
+  };
 }
 
-export function getTracks() {
-  tracksRef.on('value', (snapshot) => {
-    console.log(snapshot.val());
-  });
+export function fetchTracks() {
+  return dispatch => {
+    tracksRef.on('value', snapshot => {
+      dispatch({
+        type: FETCH_TRACKS,
+        payload: snapshot.val()
+      });
+    });
+  };
 }
 
 export function createDriver(values) {
