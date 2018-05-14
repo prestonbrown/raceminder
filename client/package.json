@@ -2,6 +2,7 @@
   "name": "raceminder",
   "version": "0.5.0",
   "private": true,
+  "homepage": "http://loosecanonracing.us:3000",
   "proxy": "http://localhost:3030",
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
@@ -48,7 +49,7 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-plugin-react": "^7.8.1",
+    "eslint-plugin-react": "^7.8.2",
     "redux-devtools": "^3.4.1",
     "redux-devtools-dock-monitor": "^1.1.3",
     "redux-devtools-log-monitor": "^1.4.0"

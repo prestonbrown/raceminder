@@ -35,6 +35,11 @@ img:after {
 }
 */
 
+body {
+  font-family: 'Roboto', sans-serif;
+  /*font-size:  0.875rem;*/
+}
+
 /**
  * the spin buttons for number inputs take up too much room in small inputs.
  * hide them.
@@ -99,4 +104,18 @@ input::-webkit-inner-spin-button {
 
 .stop-watch .digital-clock-container .digital-clock-ghosts {
   color: rgba(255, 0, 0, .25);  
+}
+
+.race-data-table {
+  font-family: 'Roboto Condensed';
+  font-size: 0.875rem;
+}
+
+.race-data-table th {
+  font-weight: 500;
+}
+
+.race-data-table td, .race-data-table th {
+  padding: 0 .25rem;
+  vertical-align: middle;
 }

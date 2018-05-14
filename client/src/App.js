@@ -12,7 +12,7 @@ import { BrowserRouter, Switch } from 'react-router-dom';
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 
-import { firebase } from './firebase';
+import firebase from './firebase';
 
 import * as routes from './routes';
 
@@ -45,9 +45,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.callApi();
+    const auth = firebase.auth();
+    //this.callApi();
 
-    firebase.auth.onAuthStateChanged(authUser => {
+    auth.onAuthStateChanged(authUser => {
       authUser
         ? this.setState(() => ({ authUser }))
         : this.setState(() => ({ authUser: null }));
@@ -68,14 +69,9 @@ class App extends Component {
   }
 
   render() {
-    if (!this.state.authUser) {
-      return this.props.history.push(routes.SIGN_IN);
-    }
-
     return (
       <div>
         <BrowserRouter>
-          { !this.state.authUser && this.props.history.push(routes.SIGN_IN) }
           <div>
             <RMNav authUser={this.state.authUser} />
             <Container fluid>

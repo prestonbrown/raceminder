@@ -81,7 +81,13 @@ class RacesIndex extends Component {
   render() {
     return (
       <div>
-        <h3>Races</h3>
+        <div className="mb-3">
+          <div className="float-right">
+            <Link className="btn btn-primary" to="/races/create">New Race</Link>
+          </div>
+
+          <h3>Races</h3>
+        </div>
 
         <ul className="list-group">
           {this.renderRaces()}

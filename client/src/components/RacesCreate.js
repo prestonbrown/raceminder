@@ -58,7 +58,7 @@ class RacesCreate extends Component {
     const race = races && id ? races[id] : null;
 
     if (race) {
-      console.log('edit race initial values: ', race);
+      //console.log('edit race initial values: ', race);
       this.setState({ edit: true });
       this.setState({ id: id });
       this.props.initialize(race);
