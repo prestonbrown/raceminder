@@ -40,7 +40,8 @@ class RacesManage extends Component {
       viewSelected: STINTS,
       selectedStopId: null,
       selectedStintId: null,
-      stintModalOpen: false
+      stintModalOpen: false,
+      flagColor: '#555'
     };
 
     console.log('RacesManage got race props: ', props.race);
@@ -84,6 +85,17 @@ class RacesManage extends Component {
       this.updateActiveStint(newProps);
     }
     */
+    if (this.props.racehero.latest_flag !== newProps.racehero.latest_flag) {
+      let flagColor = 'green';
+      if (newProps.racehero.latest_flag.color === 'green') {
+        flagColor = 'rgb(58,181,50)';
+      } else {
+        flagColor = newProps.racehero.latest_flag.color;
+      }
+
+      this.setState({ flagColor });
+    }
+
     if (newProps.racehero.error) {
       //clearInterval(this.raceHeroInterval);
     }
@@ -214,7 +226,7 @@ class RacesManage extends Component {
     const { race } = this.props;
     console.log('rendering race stop table, stops:',race.stops);
     return (
-      <Table hover responsive dark sm>
+      <Table className="race-data-table" hover responsive dark sm>
         <thead className="table-sm">
           <tr>
             <th scope="col">Start Time</th>
@@ -279,8 +291,8 @@ class RacesManage extends Component {
     let stints = _.toArray(race.stints)
       .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
     return (
-          <Table hover responsive dark>
-            <thead className="table-sm">
+          <Table className="race-data-table" hover responsive dark>
+            <thead className="table-sm" style={{ background: this.state.flagColor }}>
               <tr>
                 <th className="d-none d-sm-table-cell" scope="col">Stint #</th>
                 <th scope="col">Start Time</th>

@@ -6,6 +6,7 @@
 
 import _ from 'lodash';
 import Sockette from 'sockette';
+import firebase from '../firebase';
 
 export const CREATE_DRIVER = 'CREATE_DRIVER';
 export const DELETE_DRIVER = 'DELETE_DRIVER';
@@ -169,34 +170,38 @@ export function connectRaceHeroSocket(race) {
     };
   }
 
-  const raceHeroRaceName = normalizeRaceHeroRaceName(race.raceHeroName);
-  console.log('race hero race name manipulated to ',raceHeroRaceName);
-
   return (dispatch, getState) => {
     dispatch({ type: CONNECT_RACEHERO_SOCKET_STARTED });
     console.log('dispatched CONNECT_RACEHERO_SOCKET_STARTED');
 
-    fetch(urlPrefix + '/events/' + raceHeroRaceName,
+    fetch(urlPrefix + '/events/' + normalizeRaceHeroRaceName(race.raceHeroName),
       { headers: { origin }})
     .then(response => response.text())
     .then(data => {
-      //let re = /new PusherService("(\S+)?")/;
-      let re = /push_service_token: '(\S+)'/;
-      let match = data.match(re);
-      let pusherAppId = null;
-      let channel = null;
+      let re = /push_service_token: '(\S+)?'/gm;
+      let match = re.exec(data);
       if (!match) {
-        throw new Error('No Pusher application ID found');
+        // this is when the race isn't currently running (finished)      
+        re = /new PusherService\("(\S+)?"\)/gm;
+        match = re.exec(data);
+        if (!match) {
+          throw new Error('No Pusher application ID found');
+        }
       }
-      pusherAppId = match[1];
 
-      //re = /push_service\.subscribe("(\S+)?")/;
-      re = /push_service_channel: '(\S+)'/;
-      match = data.match(re);
+      const pusherAppId = match[1];
+
+      re = /push_service_channel: '(\S+)?'/gm;
+      match = re.exec(data);
       if (!match) {
-        throw new Error('No Pusher event ID found');
+        re = /push_service\.subscribe\("(\S_)?"\)/gm;
+        match = re.exec(data);
+        if (!match) {
+          throw new Error('No Pusher event ID found');
+        }
       }
-      channel = match[1];
+
+      const channel = match[1];
 
       ws[race.id] = new Sockette('ws://ws.pusherapp.com/app/' + pusherAppId + '?protocol=7&client=js&version=2.2.4&flash=false', {
         timeout: 5e3,
@@ -205,7 +210,7 @@ export function connectRaceHeroSocket(race) {
           console.log('Sockette Connected!', e);  
         },
         onmessage: e => {
-          //console.log('Sockette Received:', e);
+          console.log('Sockette Received:', e);
 
           const data = JSON.parse(e.data);
           //console.log('got message data', data);
@@ -231,8 +236,10 @@ export function connectRaceHeroSocket(race) {
             return;
           }
 
+          console.log('got pusher data:',data);
+
           if (data.event && data.event == 'payload') {
-            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data) }});
+            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
           } else if (data.event) {
             console.log('unknown pusher event:',data);
           }
@@ -269,7 +276,6 @@ export function refreshRaceHero(race) {
     console.log('dispatched REFRESH_RACEHERO_STARTED');
 
     const raceHeroRaceName = normalizeRaceHeroRaceName(race.raceHeroName);
-    console.log('race hero race name manipulated to ',raceHeroRaceName);
 
     fetch(urlPrefix + '/events/' + raceHeroRaceName,
       { headers: { origin }})

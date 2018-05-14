@@ -2,6 +2,7 @@
   "name": "raceminder",
   "version": "0.5.0",
   "private": true,
+  "homepage": "http://loosecanonracing.us:3000",
   "proxy": "http://localhost:3030",
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",

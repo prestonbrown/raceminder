@@ -19,6 +19,7 @@ export default function(state = initialState, action) {
       let { raceId, data } = action.payload;
       newState = { ...state, [raceId]: data };
       newState = dotProp.delete(newState, 'error');
+      localStorage.setItem('racehero', JSON.stringify(newState));
       return newState;
     }
     case CONNECT_RACEHERO_SOCKET_ERROR:
