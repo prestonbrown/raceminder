@@ -31,6 +31,23 @@ export const CONNECT_RACEHERO_SOCKET_ERROR = 'CONNECT_RACEHERO_SOCKET_ERROR';
 export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
 export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
 
+const tracksRef = firebase.database().ref('tracks');
+
+export function createTrack(values) {
+  tracksRef.push(values);
+}
+
+export function deleteTrack(key) {
+  const itemRef = firebase.database().ref(`/tracks/${key}`);
+  itemRef.remove();
+}
+
+export function getTracks() {
+  tracksRef.on('value', (snapshot) => {
+    console.log(snapshot.val());
+  });
+}
+
 export function createDriver(values) {
   return {
     type: CREATE_DRIVER,
