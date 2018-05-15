@@ -8,9 +8,7 @@ initialState = localStorage.getItem('tracks') ? JSON.parse(localStorage.getItem(
 export default function(state = initialState, action) {
   switch(action.type) {
     case FETCH_TRACKS: {
-      console.log('got FETCH_TRACKS:', action);
-      console.log('existing state:',state);
-      return state;
+      return action.payload;
     }
     default:
     return state;

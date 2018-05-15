@@ -35,8 +35,6 @@ export const FETCH_TRACKS = 'FETCH_TRACKS';
 
 const tracksRef = firebase.database().ref().child('tracks');
 
-tracksRef.on('child_added', snap => console.log('got child_added, snapshot:',snap));
-
 //export const createTrack = newTrack => async dispatch => { console.log('in createTrack, values:',newTrack); return tracksRef.push(newTrack); }
 
 export function createTrack(values) {
