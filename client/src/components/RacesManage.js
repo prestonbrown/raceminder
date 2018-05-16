@@ -8,6 +8,8 @@ import {
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { BarLoader } from 'react-spinners';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTrashAlt from '@fortawesome/fontawesome-free-regular/faTrashAlt';
 import faPlusSquare from '@fortawesome/fontawesome-free-regular/faPlusSquare';
@@ -41,34 +43,17 @@ class RacesManage extends Component {
       selectedStopId: null,
       selectedStintId: null,
       stintModalOpen: false,
-      flagColor: '#555'
+      flagColor: '#555',
+      loading: true
     };
 
     console.log('RacesManage got race props: ', props.race);
   }
 
   componentDidMount() {
-    this.updateActiveStint(this.props);
-
-    //this.props.refreshRaceHero(this.props.race);
-
-    this.props.connectRaceHeroSocket(this.props.race);
-
-    // refresh once a minute
-    this.activeStintInterval = setInterval(() => { 
-      // update active stint based on time
-      this.updateActiveStint(this.props);
-
-      // force re-render
-      // this.setState(this.state);
-      
-    }, 10000);
-
-    /*
-    this.raceHeroInterval = setInterval(() => {
-      this.props.refreshRaceHero(this.props.race);
-    }, 30000);
-    */
+    if (this.props.race) {
+      this.initialize(this.props);
+    }
   }
 
   componentWillUnmount() {
@@ -77,15 +62,20 @@ class RacesManage extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.race.stints !== newProps.race.stints) {
+    if (this.props.race != newProps.race) {
+      this.initialize(newProps);
+      this.setState({ loading: false });
+    }
+
+    if (this.props.race && this.props.race.stints !== newProps.race.stints) {
       this.updateActiveStint(newProps);
     }
 
-    if (this.state.selectedStintId != newProps.race.selectedStintId) {
+    if (newProps.race && this.state.selectedStintId != newProps.race.selectedStintId) {
       this.setState({ selectedStintId: newProps.race.selectedStintId });
     }
 
-    if (this.state.selectedStopId != newProps.race.selectedStopId) {
+    if (newProps.race && this.state.selectedStopId != newProps.race.selectedStopId) {
       this.setState({ selectedStopId: newProps.race.selectedStopId });
     }
 
@@ -98,7 +88,7 @@ class RacesManage extends Component {
     if (!this.props.racehero || !newProps.raceHero) {
       return;
     }
-    
+
     if (this.props.racehero.latest_flag !== newProps.racehero.latest_flag) {
       let flagColor = 'green';
       if (newProps.racehero.latest_flag.color === 'green') {
@@ -113,7 +103,30 @@ class RacesManage extends Component {
     if (newProps.racehero.error) {
       //clearInterval(this.raceHeroInterval);
     }
+  }
 
+  initialize(props) {
+    this.updateActiveStint(props);
+
+    //this.props.refreshRaceHero(props.race);
+
+    this.props.connectRaceHeroSocket(props.race);
+
+    // refresh once a minute
+    this.activeStintInterval = setInterval(() => { 
+      // update active stint based on time
+      this.updateActiveStint(props);
+
+      // force re-render
+      // this.setState(this.state);
+      
+    }, 10000);
+
+    /*
+    this.raceHeroInterval = setInterval(() => {
+      props.refreshRaceHero(props.race);
+    }, 30000);
+    */
   }
 
   updateActiveStint = props => {
@@ -327,6 +340,15 @@ class RacesManage extends Component {
 
   render() {
     const { race, track, racehero } = this.props;
+
+    if (this.state.loading) {
+      return(
+        <div style={{position: 'fixed', top: '50%', left: '50%', marginLeft: '-50px' }}>
+          <BarLoader color={'#123abc'} loading={this.state.loading} />      
+        </div>
+        );
+    }    
+
     let color = 'black';
     if (moment().isAfter(race.start)) {
       color = 'red';
@@ -449,7 +471,7 @@ function mapStateToProps({ races, cars, drivers, tracks, racehero }, ownProps) {
     race: races[id], 
     cars, 
     drivers, 
-    track: tracks[races[id].track],
+    track: tracks && races[id] ? tracks[races[id].track] : null,
     racehero: racehero[id]
   };
 }
