@@ -39,6 +39,10 @@ export default class RMNav extends Component {
 
   render() {
     const { authUser } = this.props;
+    if (!authUser) {
+      return null;
+    }
+    
     return (
       <div>
         <Navbar color="light" light expand="md">

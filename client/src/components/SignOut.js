@@ -13,7 +13,7 @@ const SignOutButton = () =>
 
 const SignOutDropdownItem = () =>
   <DropdownItem>
-    <a onClick={auth.doSignOut} role="link" tabindex={0}>Sign Out</a>
+    <a onClick={auth.doSignOut} role="link" tabIndex={0}>Sign Out</a>
   </DropdownItem>
 
 export default SignOutButton;

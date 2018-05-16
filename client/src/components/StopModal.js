@@ -10,7 +10,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faFlagCheckered from '@fortawesome/fontawesome-free-solid/faFlagCheckered';
 
-import { createRaceStop, createStopId, createRaceStint } from '../actions/index';
+import { createRaceStop, createRaceStint } from '../actions/index';
 
 import StopWatch from './StopWatch';
 import StopForm from './StopForm';
@@ -52,14 +52,14 @@ class StopModal extends Component {
 
     // compute the new stopId so form will be updated
     // with these new values   
-    const newStopId = createStopId(race); 
+    //const newStopId = createStopId(race); 
     this.props.createRaceStop(race.id, {
       start: start.format('Y-MM-DDTHH:mm:ss'),
       end: end.format('Y-MM-DDTHH:mm:ss'),
       driver
     });
 
-    this.setState({ stopId: newStopId, showTimer: false });
+    this.setState({ showTimer: false });
   }
 
   handleStopSubmit(values) {

@@ -12,12 +12,14 @@ import { Link, withRouter } from 'react-router-dom';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
 
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, change } from 'redux-form';
 import { Col, Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
 import { Multiselect } from 'react-widgets';
 import InputMask from 'react-input-mask';
 
 import { createRace, createTrack, fetchTracks } from '../actions';
+
+import TrackModal from './TrackModal';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
@@ -42,7 +44,8 @@ class RacesCreate extends Component {
 
     this.state = {
       redirect: false,
-      edit: false
+      edit: false,
+      modalOpen: false
     };
 
     moment.locale('en');
@@ -50,7 +53,7 @@ class RacesCreate extends Component {
   }
 
   componentWillMount() {
-    this.props.fetchTracks();
+    //this.props.fetchTracks();
 
     let id = null;
     if (this.props.match && this.props.match.params.id) {
@@ -79,6 +82,22 @@ class RacesCreate extends Component {
     this.setState({ redirect: true });
   }
 
+  handleModalClose = () => {
+    //console.log('closing stint modal via state');
+    this.setState({ modalOpen: false});
+  }
+
+  openModal = () => {
+    this.setState({ modalOpen: true });
+  }
+
+  onTrackSubmit = values => {
+    this.props.createTrack(values);
+
+    // would like to call this.props.change('track', values.id);
+    // but we don't have a key/id yet!
+  }
+
   renderField(field) {
     const {meta: {touched, error}, label, input, ...rest} = field;
     return (
@@ -101,9 +120,8 @@ class RacesCreate extends Component {
     const {meta: {touched, error}} = field;
 
     return (
-      <FormGroup>
-        <Label>{field.label}</Label>
-        <Input 
+      <div>
+        <Input
           valid={touched && error ? false : (touched ? true : null) } 
           invalid={touched && error ? true : false } 
           {...field.input} 
@@ -112,7 +130,7 @@ class RacesCreate extends Component {
           {_.map(this.props.tracks, track => <option key={track.id} value={track.id}>{track.name}</option>)}
         </Input>
         <FormFeedback>{error}</FormFeedback>
-      </FormGroup>
+      </div>
     );
   }
 
@@ -132,8 +150,8 @@ class RacesCreate extends Component {
             {_.map(this.props.cars, car => <option key={car.id} value={car.id}>{car.name}: {car.model}</option>)}
           </Input>
         </Col>
-        <Col sm={4}>
-          <p>or <Button color="secondary" tag={Link} to="/cars/create">Create New Car</Button></p>
+        <Col>
+          <span>or <Button color="secondary" tag={Link} to="/cars/create">Create New Car</Button></span>
         </Col>
         <FormFeedback>{error}</FormFeedback>
       </FormGroup>
@@ -201,7 +219,17 @@ class RacesCreate extends Component {
         <h3>{this.state.edit ? 'Edit Race' : 'Create New Race'}</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
           <Field label="Race Name" name="name" type="text" component={this.renderField} />
-          <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
+          <FormGroup className="row">
+            <Col sm={2}>
+              <Label>Track</Label>
+            </Col>
+            <Col sm={4}>
+              <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
+            </Col>
+            <Col>
+              <span>or <Button onClick={this.openModal}>Create New Track</Button></span>
+            </Col>
+          </FormGroup>
           <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
           <Field label="Drivers" name="drivers" parse={values => { if (!values) return; return values.map(value => value.id); }} component={this.renderDriversMultiSelect.bind(this)} />
           <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
@@ -252,6 +280,12 @@ class RacesCreate extends Component {
             <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>
           </div>
         </Form>
+
+        <TrackModal 
+          isOpen={this.state.modalOpen}
+          onClose={this.handleModalClose}
+          handleSubmit={this.onTrackSubmit}
+          />
       </div>
     );
   }

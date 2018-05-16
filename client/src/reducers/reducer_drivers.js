@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 import { CREATE_DRIVER, DELETE_DRIVER } from '../actions/index';
 
-let initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : {};
+//let initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : {};
+let initialState = {};
 
 export default function(state = initialState, action) {
   let newState = null;
@@ -22,13 +23,13 @@ export default function(state = initialState, action) {
       }
 
       newState = { ...state, [driverId]: driver };
-      localStorage.setItem('drivers', JSON.stringify(newState));
+      //localStorage.setItem('drivers', JSON.stringify(newState));
       return newState;
     }
 
     case DELETE_DRIVER: {
       newState = _.omit(state, action.payload);
-      localStorage.setItem('drivers', JSON.stringify(newState));
+      //localStorage.setItem('drivers', JSON.stringify(newState));
       return newState;      
     }
 

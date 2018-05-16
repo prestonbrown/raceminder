@@ -11,6 +11,7 @@ import firebase from '../firebase';
 export const CREATE_DRIVER = 'CREATE_DRIVER';
 export const DELETE_DRIVER = 'DELETE_DRIVER';
 
+export const FETCH_CARS = 'FETCH_CARS';
 export const CREATE_CAR = 'CREATE_CAR';
 export const DELETE_CAR = 'DELETE_CAR';
 
@@ -32,28 +33,41 @@ export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
 export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
 
 export const FETCH_TRACKS = 'FETCH_TRACKS';
+export const CREATE_TRACK = 'CREATE_TRACK';
+export const DELETE_TRACK = 'DELETE_TRACK';
 
-const tracksRef = firebase.database().ref().child('tracks');
+const tracksDbRef = firebase.database().ref().child('tracks');
+const racesDbRef = firebase.database().ref().child('races');
+const driversDbRef = firebase.database().ref().child('drivers');
+const carsDbRef = firebase.database().ref().child('cars');
 
 //export const createTrack = newTrack => async dispatch => { console.log('in createTrack, values:',newTrack); return tracksRef.push(newTrack); }
 
 export function createTrack(values) {
   return dispatch => {
-    const id = tracksRef.push().key;
+    const id = values.id || tracksDbRef.push().key;
     values.id = id;
-    tracksRef.child(id).set(values);
+    tracksDbRef.child(id).set(values);
+    dispatch({
+      type: CREATE_TRACK,
+      payload: values
+    });
   };
 }
 
-export function deleteTrack(key) {
+export function deleteTrack(id) {
   return dispatch => {
-    tracksRef.child(key).remove();
+    tracksDbRef.child(id).remove();
+    dispatch({
+      type: DELETE_TRACK,
+      payload: id
+    });
   };
 }
 
 export function fetchTracks() {
   return dispatch => {
-    tracksRef.on('value', snapshot => {
+    tracksDbRef.once('value', snapshot => {
       dispatch({
         type: FETCH_TRACKS,
         payload: snapshot.val()
@@ -63,45 +77,73 @@ export function fetchTracks() {
 }
 
 export function createDriver(values) {
-  return {
-    type: CREATE_DRIVER,
-    payload: values
+  return dispatch => {
+    const id = values.id || driversDbRef.push().key;
+    values.id = id;
+    driversDbRef.child(id).set(values);
+    dispatch({
+      type: CREATE_DRIVER,
+      payload: values
+    });
   };
 }
 
 export function deleteDriver(id) {
-  return {
-    type: DELETE_DRIVER,
-    payload: id
+  return dispatch => {
+    driversDbRef.child(id).remove();
+    dispatch({
+      type: DELETE_DRIVER,
+      payload: id
+    });
+  };
+}
+
+export function fetchCars() {
+  return dispatch => {
+    tracksDbRef.once('value', snapshot => {
+      dispatch({
+        type: FETCH_CARS,
+        payload: snapshot.val()
+      });
+    });
   };
 }
 
 export function createCar(values) {
-  return {
-    type: CREATE_CAR,
-    payload: values
+  return dispatch => {
+    const id = values.id || carsDbRef.push().key;
+    values.id = id;
+    carsDbRef.child(id).set(values);
+    dispatch({
+      type: CREATE_CAR,
+      payload: values
+    });
   };
 }
 
 export function deleteCar(id) {
-  return {
-    type: DELETE_CAR,
-    payload: id
-  };
+  return dispatch => {
+    carsDbRef.child(id).remove();
+    dispatch({
+      type: DELETE_CAR,
+      payload: id
+    });
+  }
 }
 
 export function createRace(values) {
-  // if the post already exists, should return it here,
-  // no need to make an AJAX request.  Unless it is stale!
-  //const request = axios.post(`${ROOT_URL}/posts${API_KEY}`, values)
-  // .then(() => callback());
-
-  return {
-    type: CREATE_RACE,
-    payload: values
+  return dispatch => {
+    const id = values.id || racesDbRef.push().key;
+    values.id = id;
+    racesDbRef.child(id).set(values);
+    dispatch({
+      type: CREATE_RACE,
+      payload: values
+    });
   };
 }
 
+/*
 export function createStopId(race) {
   const stops = _.toArray(race.stops)
     .sort((a, b) => a.id - b.id);
@@ -112,21 +154,31 @@ export function createStopId(race) {
   const maxStop = stops.slice(-1)[0];
   return maxStop.id + 1;
 }
+*/
 
 export function createRaceStop(raceId, values) {
-  return {
-    type: CREATE_RACE_STOP,
-    payload: { raceId, values }
+  return dispatch => {
+    const id = values.id || racesDbRef.child(`${raceId}/stops`).push().key;
+    values.id = id;
+    racesDbRef.child(`${raceId}/stops/${id}`).set(values);
+    dispatch({
+      type: CREATE_RACE_STOP,
+      payload: { raceId, values }
+    });
   };
 }
 
 export function deleteRaceStop(raceId, stopId) {
-  return {
-    type: DELETE_RACE_STOP,
-    payload: { raceId, stopId }
+  return dispatch => {
+    racesDbRef.child(`${raceId}/stops/${stopId}`).remove();
+    dispatch({
+      type: DELETE_RACE_STOP,
+      payload: { raceId, stopId }
+    });
   };
 }
 
+/*
 export function createStintId(race) {
   const stints = _.toArray(race.stints)
     .sort((a, b) => a.id - b.id);
@@ -137,24 +189,37 @@ export function createStintId(race) {
   const maxStint = stints.slice(-1)[0];
   return maxStint.id + 1;
 }
+*/
 
 export function createRaceStint(raceId, values) {
-  return {
-    type: CREATE_RACE_STINT,
-    payload: { raceId, values }
+  return dispatch => {
+    const id = values.id || racesDbRef.child(`${raceId}/stints`).push().key;
+    values.id = id;
+    racesDbRef.child(`${raceId}/stints/${id}`).set(values);
+    dispatch({
+      type: CREATE_RACE_STINT,
+      payload: { raceId, values }
+    });
   };
 }
 
 export function deleteRaceStint(raceId, stintId) {
-  return {
-    type: DELETE_RACE_STINT,
-    payload: { raceId, stintId }
+  return dispatch => {
+    racesDbRef.child(`${raceId}/stints/${stintId}`).remove();
+    dispatch({
+      type: DELETE_RACE_STINT,
+      payload: { raceId, stintId }
+    });
   };
 }
+
 export function deleteRace(id) {
-  return {
-    type: DELETE_RACE,
-    payload: id
+  return dispatch => {
+    racesDbRef.child(id).remove();
+    dispatch({
+      type: DELETE_RACE,
+      payload: id
+    });
   };
 }
 

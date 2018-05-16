@@ -1,12 +1,16 @@
 import _ from 'lodash';
 
-import { CREATE_CAR, DELETE_CAR } from '../actions/index';
+import { FETCH_CARS, CREATE_CAR, DELETE_CAR } from '../actions/index';
 
-const initialState = localStorage.getItem('cars') ? JSON.parse(localStorage.getItem('cars')) : {};
+//const initialState = localStorage.getItem('cars') ? JSON.parse(localStorage.getItem('cars')) : {};
+const initialState = {};
 
 export default function(state = initialState, action) {
   let newState = null;
   switch(action.type) {
+    case FETCH_CARS: {
+      return action.payload;
+    }    
     case CREATE_CAR: {
       let car = action.payload;
       let carId = null;
@@ -20,13 +24,13 @@ export default function(state = initialState, action) {
       }
 
       newState = { ...state, [carId]: car };
-      localStorage.setItem('cars', JSON.stringify(newState));
+      //localStorage.setItem('cars', JSON.stringify(newState));
       return newState;
     }
 
     case DELETE_CAR: {
       newState = _.omit(state, action.payload);
-      localStorage.setItem('cars', JSON.stringify(newState));
+      //localStorage.setItem('cars', JSON.stringify(newState));
       return newState;
     }
 

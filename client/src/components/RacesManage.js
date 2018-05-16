@@ -21,8 +21,8 @@ import Clock from 'react-live-clock';
 import StopModal from './StopModal';
 import StintModal from './StintModal';
 
-import { createRaceStop, deleteRaceStop, createStopId,
-  createRaceStint, deleteRaceStint, createStintId, 
+import { createRaceStop, deleteRaceStop,
+  createRaceStint, deleteRaceStint, 
   refreshRaceHero, connectRaceHeroSocket } from '../actions';
 
 const STOPS = 'STOPS';
@@ -80,11 +80,21 @@ class RacesManage extends Component {
     if (this.props.race.stints !== newProps.race.stints) {
       this.updateActiveStint(newProps);
     }
+
+    if (this.state.selectedStintId != newProps.race.selectedStintId) {
+      this.setState({ selectedStintId: newProps.race.selectedStintId });
+    }
+
+    if (this.state.selectedStopId != newProps.race.selectedStopId) {
+      this.setState({ selectedStopId: newProps.race.selectedStopId });
+    }
+
     /*
     if (this.props.racehero && this.props.racehero.current_lap !== newProps.racehero.current_lap) {
       this.updateActiveStint(newProps);
     }
     */
+   
     if (this.props.racehero.latest_flag !== newProps.racehero.latest_flag) {
       let flagColor = 'green';
       if (newProps.racehero.latest_flag.color === 'green') {
@@ -122,7 +132,7 @@ class RacesManage extends Component {
   handleAddStint() {
     // get stop time of last stint
     const { race } = this.props;
-    const newStintId = createStintId(race);
+    //const newStintId = createStintId(race);
 
     // sort stints by time to figure out initial time guess
     const stints = _.toArray(race.stints)
@@ -150,7 +160,7 @@ class RacesManage extends Component {
     this.props.createRaceStint(this.props.race.id, data);
 
     // open stint dialog to edit it
-    this.setState({ stintModalOpen: true, selectedStintId: newStintId });
+    this.setState({ stintModalOpen: true });
   }
 
   handleDeleteStint(id) {
@@ -165,7 +175,7 @@ class RacesManage extends Component {
 
   handleAddStop() {
     const { race } = this.props;
-    const newStopId = createStopId(race);
+    //const newStopId = createStopId(race);
 
     const data = {
       start: null,
@@ -180,7 +190,7 @@ class RacesManage extends Component {
     this.props.createRaceStop(this.props.race.id, data);
 
     // open stop dialog to edit it
-    this.setState({ stopModalOpen: true, selectedStopId: newStopId });
+    this.setState({ stopModalOpen: true });
   }
 
   handleDeleteStop(id) {
