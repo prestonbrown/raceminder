@@ -64,7 +64,6 @@ class RacesManage extends Component {
   componentWillReceiveProps(newProps) {
     if (this.props.race != newProps.race) {
       this.initialize(newProps);
-      this.setState({ loading: false });
     }
 
     if (this.props.race && this.props.race.stints !== newProps.race.stints) {
@@ -127,6 +126,7 @@ class RacesManage extends Component {
       props.refreshRaceHero(props.race);
     }, 30000);
     */
+    this.setState({ loading: false });
   }
 
   updateActiveStint = props => {
