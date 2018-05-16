@@ -17,6 +17,8 @@ import { Col, Form, FormGroup, Label, Input, FormFeedback, Button } from 'reacts
 import { Multiselect } from 'react-widgets';
 import InputMask from 'react-input-mask';
 
+import { BarLoader } from 'react-spinners';
+
 import { createRace, createTrack, fetchTracks } from '../actions';
 
 import TrackModal from './TrackModal';
@@ -45,7 +47,8 @@ class RacesCreate extends Component {
     this.state = {
       redirect: false,
       edit: false,
-      modalOpen: false
+      modalOpen: false,
+      loading: true
     };
 
     moment.locale('en');
@@ -58,15 +61,32 @@ class RacesCreate extends Component {
     let id = null;
     if (this.props.match && this.props.match.params.id) {
       id = this.props.match.params.id;
+    } else {
+      this.setState({ loading: false });
     }
     const { races } = this.props;
     const race = races && id ? races[id] : null;
 
     if (race) {
       //console.log('edit race initial values: ', race);
-      this.setState({ edit: true });
-      this.setState({ id: id });
+      this.setState({ edit: true, loading: false });
       this.props.initialize(race);
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (this.props.races != newProps.races) {
+      const { races } = newProps;
+      let id = null;
+      if (this.props.match && this.props.match.params.id) {
+        id = this.props.match.params.id;
+      }
+      const race = races && id ? races[id] : null;
+
+      if (race) {
+        this.setState({ edit: true, loading: false });
+        this.props.initialize(race);
+      }
     }
   }
 
@@ -212,6 +232,14 @@ class RacesCreate extends Component {
     if (this.state.redirect) {
       this.props.history.goBack();
       return null;
+    }
+
+    if (this.state.loading) {
+      return(
+        <div style={{position: 'fixed', top: '50%', left: '50%', marginLeft: '-50px' }}>
+          <BarLoader color={'#123abc'} loading={this.state.loading} />      
+        </div>
+        );
     }
 
     return (

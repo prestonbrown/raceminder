@@ -8,6 +8,7 @@ import _ from 'lodash';
 import Sockette from 'sockette';
 import firebase from '../firebase';
 
+export const FETCH_DRIVERS = 'FETCH_DRIVERS';
 export const CREATE_DRIVER = 'CREATE_DRIVER';
 export const DELETE_DRIVER = 'DELETE_DRIVER';
 
@@ -15,6 +16,7 @@ export const FETCH_CARS = 'FETCH_CARS';
 export const CREATE_CAR = 'CREATE_CAR';
 export const DELETE_CAR = 'DELETE_CAR';
 
+export const FETCH_RACES = 'FETCH_RACES';
 export const CREATE_RACE = 'CREATE_RACE';
 export const CREATE_RACE_STOP = 'CREATE_RACE_STOP';
 export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
@@ -76,6 +78,16 @@ export function fetchTracks() {
   };
 }
 
+export function fetchDrivers() {
+  return dispatch => {
+    driversDbRef.once('value', snapshot => {
+      dispatch({
+        type: FETCH_DRIVERS,
+        payload: snapshot.val()
+      });
+    });
+  };
+}
 export function createDriver(values) {
   return dispatch => {
     const id = values.id || driversDbRef.push().key;
@@ -100,7 +112,7 @@ export function deleteDriver(id) {
 
 export function fetchCars() {
   return dispatch => {
-    tracksDbRef.once('value', snapshot => {
+    carsDbRef.once('value', snapshot => {
       dispatch({
         type: FETCH_CARS,
         payload: snapshot.val()
@@ -129,6 +141,17 @@ export function deleteCar(id) {
       payload: id
     });
   }
+}
+
+export function fetchRaces() {
+  return dispatch => {
+    racesDbRef.once('value', snapshot => {
+      dispatch({
+        type: FETCH_RACES,
+        payload: snapshot.val()
+      });
+    });
+  };
 }
 
 export function createRace(values) {

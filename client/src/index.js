@@ -13,11 +13,8 @@ import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import App from './App';
-import { fetchTracks, fetchCars } from './actions';
 import reducers from './reducers';
 import registerServiceWorker from './registerServiceWorker';
-
-import firebase from './firebase';
 
 if (process.env.NODE_ENV !== 'production') {
   localStorage.setItem('debug', 'raceminder:*');
@@ -30,11 +27,8 @@ const createStoreWithMiddleware = applyMiddleware(reduxPromise, thunk)(createSto
 
 const store = createStoreWithMiddleware(reducers);
 
-store.dispatch(fetchTracks());
-store.dispatch(fetchCars());
-
 ReactDOM.render(
-  <Provider store={createStoreWithMiddleware(reducers)}>
+  <Provider store={store}>
     <App />
   </Provider>
   , document.getElementById('root'));

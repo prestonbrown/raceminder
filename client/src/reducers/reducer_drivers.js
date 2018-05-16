@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { CREATE_DRIVER, DELETE_DRIVER } from '../actions/index';
+import { FETCH_DRIVERS, CREATE_DRIVER, DELETE_DRIVER } from '../actions/index';
 
 //let initialState = localStorage.getItem('drivers') ? JSON.parse(localStorage.getItem('drivers')) : {};
 let initialState = {};
@@ -9,7 +9,9 @@ export default function(state = initialState, action) {
   let newState = null;
 
   switch(action.type) {
-
+    case FETCH_DRIVERS: {
+      return action.payload;
+    }
     case CREATE_DRIVER: {
       let driver = action.payload;
       let driverId = null;

@@ -1,6 +1,8 @@
 import _ from 'lodash';
 
-import { CREATE_RACE, DELETE_RACE, 
+import { 
+  FETCH_RACES,
+  CREATE_RACE, DELETE_RACE, 
   CREATE_RACE_STOP, DELETE_RACE_STOP,
   CREATE_RACE_STINT, DELETE_RACE_STINT,
   /*createStopId, createStintId*/
@@ -12,6 +14,9 @@ let initialState = {};
 export default function (state = initialState, action) {
   let newState = null;
   switch (action.type) {
+    case FETCH_RACES: {
+      return action.payload;
+    }
     case CREATE_RACE: {
       let race = action.payload;
       let raceId = null;

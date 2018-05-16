@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { FETCH_TRACKS } from '../actions';
 
 let initialState = {}

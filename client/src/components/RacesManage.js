@@ -95,6 +95,10 @@ class RacesManage extends Component {
     }
     */
    
+    if (!this.props.racehero || !newProps.raceHero) {
+      return;
+    }
+    
     if (this.props.racehero.latest_flag !== newProps.racehero.latest_flag) {
       let flagColor = 'green';
       if (newProps.racehero.latest_flag.color === 'green') {

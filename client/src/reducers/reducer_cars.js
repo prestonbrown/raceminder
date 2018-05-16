@@ -7,6 +7,7 @@ const initialState = {};
 
 export default function(state = initialState, action) {
   let newState = null;
+  //console.log('in cars reducer, existing state:',state,', action:',action);
   switch(action.type) {
     case FETCH_CARS: {
       return action.payload;

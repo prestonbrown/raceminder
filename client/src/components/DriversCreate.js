@@ -7,6 +7,8 @@ import { Field, reduxForm } from 'redux-form';
 import { Form, FormGroup, Label, Input, FormFeedback, Button } from 'reactstrap';
 //import { Multiselect } from 'react-widgets';
 
+import { BarLoader } from 'react-spinners';
+
 import moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
 
@@ -20,31 +22,49 @@ class DriversCreate extends Component {
 
     this.state = {
       redirect: false,
-      edit: false
+      edit: false,
+      loading: true
     };
 
     moment.locale('en');
     momentLocalizer();
   }
 
-  componentWillMount() {
+componentWillMount() {
+    const { drivers } = this.props;
     let id = null;
     if (this.props.match && this.props.match.params.id) {
       id = this.props.match.params.id;
+    } else {
+      this.setState({ loading: false });
     }
-    const { drivers } = this.props;
+
     const driver = drivers && id ? drivers[id] : null;
 
     if (driver) {
-      console.log('edit driver initial values: ', driver);
-      this.setState({ edit: true });
-      this.setState({ id: id });
+      this.setState({ edit: true, loading: false });
       this.props.initialize(driver);
     }
   }
 
+  componentWillReceiveProps(newProps) {
+    if (this.props.drivers != newProps.drivers) {
+      const { drivers } = newProps;
+      let id = null;
+      if (this.props.match && this.props.match.params.id) {
+        id = this.props.match.params.id;
+      }
+      const driver = drivers && id ? drivers[id] : null;
+
+      if (driver) {
+        this.setState({ edit: true, loading: false });
+        this.props.initialize(driver);
+      }
+    }
+  }
+
   componentDidMount() {
-    console.log(this.refs);
+    //console.log('refs:', this.refs);
   }
 
   onSubmit(values) {
@@ -90,6 +110,14 @@ class DriversCreate extends Component {
     if (this.state.redirect) {
       this.props.history.goBack();
       return null;
+    }
+
+    if (this.state.loading) {
+      return(
+        <div style={{position: 'fixed', top: '50%', left: '50%', marginLeft: '-50px' }}>
+          <BarLoader color={'#123abc'} loading={this.state.loading} />      
+        </div>
+        );
     }
 
     return (

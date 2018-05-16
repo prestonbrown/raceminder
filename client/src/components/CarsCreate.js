@@ -8,6 +8,8 @@ import { Form, FormGroup, Label, Input, FormFeedback, Button,
   Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
+import { BarLoader } from 'react-spinners';
+
 import 'react-image-crop/dist/ReactCrop.css';
 
 import { createCar } from '../actions';
@@ -62,8 +64,7 @@ class CropModal extends Component {
 
   handleClose = () => {
     const img = document.getElementsByClassName('ReactCrop__image')[0];
-    const { pixelCrop } = this.state;
-
+    const { crop, pixelCrop } = this.state;
     const canvas = document.createElement('canvas');
     canvas.width = pixelCrop.width;
     canvas.height = pixelCrop.height;
@@ -87,7 +88,6 @@ class CropModal extends Component {
 
     // callback to update preview
     this.props.onCrop(data);
-    this.setState({ isOpen: false });
   }
 
   /**
@@ -229,8 +229,8 @@ class CropModal extends Component {
                 name="crop" 
                 src={this.props.picture ? this.props.picture : ''} 
                 onChange={crop => { this.setState({ crop }); }} 
-                onComplete={(crop, pixelCrop) => {this.setState({ pixelCrop }); }}
-                onImageLoaded={this.onImageLoaded.bind(this)} 
+                onComplete={(crop, pixelCrop) => this.setState({ pixelCrop })}
+                onImageLoaded={this.onImageLoaded} 
               />
             </div>
           </ModalBody>
@@ -294,28 +294,44 @@ class CarsCreate extends Component {
     this.state = {
       redirect: false,
       edit: false,
+      loading: true
     };
   }
 
   componentWillMount() {
+    const { cars } = this.props;
     let id = null;
     if (this.props.match && this.props.match.params.id) {
       id = this.props.match.params.id;
+    } else {
+      this.setState({ loading: false });
     }
-    const { cars } = this.props;
+
     const car = cars && id ? cars[id] : null;
 
     if (car) {
-      console.log('edit car initial values: ', car);
-      this.setState({ edit: true });
-      this.setState({ id: id });
+      this.setState({ edit: true, loading: false });
       this.props.initialize(car);
     }
   }
 
-  onSubmit(values) {
-    // this === our component
+  componentWillReceiveProps(newProps) {
+    if (this.props.cars != newProps.cars) {
+      const { cars } = newProps;
+      let id = null;
+      if (this.props.match && this.props.match.params.id) {
+        id = this.props.match.params.id;
+      }
+      const car = cars && id ? cars[id] : null;
 
+      if (car) {
+        this.setState({ edit: true, loading: false });
+        this.props.initialize(car);
+      }
+    }
+  }
+
+  onSubmit(values) {
     new Promise((resolve, reject) => {
       if (values.picture && values.picture.name) {
         // convert picture to DataURL (Base64)
@@ -326,8 +342,6 @@ class CarsCreate extends Component {
       resolve();
     })
       .then(() => {
-        console.log('submitted values for car:',values);
-
         this.props.createCar(values);
         this.setState({ redirect: true });
       })
@@ -351,7 +365,7 @@ class CarsCreate extends Component {
       );    
   }
 
-  handleCrop(data) {
+  handleCrop = data => {
     let headStr = 'data:image/jpeg;base64,';
     console.log('original picture size:', Math.round((this.props.pictureValue.length - headStr.length) * 3/4/1024) + 'k');
     //console.log('new cropped picture size:', Math.round((data.length - headStr.length) * 3/4/1024) + 'k');
@@ -359,14 +373,16 @@ class CarsCreate extends Component {
 
     console.log('after change, picture size:',Math.round((this.props.pictureValue.length - headStr.length) * 3/4/1024) + 'k');
 
-    // make sure we tell modal to get gone
-    this.setState({ modalOpen: false });
     let img = document.getElementById('preview');
     img.src = data;
+
+    // close modal
+    this.setState({ modalOpen: false});
   }
 
   render() {
     const { handleSubmit, pristine, submitting } = this.props;
+    const label = this.state.edit ? 'Edit Car' : 'Create New Car';
 
     // if the form has been submitted, redirect
     // will be set.
@@ -375,12 +391,20 @@ class CarsCreate extends Component {
       return null;
     }
 
+    if (this.state.loading) {
+      return(
+        <div style={{position: 'fixed', top: '50%', left: '50%', marginLeft: '-50px' }}>
+          <BarLoader color={'#123abc'} loading={this.state.loading} />      
+        </div>
+        );
+    }
+
     return (
       <div>
         <div>
           <img id="preview" className="float-right rounded-circle mr-1" src={this.props.pictureValue} alt="Car Preview" style={{ maxWidth: '100px', maxHeight: '100px', width: '100px', height: '100px', border: '2px solid white', boxShadow: '0 4px 10px 0 rgba(0,0,0,0.6)' }} />
         </div>
-        <h3 className="clearfix">Create New Car</h3>
+        <h3 className="clearfix">{label}</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
           <Field label="Car Name" name="name" type="text" autoFocus component={this.renderField} />
           <Field label="Car Number" name="number" type="number" component={this.renderField} />
@@ -402,7 +426,7 @@ class CarsCreate extends Component {
             />
             <CropModal 
               isOpen={this.state.modalOpen} 
-              onCrop={this.handleCrop.bind(this)}
+              onCrop={this.handleCrop}
               picture={this.props.pictureValue} />
           </FormGroup>
 

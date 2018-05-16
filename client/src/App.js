@@ -10,6 +10,7 @@ import './App.css';
 import { BrowserRouter, Switch } from 'react-router-dom';
 
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
 
 import firebase from './firebase';
@@ -35,6 +36,8 @@ import RacesIndex from './components/RacesIndex';
 
 import Dashboard from './components/Dashboard';
 
+import { fetchDrivers, fetchCars, fetchTracks, fetchRaces } from './actions';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -42,6 +45,13 @@ class App extends Component {
     this.state = {
       authUser: null
     };
+  }
+
+  componentWillMount() {
+    this.props.fetchCars();
+    this.props.fetchTracks();
+    this.props.fetchDrivers();
+    this.props.fetchRaces();
   }
 
   componentDidMount() {
@@ -81,7 +91,7 @@ class App extends Component {
 
                 <Route path={`${routes.DRIVERS}/create`} component={DriversCreate} />
                 <Route path={`${routes.DRIVERS}/:id`} render={() => <DriversCreate />} />
-                <Route path={`${routes.DRIVERS}/drivers/`} component={DriversIndex} />
+                <Route path={`${routes.DRIVERS}/`} component={DriversIndex} />
 
                 <Route path={`${routes.CARS}/create`} component={CarsCreate} />
                 <Route path={`${routes.CARS}/:id`} component={CarsCreate} />
@@ -102,4 +112,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(null, { fetchCars, fetchTracks, fetchDrivers, fetchRaces })(App);
