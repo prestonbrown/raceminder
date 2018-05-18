@@ -26,7 +26,11 @@ app.use('/api', function(req, res) {
  */
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
+  app.use(express.static(path.join(__dirname, 'build')));
+
+  app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
 }
 
 app.listen(port, () => console.log(`Express server listening on port ${port}`));
