@@ -64,7 +64,7 @@ class CropModal extends Component {
 
   handleClose = () => {
     const img = document.getElementsByClassName('ReactCrop__image')[0];
-    const { crop, pixelCrop } = this.state;
+    const { pixelCrop } = this.state;
     const canvas = document.createElement('canvas');
     canvas.width = pixelCrop.width;
     canvas.height = pixelCrop.height;
@@ -316,7 +316,7 @@ class CarsCreate extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.cars != newProps.cars) {
+    if (this.props.cars !== newProps.cars) {
       const { cars } = newProps;
       let id = null;
       if (this.props.match && this.props.match.params.id) {

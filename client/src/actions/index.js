@@ -4,7 +4,6 @@
  * License: MIT
  */
 
-import _ from 'lodash';
 import Sockette from 'sockette';
 import firebase from '../firebase';
 
@@ -23,6 +22,12 @@ export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
 export const CREATE_RACE_STINT = 'CREATE_RACE_STINT';
 export const DELETE_RACE_STINT = 'DELETE_RACE_STINT';
 export const DELETE_RACE = 'DELETE_RACE';
+
+export const CONNECT_RACEMONITOR_SOCKET_STARTED = 'CONNECT_RACEMONITOR_SOCKET_STARTED';
+export const CONNECT_RACEMONITOR_SOCKET_SUCCESS = 'CONNECT_RACEMONITOR_SOCKET_SUCCESS';
+export const CONNECT_RACEMONITOR_SOCKET_ERROR = 'CONNECT_RACEMONITOR_SOCKET_ERROR';
+export const DISCONNECT_RACEMONITOR_SOCKET = 'DISCONNECT_RACEMONITOR_SOCKET';
+export const RACEMONITOR_SOCKET_PUSH = 'RACEMONITOR_SOCKET_PUSH';
 
 export const REFRESH_RACEHERO_STARTED = 'REFRESH_RACEHERO_STARTED';
 export const REFRESH_RACEHERO_SUCCESS = 'REFRESH_RACEHERO_SUCCESS';
@@ -246,20 +251,123 @@ export function deleteRace(id) {
   };
 }
 
-const pingInterval = {};
-const ws = {};
+const rmws = {};
+
+export function disconnectRaceMonitorSocket(race) { 
+  if (rmws[race.id]) {
+    rmws[race.id].close();
+  }
+  return {
+    type: DISCONNECT_RACEMONITOR_SOCKET,
+    payload: { raceId: race.id }
+  };
+}
+
+export function connectRaceMonitorSocket(race) {
+  let origin = window.location.protocol + '//' + window.location.host;
+  const urlPrefix = 'https://cors-anywhere.herokuapp.com/https://apicdn.race-monitor.com/Info/WebRaceList?raceID=';
+
+  if (!race.raceMonitorId) {
+    return {
+      type: CONNECT_RACEMONITOR_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'No Race Monitor race ID has been set' }
+    };
+  }
+
+  const carRef = carsDbRef.child(race.car);
+  const getCar = async () => {
+    const snapshot = await carRef.once('value');
+    return snapshot.val();
+  };
+  const car = getCar();
+
+  return (dispatch, getState) => {
+    dispatch({ type: CONNECT_RACEMONITOR_SOCKET_STARTED });
+    console.log('dispatched CONNECT_RACEMONITOR_SOCKET_STARTED');
+
+    fetch(urlPrefix + race.raceMonitorId,
+      { headers: { origin }})
+    .then(response => response.json())
+    .then(data => {
+      if (!data.CurrentRaces.length) {
+        throw new Error('No current race was found with the given Race Monitor race ID');
+      }
+
+      // data should be in this format:
+      // {
+      //   "Restrictions": "",
+      //   "CurrentRaces": [
+      //     {
+      //       "ID": 37872,
+      //       "ReceivingData": true,
+      //       "IPAddress": "50.56.75.58",
+      //       "Instance": "209"
+      //     }
+      //   ],
+      //   "Style": null,
+      //   "LiveTimingToken": "094f6abe-27e5-4a95-bbfc-5944785d3c99"
+      // }
+      const raceInfo = data.CurrentRaces.shift();
+
+      rmws[race.id] = new Sockette('ws://' + raceInfo.IPAddress, {
+        timeout: 5e3,
+        maxAttempts: 10,
+        onopen: e => { 
+          console.log('Race Monitor Sockette Connected!', e);
+
+          dispatch({
+            type: CONNECT_RACEMONITOR_SOCKET_SUCCESS,
+            payload: { raceId: race.id, instance: raceInfo.Instance, token: data.LiveTimingToken }
+          });
+
+          // send join message
+          const message = '$JOIN,' + raceInfo.Instance + ',' + data.LiveTimingToken;
+          rmws[race.id].send(message);
+        },
+        onmessage: e => {
+          //console.log('Race Monitor Sockette Received:', e);
+
+          const data = e.data;
+          // we are only interested in a subset of all the data that race monitor can provide
+          // seems that $RMHL ones are the most useful, and for our car number
+          if (data.includes('$RMHL')) {
+            dispatch({
+              type: RACEMONITOR_SOCKET_PUSH,
+              payload: { raceId: race.id, data: data }
+            });
+          }
+        },
+        onreconnect: e => console.log('Race Monitor Sockette Reconnecting...', e),
+        onmaximum: e => console.log('Race Monitor Sockette Stop Attempting!', e),
+        onclose: e => { console.log('Race Monitor Sockette Closed!', e); if (rhPingInterval[race.id]) { clearInterval(rhPingInterval[race.id]); } },
+        onerror: e => { console.log('Race Monitor Sockette Error:', e); rhws[race.id].close(); }
+      });
+    })
+    .catch(error => {
+      dispatch({ type: CONNECT_RACEMONITOR_SOCKET_ERROR, payload: { raceId: race.id, error: error}});
+      console.log('dispatched CONNECT_RACEMONITOR_SOCKET_ERROR');
+      if (rhws[race.id]) {
+        rhws[race.id].close();
+      }
+    });
+  };
+
+}
+
+const rhPingInterval = {};
+const rhws = {};
 
 export function disconnectRaceHeroSocket(race) {
-  if (pingInterval[race.id]) {
-    clearInterval(pingInterval[race.id]);
+  if (rhPingInterval[race.id]) {
+    clearInterval(rhPingInterval[race.id]);
   }
-  if (ws[race.id]) {
-    ws[race.id].close();
+  if (rhws[race.id]) {
+    rhws[race.id].close();
   }
   return {
     type: DISCONNECT_RACEHERO_SOCKET,
     payload: { raceId: race.id }
-  }
+  };
 }
 
 function normalizeRaceHeroRaceName(str) {
@@ -322,7 +430,7 @@ export function connectRaceHeroSocket(race) {
 
       const channel = match[1];
 
-      ws[race.id] = new Sockette('ws://ws.pusherapp.com/app/' + pusherAppId + '?protocol=7&client=js&version=2.2.4&flash=false', {
+      rhws[race.id] = new Sockette('ws://ws.pusherapp.com/app/' + pusherAppId + '?protocol=7&client=js&version=2.2.4&flash=false', {
         timeout: 5e3,
         maxAttempts: 10,
         onopen: e => { 
@@ -340,14 +448,14 @@ export function connectRaceHeroSocket(race) {
                channel
               }
             });
-            ws[race.id].send(message);
+            rhws[race.id].send(message);
             return;
           }
 
           if (data.event && data.event === 'pusher_internal:subscription_succeeded') {
             dispatch({ type: CONNECT_RACEHERO_SOCKET_SUCCESS, payload: { raceId: race.id, channel }});
-            pingInterval[race.id] = setInterval(() => {
-              ws[race.id].send(JSON.stringify({
+            rhPingInterval[race.id] = setInterval(() => {
+              rhws[race.id].send(JSON.stringify({
                 event: 'pusher:ping',
                 data: {}
               }));
@@ -357,7 +465,7 @@ export function connectRaceHeroSocket(race) {
 
           console.log('got pusher data:',data);
 
-          if (data.event && data.event == 'payload') {
+          if (data.event && data.event === 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
           } else if (data.event) {
             console.log('unknown pusher event:',data);
@@ -365,15 +473,15 @@ export function connectRaceHeroSocket(race) {
         },
         onreconnect: e => console.log('Sockette Reconnecting...', e),
         onmaximum: e => console.log('Sockette Stop Attempting!', e),
-        onclose: e => { console.log('Sockette Closed!', e); if (pingInterval[race.id]) { clearInterval(pingInterval[race.id]); } },
-        onerror: e => { console.log('Sockette Error:', e); ws[race.id].close(); }
+        onclose: e => { console.log('Sockette Closed!', e); if (rhPingInterval[race.id]) { clearInterval(rhPingInterval[race.id]); } },
+        onerror: e => { console.log('Sockette Error:', e); rhws[race.id].close(); }
       });
     })
     .catch(error => {
       dispatch({ type: CONNECT_RACEHERO_SOCKET_ERROR, payload: { raceId: race.id, error: error}});
       console.log('dispatched CONNECT_RACEHERO_SOCKET_ERROR');
-      if (ws[race.id]) {
-        ws[race.id].close();
+      if (rhws[race.id]) {
+        rhws[race.id].close();
       }
     });
   };  

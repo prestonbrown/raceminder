@@ -48,7 +48,7 @@ componentWillMount() {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.drivers != newProps.drivers) {
+    if (this.props.drivers !== newProps.drivers) {
       const { drivers } = newProps;
       let id = null;
       if (this.props.match && this.props.match.params.id) {

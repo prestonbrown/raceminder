@@ -3,7 +3,7 @@ import driversReducer from './reducer_drivers';
 import carsReducer from './reducer_cars';
 import tracksReducer from './reducer_tracks';
 import racesReducer from './reducer_races';
-import raceHeroReducer from './reducer_racehero';
+import externalDataReducer from './reducer_external_data';
 
 import { reducer as formReducer } from 'redux-form';
 
@@ -13,7 +13,7 @@ const rootReducer = combineReducers({
   tracks: tracksReducer,
   races: racesReducer,
   form: formReducer,
-  racehero: raceHeroReducer
+  externalData: externalDataReducer
 });
 
 export default rootReducer;

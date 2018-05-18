@@ -25,4 +25,8 @@ app.use('/api', function(req, res) {
 });
  */
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+}
+
 app.listen(port, () => console.log(`Express server listening on port ${port}`));

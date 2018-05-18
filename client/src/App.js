@@ -80,7 +80,6 @@ class App extends Component {
 
   render() {
     return (
-      <div>
         <BrowserRouter>
           <div>
             <RMNav authUser={this.state.authUser} />
@@ -107,7 +106,6 @@ class App extends Component {
             </Container>
           </div>
         </BrowserRouter>
-      </div>
     );
   }
 }

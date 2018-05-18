@@ -11,6 +11,8 @@ import { createRaceStop } from '../actions';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
 
+import carImage from '../images/gray-car-top-view.png';
+
 moment.locale('en');
 momentLocalizer();
 
@@ -109,7 +111,7 @@ class StopForm extends Component {
           </Col>
   
           <Col xs={4} className="d-flex flex-column align-center pt-4">
-            <img alt="Top down view of car" src="/gray-car-top-view.png" className="img-responsive" style={{width: '100%'}} />
+            <img alt="Top down view of car" src={carImage} className="img-responsive" style={{width: '100%'}} />
           </Col>
 
           <Col xs={4} className="d-flex flex-column">

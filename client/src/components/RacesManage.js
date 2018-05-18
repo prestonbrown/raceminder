@@ -25,7 +25,8 @@ import StintModal from './StintModal';
 
 import { createRaceStop, deleteRaceStop,
   createRaceStint, deleteRaceStint, 
-  refreshRaceHero, connectRaceHeroSocket } from '../actions';
+  refreshRaceHero, connectRaceHeroSocket, disconnectRaceHeroSocket,
+  connectRaceMonitorSocket, disconnectRaceMonitorSocket } from '../actions';
 
 const STOPS = 'STOPS';
 const STINTS = 'STINTS';
@@ -58,11 +59,13 @@ class RacesManage extends Component {
 
   componentWillUnmount() {
     clearInterval(this.activeStintInterval);
+    this.props.disconnectRaceHeroSocket(this.props.race);
+    this.props.disconnectRaceMonitorSocket(this.props.race);
     //clearInterval(this.raceHeroInterval);
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.race != newProps.race) {
+    if (this.props.race !== newProps.race) {
       this.initialize(newProps);
     }
 
@@ -70,11 +73,11 @@ class RacesManage extends Component {
       this.updateActiveStint(newProps);
     }
 
-    if (newProps.race && this.state.selectedStintId != newProps.race.selectedStintId) {
+    if (newProps.race && this.state.selectedStintId !== newProps.race.selectedStintId) {
       this.setState({ selectedStintId: newProps.race.selectedStintId });
     }
 
-    if (newProps.race && this.state.selectedStopId != newProps.race.selectedStopId) {
+    if (newProps.race && this.state.selectedStopId !== newProps.race.selectedStopId) {
       this.setState({ selectedStopId: newProps.race.selectedStopId });
     }
 
@@ -109,7 +112,13 @@ class RacesManage extends Component {
 
     //this.props.refreshRaceHero(props.race);
 
-    this.props.connectRaceHeroSocket(props.race);
+    if (props.race.raceHeroName) {
+      this.props.connectRaceHeroSocket(props.race);
+    }
+
+    if (props.race.raceMonitorId) {
+      this.props.connectRaceMonitorSocket(props.race);
+    }
 
     // refresh once a minute
     this.activeStintInterval = setInterval(() => { 
@@ -191,7 +200,7 @@ class RacesManage extends Component {
   }
 
   handleAddStop() {
-    const { race } = this.props;
+    //const { race } = this.props;
     //const newStopId = createStopId(race);
 
     const data = {
@@ -253,7 +262,7 @@ class RacesManage extends Component {
     const { race } = this.props;
     console.log('rendering race stop table, stops:',race.stops);
     return (
-      <Table className="race-data-table" hover responsive dark sm>
+      <Table className="race-data-table" hover responsive dark>
         <thead className="table-sm">
           <tr>
             <th scope="col">Start Time</th>
@@ -465,14 +474,15 @@ class RacesManage extends Component {
   }
 }
 
-function mapStateToProps({ races, cars, drivers, tracks, racehero }, ownProps) {
+function mapStateToProps({ races, cars, drivers, tracks, externalData }, ownProps) {
   const id = ownProps.match.params.id;
   return { 
     race: races[id], 
     cars, 
     drivers, 
     track: tracks && races[id] ? tracks[races[id].track] : null,
-    racehero: racehero[id]
+    racehero: externalData && externalData.racehero ? externalData.racehero[id] : null,
+    racemonitor: externalData.racemonitor ? externalData.racemonitor[id] : null
   };
 }
 
@@ -482,5 +492,8 @@ export default connect(mapStateToProps, {
   createRaceStint, 
   deleteRaceStint,
   refreshRaceHero,
-  connectRaceHeroSocket
+  connectRaceHeroSocket,
+  disconnectRaceHeroSocket,
+  connectRaceMonitorSocket,
+  disconnectRaceMonitorSocket
 })(RacesManage);
