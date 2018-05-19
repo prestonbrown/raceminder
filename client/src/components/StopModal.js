@@ -175,10 +175,12 @@ class StopModal extends Component {
   }
 
   render() {
+    const { lap } = this.props;
     return (
       <div>
-        <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={this.props.className}>
+        <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={this.props.className} lap={lap}>
           {this.state.showTimer ? this.renderStopWatch() : this.renderForm()}
+          <p>Stop Began on lap: {lap}</p>
         </Modal>
       </div>
       );    

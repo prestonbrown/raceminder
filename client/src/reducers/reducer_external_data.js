@@ -1,4 +1,4 @@
-//import _ from 'lodash';
+import _ from 'lodash';
 import dotProp from 'dot-prop-immutable';
 
 import { 
@@ -41,7 +41,29 @@ export default function(state = initialState, action) {
     case REFRESH_RACEHERO_SUCCESS:
     case RACEHERO_SOCKET_PUSH: {
       let { raceId, data } = action.payload;
-      newState = dotProp.set(state, `racehero.${raceId}`, data);
+      // retrieve current racer sessions from state
+      let newSessions = Object.assign({}, state.racehero[raceId].racer_sessions);
+      //console.log('current sessions:',newSessions);
+
+      // new sessions
+      for (const session of data.racer_sessions) {
+        newSessions = _.filter(newSessions, s => s.racer_session_id !== session.racer_session_id);
+        newSessions.push(session);
+      }
+
+      //console.log('current sessions after append:',newSessions);
+      // now append the new sessions
+      newState = dotProp.set(state, `racehero.${raceId}.racer_sessions`, newSessions);
+
+      let newPassings = Object.assign({}, state.racehero[raceId].passings);
+      for (const passing of data.passings) {
+        newPassings = _.filter(newPassings, s => s.racer_session_id !== passing.racer_session_id);
+        newPassings.push(passing);
+      }
+
+      // now append the new sessions
+      newState = dotProp.set(state, `racehero.${raceId}.passings`, newPassings);
+
       newState = dotProp.delete(newState, `racehero.${raceId}.error`);
       localStorage.setItem('externalData', JSON.stringify(newState));
       return newState;

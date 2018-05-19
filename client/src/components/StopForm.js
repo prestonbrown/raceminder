@@ -69,6 +69,10 @@ class StopForm extends Component {
 
         <Row className="form-row">
           <Col xs={4}>
+            <Label>Ending Lap</Label>
+            <Field name="lap" component="input" className="form-control form-control-sm" type="number" />
+          </Col>
+          <Col xs={4}>
             <Label>Duration: <strong>{duration}</strong></Label>
           </Col>
         </Row>

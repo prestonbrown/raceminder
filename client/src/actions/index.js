@@ -437,7 +437,7 @@ export function connectRaceHeroSocket(race) {
           console.log('Sockette Connected!', e);  
         },
         onmessage: e => {
-          console.log('Sockette Received:', e);
+          //console.log('Sockette Received:', e);
 
           const data = JSON.parse(e.data);
           //console.log('got message data', data);
@@ -462,8 +462,6 @@ export function connectRaceHeroSocket(race) {
             }, 119e3);
             return;
           }
-
-          console.log('got pusher data:',data);
 
           if (data.event && data.event === 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});

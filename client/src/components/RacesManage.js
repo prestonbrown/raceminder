@@ -87,11 +87,11 @@ class RacesManage extends Component {
     }
     */
    
-    if (!this.props.racehero || !newProps.raceHero) {
+    if (!this.props.racehero && !newProps.racemonitor) {
       return;
     }
 
-    if (this.props.racehero.latest_flag !== newProps.racehero.latest_flag) {
+    if (newProps.racehero.latest_flag) {
       let flagColor = 'green';
       if (newProps.racehero.latest_flag.color === 'green') {
         flagColor = 'rgb(58,181,50)';
@@ -347,8 +347,23 @@ class RacesManage extends Component {
       );
   }
 
+  currentLap(carNumber) {
+    const { racehero } = this.props;
+    if (racehero.racer_sessions.length) {
+      const data = _.find(racehero.racer_sessions, s => s.racer_number == carNumber);
+      console.log('got racehero data for car ',carNumber,':',data);
+
+      if (racehero.passings.length && data.racer_session_id) {
+        const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
+        console.log('got racehero passing data for car ',carNumber,':',passings);
+      }
+    }
+  }
+
   render() {
-    const { race, track, racehero } = this.props;
+    const { race, cars, track, racehero } = this.props;
+
+    race && this.currentLap(cars[race.car].number);
 
     if (this.state.loading) {
       return(
@@ -358,15 +373,17 @@ class RacesManage extends Component {
         );
     }    
 
-    let color = 'black';
-    if (moment().isAfter(race.start)) {
-      color = 'red';
+    let color = this.state.flagColor;
+    if (moment().isAfter(race.end)) {
+      color = 'gray';
     }
+
+    console.log('current race flag color:',color);
 
     return (
       <div>
         <Row className="mb-2">
-          <Col xs={5}>
+          <Col xs={4}>
             <h3>{race.name}</h3>
             <h5 className="d-none d-md-block">Track: {track.name}</h5>
             {racehero &&
@@ -374,13 +391,17 @@ class RacesManage extends Component {
             }
           </Col>
 
-          <Col xs={1}>
+          <Col className="d-none d-sm-block">
             <img 
-              src={this.props.cars[this.props.race.car].picture} 
+              src={this.props.cars[race.car].picture} 
               alt="Car" 
-              className="rounded d-none d-sm-block"
+              className="rounded"
               style={{maxWidth: '100px', maxHeight: '100px' }}
             />
+          </Col>
+
+          <Col className="d-none d-sm-block h-100">
+              <FontAwesomeIcon icon={faFlagCheckered} style={{ fontSize: '50px', color }} />
           </Col>
 
           <Col xs={6} className="text-right">
