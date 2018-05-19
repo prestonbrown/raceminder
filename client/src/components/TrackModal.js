@@ -4,11 +4,54 @@ import { Label, Form, FormGroup, Button,
 import { connect } from 'react-redux';
 import { Field, submit, reduxForm } from 'redux-form';
 
+const readFileAsDataURI = (inputFile) => {
+  const temporaryFileReader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    temporaryFileReader.onerror = () => {
+      temporaryFileReader.abort();
+      reject(new DOMException("Problem parsing input file."));
+    };
+
+    temporaryFileReader.onload = () => {
+      resolve(temporaryFileReader.result);
+    };
+    temporaryFileReader.readAsDataURL(inputFile);
+  });
+};
+
+const adaptFileEventToValue = delegate => e => {
+  // convert File object to DataURI
+  readFileAsDataURI(e.target.files[0])
+    .then(data => { 
+      delegate(data);
+    })
+    .catch(err => console.error(err));
+
+  //delegate(e.target.files[0]);
+};
+
+const FileInput = ({ 
+  input: { value: omitValue, onChange, onClick, onBlur, ...inputProps }, 
+  meta: omitMeta, 
+  ...props 
+  }) => {
+  return (
+    <input
+      onChange={adaptFileEventToValue(onChange)}
+      type="file"
+      {...props.input}
+      {...props}
+    />
+  );
+};
+
 class TrackForm extends Component {
   componentWillMount() {
     const { track } = this.props;
    
     if (track) {
+      console.log('initializing form with ',track);
       this.props.initialize(track);
     }
   }
@@ -26,6 +69,11 @@ class TrackForm extends Component {
         <FormGroup>
           <Label>Length</Label>
           <Field name="length" component="input" type="number" className="form-control" />
+        </FormGroup>
+
+        <FormGroup>
+          <Label>Track Map Picture</Label>
+          <Field name="map" component={FileInput} className="form-control" />
         </FormGroup>
       </Form>
     );
@@ -54,6 +102,10 @@ class TrackModal extends Component {
 
   renderForm() {
     const { track } = this.props;
+    if (!track) {
+      return null;
+    }
+    
     return (
       <section>
         <ModalHeader toggle={this.toggle}>Track Details</ModalHeader>

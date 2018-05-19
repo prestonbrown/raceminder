@@ -139,7 +139,6 @@ class RacesManage extends Component {
   }
 
   updateActiveStint = props => {
-    console.log('call to update active stint');
     const now = moment();
     _.forEach(props.race.stints, stint => {
         const end = moment(stint.end);
@@ -291,7 +290,7 @@ class RacesManage extends Component {
     if (start < now && end > now) {
       after = 'bg-primary';
     } else if (end < now) {
-      after = 'bg-warning';
+      after = 'bg-secondary';
     }
 
     return (
@@ -347,17 +346,43 @@ class RacesManage extends Component {
       );
   }
 
-  currentLap(carNumber) {
+  currentLap(car) {
     const { racehero } = this.props;
-    if (racehero.racer_sessions.length) {
-      const data = _.find(racehero.racer_sessions, s => s.racer_number == carNumber);
-      console.log('got racehero data for car ',carNumber,':',data);
 
-      if (racehero.passings.length && data.racer_session_id) {
-        const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
-        console.log('got racehero passing data for car ',carNumber,':',passings);
-      }
+    if (!racehero || !racehero.racer_sessions) {
+      return null;
+    }    
+
+    const data = _.find(racehero.racer_sessions, s => s.racer_number == car.number);
+    //console.log('got racehero data for car ',carNumber,':',data);
+
+    if (data && racehero.passings && data.racer_session_id) {
+      const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
+      return passings.current_lap;
     }
+
+    return null;
+  }
+
+  lastLapTime(car) {
+    const { racehero } = this.props;
+
+    if (!racehero || !racehero.racer_sessions) {
+      return null;
+    }    
+
+    const data = _.find(racehero.racer_sessions, s => s.racer_number == car.number);
+    //console.log('got racehero data for car ',carNumber,':',data);
+
+    if (data && racehero.passings && data.racer_session_id) {
+      const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
+
+      //const lapTime = moment.duration(passings.last_lap_time_seconds * 1000);
+      //return 
+      return passings.last_lap_time;
+    }
+
+    return null;
   }
 
   render() {
@@ -378,8 +403,6 @@ class RacesManage extends Component {
       color = 'gray';
     }
 
-    console.log('current race flag color:',color);
-
     return (
       <div>
         <Row className="mb-2">
@@ -391,17 +414,14 @@ class RacesManage extends Component {
             }
           </Col>
 
-          <Col className="d-none d-sm-block">
+          <Col className="d-none d-sm-inline-block text-center">
             <img 
-              src={this.props.cars[race.car].picture} 
+              src={cars[race.car].picture} 
               alt="Car" 
-              className="rounded"
+              className="rounded mb-1"
               style={{maxWidth: '100px', maxHeight: '100px' }}
             />
-          </Col>
-
-          <Col className="d-none d-sm-block h-100">
-              <FontAwesomeIcon icon={faFlagCheckered} style={{ fontSize: '50px', color }} />
+            <FontAwesomeIcon icon={faFlagCheckered} style={{ fontSize: '50px', color }} />
           </Col>
 
           <Col xs={6} className="text-right">
@@ -417,6 +437,20 @@ class RacesManage extends Component {
                 <Button tag={Link} to={`/races/${race.id}`} color="primary">Edit Race</Button>
               </Col>
             </FormGroup>
+
+            { racehero &&
+            <div>
+              <strong className="mr-1">Our Car Current Lap:</strong>
+              {this.currentLap(cars[race.car])}
+            </div>
+            }
+
+            { racehero && 
+            <div>
+              <strong className="mr-1">Last Lap Time:</strong>
+              {this.lastLapTime(cars[race.car])}
+            </div>
+            }
           </Col>
 
         </Row>
@@ -445,6 +479,7 @@ class RacesManage extends Component {
 
         <StopModal 
           race={race}
+          lap={this.currentLap(cars[race.car])}
           stopId={this.state.selectedStopId}
           activeStintId={this.state.activeStintId}
           isOpen={this.state.stopModalOpen} 

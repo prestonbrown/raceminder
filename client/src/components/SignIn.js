@@ -9,20 +9,10 @@ import * as routes from '../routes';
 
 import logo from '../images/race minder logo.png';
 
-const SignInPage = ({ history }) =>
-  <div style={{
-    height: '100vh',
-    paddingTop: '40px', 
-    paddingBottom: '40px',
-    marginLeft: '-15px',
-    marginRight: '-15px',
-    display: 'flex',
-    WebkitBoxAlign: 'center',
-    alignItems: 'center',
-    WebkitBoxPack: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5' }}>
+import '../styles/signin.css';
 
+const SignInPage = ({ history }) =>
+  <div className="sign-in">
     <SignInForm history={history} />
     {/*<SignUpLink />*/}
   </div>
@@ -78,10 +68,10 @@ class SignInForm extends Component {
       email === '';
 
     return (
-      <form className="form-signin" onSubmit={this.onSubmit} style={{ width: '100%', maxWidth: '330px', padding: '15px', margin: '0 auto' }}>
+      <form className="form-sign-in" onSubmit={this.onSubmit}>
         <div className="text-center">
         <img className="mb-4" src={logo} alt="raceminder" width="72" />
-        <h1 className="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <h1 className="h3 mb-3 font-weight-normal text-light">Please sign in</h1>
 
         <Label for="inputEmail" className="sr-only">Email Address</Label>
         <input
@@ -93,7 +83,6 @@ class SignInForm extends Component {
           placeholder="Email Address"
           required
           autoFocus
-          style={{ marginBottom: '-1px', borderBottomLeftRadius: '0', borderBottomRightRadius: '0', position: 'relative', boxSizing: 'border-box', height: 'auto', padding: '10px', fontSize: '16px'}}
         />
 
         <Label for="inputPassword" className="sr-only">Password</Label>
@@ -105,7 +94,6 @@ class SignInForm extends Component {
           type="password"
           placeholder="Password"
           required
-          style={{ marginBottom: '10px', borderTopLeftRadius: '0', borderTopRightRadius: '0', position: 'relative', boxSizing: 'border-box', height: 'auto', padding: '10px', fontSize: '16px'}}
         />
 
         <button

@@ -33,10 +33,11 @@ import CarsIndex from './components/CarsIndex';
 import RacesCreate from './components/RacesCreate';
 import RacesManage from './components/RacesManage';
 import RacesIndex from './components/RacesIndex';
+import TrackModal from './components/TrackModal';
 
 import Dashboard from './components/Dashboard';
 
-import { fetchDrivers, fetchCars, fetchTracks, fetchRaces } from './actions';
+import { fetchDrivers, fetchCars, fetchTracks, fetchRaces, createTrack } from './actions';
 
 class App extends Component {
   constructor(props) {
@@ -79,13 +80,18 @@ class App extends Component {
   }
 
   render() {
+    const { tracks } = this.props;
+
+    if (!tracks) {
+      return null;
+    }
     return (
         <BrowserRouter>
           <div>
             <RMNav authUser={this.state.authUser} />
             <Container fluid>
               <Switch>
-                <Route exact path={routes.SIGN_IN} component={() => <SignInPage />} />
+                <Route exact path={routes.SIGN_IN} isPublic={true} component={() => <SignInPage />} />
                 <Route exact path={routes.ACCOUNT} component={() => <AccountPage />} />
 
                 <Route path={`${routes.DRIVERS}/create`} component={DriversCreate} />
@@ -96,7 +102,8 @@ class App extends Component {
                 <Route path={`${routes.CARS}/:id`} component={CarsCreate} />
                 <Route path={`${routes.CARS}/`} component={CarsIndex} />              
 
-                {/*<Route path={`${routes.RACES}/create`} render={() => <RacesCreate handleSubmit={values => console.log(values)} />} />*/}
+
+                <Route path={`${routes.TRACKS}/:id`} render={({ match }) => <TrackModal isOpen={true} onClose={() => null} handleSubmit={values => this.props.createTrack(values)} track={tracks[match.params.id]} />} />
                 <Route path={`${routes.RACES}/create`} render={() => <RacesCreate />} />
                 <Route path={`${routes.RACES}/manage/:id`} component={RacesManage} />
                 <Route path={`${routes.RACES}/:id`} component={RacesCreate} />
@@ -110,4 +117,4 @@ class App extends Component {
   }
 }
 
-export default connect(null, { fetchCars, fetchTracks, fetchDrivers, fetchRaces })(App);
+export default connect(({ tracks }) => ({ tracks }), { fetchCars, fetchTracks, fetchDrivers, fetchRaces, createTrack })(App);

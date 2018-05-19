@@ -56,6 +56,7 @@ class StopModal extends Component {
     this.props.createRaceStop(race.id, {
       start: start.format('Y-MM-DDTHH:mm:ss'),
       end: end.format('Y-MM-DDTHH:mm:ss'),
+      lap: this.props.lap,
       driver
     });
 
@@ -119,7 +120,7 @@ class StopModal extends Component {
   }
 
   renderForm() {
-    const { race, race: { stints }, activeStintId } = this.props;
+    const { race, lap, race: { stints }, activeStintId } = this.props;
     let activeDriverId = null;
     if (activeStintId) {
       activeDriverId = stints[activeStintId].driver;
@@ -130,7 +131,8 @@ class StopModal extends Component {
         <ModalHeader toggle={this.toggle}>Pit Stop Details</ModalHeader>
         <ModalBody>
           <StopForm 
-            race={race} 
+            race={race}
+            lap={lap}
             stopId={this.state.stopId} 
             activeDriverId={activeDriverId}
             onSubmit={this.handleStopSubmit.bind(this)} 
@@ -175,12 +177,10 @@ class StopModal extends Component {
   }
 
   render() {
-    const { lap } = this.props;
     return (
       <div>
-        <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={this.props.className} lap={lap}>
+        <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={this.props.className}>
           {this.state.showTimer ? this.renderStopWatch() : this.renderForm()}
-          <p>Stop Began on lap: {lap}</p>
         </Modal>
       </div>
       );    

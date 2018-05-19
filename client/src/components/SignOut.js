@@ -1,7 +1,11 @@
 import React from 'react';
 import { DropdownItem } from 'reactstrap';
 
+import { withRouter } from 'react-router-dom';
+
 import { auth } from '../firebase';
+
+import * as routes from '../routes';
 
 const SignOutButton = () =>
   <button
@@ -11,10 +15,12 @@ const SignOutButton = () =>
     Sign Out
   </button>
 
-const SignOutDropdownItem = () =>
+const SignOutDropdownItem = withRouter(
+  ({ history }) =>
   <DropdownItem>
-    <a onClick={auth.doSignOut} role="link" tabIndex={0}>Sign Out</a>
+    <a onClick={() => { auth.doSignOut(); history.push(routes.SIGN_IN) }} role="link" tabIndex={0}>Sign Out</a>
   </DropdownItem>
+);
 
 export default SignOutButton;
 

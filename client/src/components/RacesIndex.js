@@ -133,7 +133,7 @@ class RacesIndex extends Component {
   render() {
     return (
       <div>
-        <div className="mb-3">
+        <div className="mb-3 mt-1">
           <div className="float-right">
             <Link className="btn btn-primary" to="/races/create">New Race</Link>
             <Button active={this.state.hideCompleted} aria-pressed={this.state.hideCompleted} autoComplete="off" color="secondary" onClick={this.onHideCompletedClicked}>Hide Completed</Button>          

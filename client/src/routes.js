@@ -5,3 +5,4 @@ export const ACCOUNT = '/account';
 export const DRIVERS = '/drivers';
 export const RACES = '/races';
 export const CARS = '/cars';
+export const TRACKS = '/tracks';

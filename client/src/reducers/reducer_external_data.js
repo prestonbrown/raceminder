@@ -42,30 +42,40 @@ export default function(state = initialState, action) {
     case RACEHERO_SOCKET_PUSH: {
       let { raceId, data } = action.payload;
       // retrieve current racer sessions from state
-      let newSessions = Object.assign({}, state.racehero[raceId].racer_sessions);
+      let newSessions = Object.assign({}, state.racehero[raceId] ? state.racehero[raceId].racer_sessions : []);
       //console.log('current sessions:',newSessions);
 
+      if (!data.racer_sessions) {
+        console.log('racehero reducer got weird data without racer_sessions:',data);
+      } else {
       // new sessions
       for (const session of data.racer_sessions) {
         newSessions = _.filter(newSessions, s => s.racer_session_id !== session.racer_session_id);
         newSessions.push(session);
       }
+      }
 
       //console.log('current sessions after append:',newSessions);
       // now append the new sessions
-      newState = dotProp.set(state, `racehero.${raceId}.racer_sessions`, newSessions);
+      data.racer_sessions = newSessions;
 
-      let newPassings = Object.assign({}, state.racehero[raceId].passings);
+      let newPassings = Object.assign({}, state.racehero[raceId] ? state.racehero[raceId].passings : []);
+      if (!data.passings) {
+        console.log('racehero reducer got weird data without passings:',data);
+      } else {
       for (const passing of data.passings) {
         newPassings = _.filter(newPassings, s => s.racer_session_id !== passing.racer_session_id);
         newPassings.push(passing);
       }
+      } 
 
       // now append the new sessions
-      newState = dotProp.set(state, `racehero.${raceId}.passings`, newPassings);
+      data.passings = newPassings;
 
-      newState = dotProp.delete(newState, `racehero.${raceId}.error`);
+      newState = dotProp.set(state, `racehero.${raceId}`, data);
       localStorage.setItem('externalData', JSON.stringify(newState));
+
+      console.log('new racehero state:', newState);
       return newState;
     }
     case CONNECT_RACEHERO_SOCKET_ERROR:
