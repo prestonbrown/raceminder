@@ -14,6 +14,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTrashAlt from '@fortawesome/fontawesome-free-regular/faTrashAlt';
 import faPlusSquare from '@fortawesome/fontawesome-free-regular/faPlusSquare';
 import faFlagCheckered from '@fortawesome/fontawesome-free-solid/faFlagCheckered';
+import faFlag from '@fortawesome/fontawesome-free-solid/faFlag';
 
 import moment from 'moment';
 import momentLocalizer from 'react-widgets-moment';
@@ -23,8 +24,8 @@ import Clock from 'react-live-clock';
 import StopModal from './StopModal';
 import StintModal from './StintModal';
 
-import { createRaceStop, deleteRaceStop,
-  createRaceStint, deleteRaceStint, 
+import { createRaceStop, deleteRaceStop, setSelectedStop,
+  createRaceStint, deleteRaceStint, setSelectedStint,
   refreshRaceHero, connectRaceHeroSocket, disconnectRaceHeroSocket,
   connectRaceMonitorSocket, disconnectRaceMonitorSocket } from '../actions';
 
@@ -41,8 +42,6 @@ class RacesManage extends Component {
     this.state = {
       stopModalOpen: false,
       viewSelected: STINTS,
-      selectedStopId: null,
-      selectedStintId: null,
       stintModalOpen: false,
       flagColor: '#555',
       loading: true
@@ -73,21 +72,13 @@ class RacesManage extends Component {
       this.updateActiveStint(newProps);
     }
 
-    if (newProps.race && this.state.selectedStintId !== newProps.race.selectedStintId) {
-      this.setState({ selectedStintId: newProps.race.selectedStintId });
-    }
-
-    if (newProps.race && this.state.selectedStopId !== newProps.race.selectedStopId) {
-      this.setState({ selectedStopId: newProps.race.selectedStopId });
-    }
-
     /*
     if (this.props.racehero && this.props.racehero.current_lap !== newProps.racehero.current_lap) {
       this.updateActiveStint(newProps);
     }
     */
    
-    if (!this.props.racehero && !newProps.racemonitor) {
+    if (!newProps.racehero) {
       return;
     }
 
@@ -228,6 +219,7 @@ class RacesManage extends Component {
   }
 
   renderStopRow(stop) {
+    const { race } = this.props;
     const duration = stop.start && stop.end ? 
       moment(moment(stop.end).diff(moment(stop.start))).format('mm:ss') : 
       '(unset)';
@@ -235,7 +227,7 @@ class RacesManage extends Component {
     return (
       <tr 
         key={stop.id} 
-        onClick={() => this.setState({ selectedStopId: stop.id, stopModalOpen: true })} 
+        onClick={() => { this.props.setSelectedStop(race.id, stop.id); this.setState({ stopModalOpen: true }); }} 
         style={{cursor: 'pointer'}}
       >
         <td>{(stop.start && moment(stop.start).format('LTS')) || '(unset)'}</td>
@@ -259,7 +251,6 @@ class RacesManage extends Component {
 
   renderStopTable() {
     const { race } = this.props;
-    console.log('rendering race stop table, stops:',race.stops);
     return (
       <Table className="race-data-table" hover responsive dark>
         <thead className="table-sm">
@@ -283,6 +274,7 @@ class RacesManage extends Component {
   }
 
   renderStintRow(stint, index) {
+    const { race } = this.props;
     let after = '';
     let end = moment(stint.end);
     let start = moment(stint.start);
@@ -297,7 +289,7 @@ class RacesManage extends Component {
       <tr 
         key={stint.id} 
         className={after} 
-        onClick={() => this.setState({ selectedStintId: stint.id, stintModalOpen: true })} 
+        onClick={() => { this.props.setSelectedStint(race.id, stint.id); this.setState({ stintModalOpen: true }); }} 
         style={{cursor: 'pointer'}}
       >
         <th className="d-none d-sm-table-cell" scope="row">{index+1}</th>
@@ -364,6 +356,24 @@ class RacesManage extends Component {
     return null;
   }
 
+  currentPosition(car) {
+    const { racehero } = this.props;
+
+    if (!racehero || !racehero.racer_sessions) {
+      return null;
+    }    
+
+    const data = _.find(racehero.racer_sessions, s => s.racer_number == car.number);
+    //console.log('got racehero data for car ',car.number,':',data);
+
+    if (data && racehero.passings && data.racer_session_id) {
+      const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
+      return passings.position_in_class;
+    }
+
+    return null;
+  }    
+  
   lastLapTime(car) {
     const { racehero } = this.props;
 
@@ -377,9 +387,9 @@ class RacesManage extends Component {
     if (data && racehero.passings && data.racer_session_id) {
       const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
 
-      //const lapTime = moment.duration(passings.last_lap_time_seconds * 1000);
-      //return 
-      return passings.last_lap_time;
+      const lapTime = moment(passings.last_lap_time_seconds * 1000).format('mm:ss.SS');
+      return lapTime;
+      //return passings.last_lap_time;
     }
 
     return null;
@@ -405,7 +415,7 @@ class RacesManage extends Component {
 
     return (
       <div>
-        <Row className="mb-2">
+        <Row className="mb-2 bg-dark text-light">
           <Col xs={4}>
             <h3>{race.name}</h3>
             <h5 className="d-none d-md-block">Track: {track.name}</h5>
@@ -421,7 +431,7 @@ class RacesManage extends Component {
               className="rounded mb-1"
               style={{maxWidth: '100px', maxHeight: '100px' }}
             />
-            <FontAwesomeIcon icon={faFlagCheckered} style={{ fontSize: '50px', color }} />
+            <FontAwesomeIcon icon={faFlag} style={{ fontSize: '50px', color, filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.5))' }} />
           </Col>
 
           <Col xs={6} className="text-right">
@@ -451,6 +461,13 @@ class RacesManage extends Component {
               {this.lastLapTime(cars[race.car])}
             </div>
             }
+
+            { racehero &&
+            <div>
+              <strong className="mr-1">Position In Class:</strong>
+              {this.currentPosition(cars[race.car])}
+            </div>
+            }
           </Col>
 
         </Row>
@@ -471,7 +488,7 @@ class RacesManage extends Component {
           <Button 
             className="btn-block" 
             color="danger" 
-            onClick={() => this.setState({ selectedStopId: null, stopModalOpen: true })}>
+            onClick={() => { this.props.setSelectedStop(race.id, null); this.setState({ stopModalOpen: true }); }}>
               <FontAwesomeIcon icon={faFlagCheckered} className="mr-2" />
               Start Pit Stop
           </Button>
@@ -480,14 +497,14 @@ class RacesManage extends Component {
         <StopModal 
           race={race}
           lap={this.currentLap(cars[race.car])}
-          stopId={this.state.selectedStopId}
+          stopId={race.selectedStopId}
           activeStintId={this.state.activeStintId}
           isOpen={this.state.stopModalOpen} 
           onClose={this.handleStopModalClose} />
         
         <StintModal 
           race={race} 
-          stintId={this.state.selectedStintId} 
+          stintId={race.selectedStintId} 
           activeStintId={this.state.activeStintId}
           isOpen={this.state.stintModalOpen} 
           onClose={this.handleStintModalClose} />
@@ -545,8 +562,10 @@ function mapStateToProps({ races, cars, drivers, tracks, externalData }, ownProp
 export default connect(mapStateToProps, { 
   createRaceStop, 
   deleteRaceStop, 
+  setSelectedStop,
   createRaceStint, 
   deleteRaceStint,
+  setSelectedStint,
   refreshRaceHero,
   connectRaceHeroSocket,
   disconnectRaceHeroSocket,

@@ -113,9 +113,6 @@ class RacesCreate extends Component {
 
   onTrackSubmit = values => {
     this.props.createTrack(values);
-
-    // would like to call this.props.change('track', values.id);
-    // but we don't have a key/id yet!
   }
 
   renderField(field) {

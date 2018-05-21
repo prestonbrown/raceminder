@@ -25,15 +25,14 @@ class StopModal extends Component {
 
     //console.log('stopmodal props:',props);
     this.state = {
-      stopId: null,
       showTimer: true
     };
   }
 
   componentWillReceiveProps(newProps) {
-    //console.log('stopmodal receiving new props:',newProps);
+    console.log('stopmodal receiving new props:',newProps);
     if (this.state.stopId !== newProps.stopId) {
-      this.setState({ stopId: newProps.stopId, showTimer: !newProps.stopId ? true : false });
+      this.setState({ showTimer: !newProps.stopId ? true : false });
     }
   }
 
@@ -120,7 +119,7 @@ class StopModal extends Component {
   }
 
   renderForm() {
-    const { race, lap, race: { stints }, activeStintId } = this.props;
+    const { race, lap, race: { stints }, activeStintId, stopId } = this.props;
     let activeDriverId = null;
     if (activeStintId) {
       activeDriverId = stints[activeStintId].driver;
@@ -133,7 +132,7 @@ class StopModal extends Component {
           <StopForm 
             race={race}
             lap={lap}
-            stopId={this.state.stopId} 
+            stopId={stopId} 
             activeDriverId={activeDriverId}
             onSubmit={this.handleStopSubmit.bind(this)} 
           />

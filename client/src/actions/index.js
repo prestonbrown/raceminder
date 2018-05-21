@@ -22,6 +22,8 @@ export const DELETE_RACE_STOP = 'DELETE_RACE_STOP';
 export const CREATE_RACE_STINT = 'CREATE_RACE_STINT';
 export const DELETE_RACE_STINT = 'DELETE_RACE_STINT';
 export const DELETE_RACE = 'DELETE_RACE';
+export const SET_SELECTED_STOP = 'SET_SELECTED_STOP';
+export const SET_SELECTED_STINT = 'SET_SELECTED_STINT';
 
 export const CONNECT_RACEMONITOR_SOCKET_STARTED = 'CONNECT_RACEMONITOR_SOCKET_STARTED';
 export const CONNECT_RACEMONITOR_SOCKET_SUCCESS = 'CONNECT_RACEMONITOR_SOCKET_SUCCESS';
@@ -206,6 +208,20 @@ export function deleteRaceStop(raceId, stopId) {
   };
 }
 
+export function setSelectedStop(raceId, stopId) {
+  return {
+    type: SET_SELECTED_STOP,
+    payload: { raceId, stopId }
+  };
+}
+
+export function setSelectedStint(raceId, stintId) {
+  return {
+    type: SET_SELECTED_STINT,
+    payload: { raceId, stintId }
+  };
+}
+
 /*
 export function createStintId(race) {
   const stints = _.toArray(race.stints)
@@ -256,6 +272,7 @@ const rmws = {};
 export function disconnectRaceMonitorSocket(race) { 
   if (rmws[race.id]) {
     rmws[race.id].close();
+    delete rmws[race.id];
   }
   return {
     type: DISCONNECT_RACEMONITOR_SOCKET,
@@ -363,6 +380,7 @@ export function disconnectRaceHeroSocket(race) {
   }
   if (rhws[race.id]) {
     rhws[race.id].close();
+    delete rhws[race.id];
   }
   return {
     type: DISCONNECT_RACEHERO_SOCKET,
@@ -387,6 +405,13 @@ function normalizeRaceHeroRaceName(str) {
 }
 
 export function connectRaceHeroSocket(race) {
+  if (rhws[race.id]) {
+    return {
+      type: CONNECT_RACEHERO_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'Socket already connected for this race.' }
+    };
+  }
+
   let origin = window.location.protocol + '//' + window.location.host;
   const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
 
@@ -465,6 +490,8 @@ export function connectRaceHeroSocket(race) {
 
           if (data.event && data.event === 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
+          } else if (data.event && data.event == 'pusher:pong') {
+            ; // ignore it
           } else if (data.event) {
             console.log('unknown pusher event:',data);
           }

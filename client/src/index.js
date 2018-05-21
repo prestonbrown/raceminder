@@ -25,7 +25,10 @@ if (process.env.NODE_ENV !== 'production') {
 //const createStoreWithMiddleware = compose(applyMiddleware(reduxPromise), DevTools.instrument())(createStore);
 const createStoreWithMiddleware = applyMiddleware(reduxPromise, thunk)(createStore);
 
-const store = createStoreWithMiddleware(reducers);
+const store = createStoreWithMiddleware(
+  reducers,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  );
 
 ReactDOM.render(
   <Provider store={store}>

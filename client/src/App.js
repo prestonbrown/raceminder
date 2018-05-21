@@ -48,15 +48,14 @@ class App extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    const auth = firebase.auth();
+
     this.props.fetchCars();
     this.props.fetchTracks();
     this.props.fetchDrivers();
     this.props.fetchRaces();
-  }
 
-  componentDidMount() {
-    const auth = firebase.auth();
     //this.callApi();
 
     auth.onAuthStateChanged(authUser => {

@@ -5,7 +5,7 @@ import {
   CREATE_RACE, DELETE_RACE, 
   CREATE_RACE_STOP, DELETE_RACE_STOP,
   CREATE_RACE_STINT, DELETE_RACE_STINT,
-  /*createStopId, createStintId*/
+  SET_SELECTED_STINT, SET_SELECTED_STOP
 } from '../actions/index';
 
 //let initialState = localStorage.getItem('races') ? JSON.parse(localStorage.getItem('races')) : {};
@@ -87,6 +87,20 @@ export default function (state = initialState, action) {
       return newState;
     }
 
+    case SET_SELECTED_STOP: {
+      let { raceId, stopId } = action.payload;
+      let race = state[raceId];
+
+      newState = {
+        ...state,
+        [raceId]: {
+          ...race,
+          selectedStopId: stopId
+        }
+      };
+
+      return newState;
+    }
     case CREATE_RACE_STINT: {
       let { raceId, values } = action.payload;
       let stintId = null;
@@ -129,6 +143,22 @@ export default function (state = initialState, action) {
 
       //localStorage.setItem('races', JSON.stringify(newState));
       //console.log('state.races after deleting stop:', newState);
+      return newState;
+    }
+
+
+    case SET_SELECTED_STINT: {
+      let { raceId, stintId } = action.payload;
+      let race = state[raceId];
+
+      newState = {
+        ...state,
+        [raceId]: {
+          ...race,
+          selectedStintId: stintId
+        }
+      };
+
       return newState;
     }
     default: {
