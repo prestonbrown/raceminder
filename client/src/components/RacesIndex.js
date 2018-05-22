@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, UncontrolledTooltip } from 'reactstrap';
+import { Button, UncontrolledTooltip, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faEdit from '@fortawesome/fontawesome-free-regular/faEdit'
@@ -12,31 +12,39 @@ import faClock from '@fortawesome/fontawesome-free-regular/faClock';
 import faBullhorn from '@fortawesome/fontawesome-free-solid/faBullhorn';
 import faRoad from '@fortawesome/fontawesome-free-solid/faRoad';
 
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import { deleteRace } from '../actions';
 
-const RaceCard = ({race, car, track, handleDelete}) => {
+import '../styles/racesindex.css';
+
+let RaceCard = ({race, car, track, handleDelete, history}) => {
   const now = new moment();
-  const borderStyle = now.isAfter(race.start) && now.isBefore(race.end) ? 'border-success' : (now.isAfter(race.end) ? 'border-light' : '');
-  const opacity = now.isAfter(race.end) ? '0.7' : '1'
+  const borderClass = now.isAfter(race.start) && now.isBefore(race.end) ? 'border-success' : (now.isAfter(race.end) ? 'border-secondary' : 'border-secondary');
+  const cardFaded = now.isAfter(race.end) ? 'card-faded' : ''
   const background = now.isAfter(race.end) ? 'bg-secondary text-white' : '';
 
   return (
-    <div className={`card h-100 ${borderStyle} ${background}`} style={{ opacity: opacity }}>
-      <img className="card-image-top" src={car.picture} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />
+    <div 
+      className={`card race-card shadow h-100 ${borderClass} ${background} ${cardFaded}`} 
+      onClick={e => { history.push(`/races/manage/${race.id}`) }}>
+      <div className="card-header bg-light text-dark">
+        <p className="card-text">{race.name} <NoteIcon race={race} /></p>
+      </div>
+      <img className="card-image-top" src={car.picture} alt="race car" />
       <div className="card-body">
-        <p className="card-text mb-1">{race.name} <NoteIcon race={race} /></p>
         <div className="card-text mb-2">
           <div className="small em">{track.name}</div>
           <div className="small">{moment(race.start).format('LLL')} - {moment(race.end).format('LLL')}</div>
         </div>
-        <Link className="card-link" to={`/races/${race.id}`}>Edit</Link>
-        <Link className="card-link" to={`/races/manage/${race.id}`}>Manage</Link>        
-        <a className="card-link" onClick={handleDelete} role="link" tabIndex={0}>Delete</a>
+        <Link className="card-link" onClick={e => e.stopPropagation()} to={`/races/${race.id}`}>Edit</Link>
+        <Link className="card-link" onClick={e => e.stopPropagation()} to={`/races/manage/${race.id}`}>Manage</Link>        
+        <a className="card-link" onClick={e => { e.stopPropagation(); handleDelete() }} role="link" tabIndex={0}>Delete</a>
       </div>
     </div>);
-}
+};
+
+RaceCard = withRouter(RaceCard);
 
 const NoteIcon = ({ race }) => {
   const now = new moment();
@@ -79,17 +87,45 @@ const NoteIcon = ({ race }) => {
   }
 };
 
+const ConfirmModal = ({isOpen, toggle, handleOk, title, body, id}) => {
+  return (
+    <Modal isOpen={isOpen} toggle={toggle}>
+      <ModalHeader toggle={toggle}>{title}</ModalHeader>
+      <ModalBody>
+        {body}
+      </ModalBody>
+
+      <ModalFooter>
+        <Button color="primary" onClick={() => handleOk(id)}>OK</Button>
+        <Button color="secondary" onClick={toggle}>Cancel</Button>
+      </ModalFooter>        
+    </Modal>
+  );
+}
+
 class RacesIndex extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      hideCompleted: false
+      hideCompleted: false,
+      deleteModalOpen: false,
+      deleteConfirmText: ''
     };
   }
 
-  onDeleteClicked(id) {
+  handleDelete = id => {
     this.props.deleteRace(id);
+    this.setState({ deleteModalOpen: false});
+  }
+
+  onDeleteClicked = id => {
+    // really should confirm delete here.
+    this.setState({ 
+      selectedRaceId: id,
+      deleteConfirmText: 'Do you really want to delete ' + this.props.races[id].name + '?',
+      deleteModalOpen: true
+    });
   }
 
   onHideCompletedClicked = () => {
@@ -142,9 +178,19 @@ class RacesIndex extends Component {
         </div>
 
         {this.renderRaces()}
+        <ConfirmModal
+          title="Delete Race?" 
+          body={this.state.deleteConfirmText}
+          isOpen={this.state.deleteModalOpen}
+          toggle={() => this.setState({ deleteModalOpen: false })}
+          handleOk={this.handleDelete}
+          id={this.state.selectedRaceId} />
       </div>
       );
   }
 }
 
-export default connect(({ races, cars, tracks }) => ({ races, cars, tracks }), { deleteRace })(RacesIndex);
+RacesIndex = connect(({ races, cars, tracks }) => ({ races, cars, tracks }), { deleteRace })(RacesIndex);
+
+export default withRouter(RacesIndex);
+
