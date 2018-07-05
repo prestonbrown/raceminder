@@ -41,6 +41,12 @@ export const CONNECT_RACEHERO_SOCKET_ERROR = 'CONNECT_RACEHERO_SOCKET_ERROR';
 export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
 export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
 
+export const CONNECT_PODIUM_SOCKET_STARTED = 'CONNECT_PODIUM_SOCKET_STARTED';
+export const CONNECT_PODIUM_SOCKET_SUCCESS = 'CONNECT_PODIUM_SOCKET_SUCCESS';
+export const CONNECT_PODIUM_SOCKET_ERROR = 'CONNECT_PODIUM_SOCKET_ERROR';
+export const DISCONNECT_PODIUM_SOCKET = 'DISCONNECT_PODIUM_SOCKET';
+export const PODIUM_SOCKET_PUSH = 'PODIUM_SOCKET_PUSH';
+
 export const FETCH_TRACKS = 'FETCH_TRACKS';
 export const CREATE_TRACK = 'CREATE_TRACK';
 export const DELETE_TRACK = 'DELETE_TRACK';
@@ -291,13 +297,14 @@ export function connectRaceMonitorSocket(race) {
     };
   }
 
+/*
   const carRef = carsDbRef.child(race.car);
   const getCar = async () => {
     const snapshot = await carRef.once('value');
     return snapshot.val();
   };
   const car = getCar();
-
+*/
   return (dispatch, getState) => {
     dispatch({ type: CONNECT_RACEMONITOR_SOCKET_STARTED });
     console.log('dispatched CONNECT_RACEMONITOR_SOCKET_STARTED');
@@ -511,6 +518,132 @@ export function connectRaceHeroSocket(race) {
     });
   };  
 }
+
+const podiumPingInterval = {};
+const pws = {};
+
+export function disconnectPodiumSocket(race) {
+  if (podiumPingInterval[race.id]) {
+    clearInterval(podiumPingInterval[race.id]);
+  }
+  if (pws[race.id]) {
+    pws[race.id].close();
+    delete pws[race.id];
+  }
+  return {
+    type: DISCONNECT_PODIUM_SOCKET,
+    payload: { raceId: race.id }
+  };
+}
+
+export function connectPodiumSocket(race) {
+  if (pws[race.id]) {
+    return {
+      type: CONNECT_PODIUM_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'Socket already connected for this race.' }
+    };
+  }
+
+  let origin = window.location.protocol + '//' + window.location.host;
+  const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://podium.live';
+
+  if (!race.podiumEventId) {
+    return {
+      type: CONNECT_PODIUM_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'No podium event ID set for this race.' }
+    };
+  }
+
+  return (dispatch, getState) => {
+    dispatch({ type: CONNECT_PODIUM_SOCKET_STARTED });
+    console.log('dispatched CONNECT_PODIUM_SOCKET_STARTED');
+
+    fetch(urlPrefix + '/events/' + race.podiumEventId,
+      { headers: { origin }})
+    .then(response => response.text())
+    .then(data => {
+      let re = /push_service_token: '(\S+)?'/gm;
+      let match = re.exec(data);
+      if (!match) {
+        // this is when the race isn't currently running (finished)      
+        re = /new PusherService\("(\S+)?"\)/gm;
+        match = re.exec(data);
+        if (!match) {
+          throw new Error('No Pusher application ID found');
+        }
+      }
+
+      const pusherAppId = match[1];
+
+      re = /push_service_channel: '(\S+)?'/gm;
+      match = re.exec(data);
+      if (!match) {
+        re = /push_service\.subscribe\("(\S_)?"\)/gm;
+        match = re.exec(data);
+        if (!match) {
+          throw new Error('No Pusher event ID found');
+        }
+      }
+
+      const channel = match[1];
+
+      rhws[race.id] = new Sockette('ws://ws.pusherapp.com/app/' + pusherAppId + '?protocol=7&client=js&version=2.2.4&flash=false', {
+        timeout: 5e3,
+        maxAttempts: 10,
+        onopen: e => { 
+          console.log('Sockette Connected!', e);  
+        },
+        onmessage: e => {
+          //console.log('Sockette Received:', e);
+
+          const data = JSON.parse(e.data);
+          //console.log('got message data', data);
+          if (data.event && data.event === 'pusher:connection_established') {
+            const message = JSON.stringify({
+              event: 'pusher:subscribe',
+              data: {
+               channel
+              }
+            });
+            rhws[race.id].send(message);
+            return;
+          }
+
+          if (data.event && data.event === 'pusher_internal:subscription_succeeded') {
+            dispatch({ type: CONNECT_RACEHERO_SOCKET_SUCCESS, payload: { raceId: race.id, channel }});
+            rhPingInterval[race.id] = setInterval(() => {
+              rhws[race.id].send(JSON.stringify({
+                event: 'pusher:ping',
+                data: {}
+              }));
+            }, 119e3);
+            return;
+          }
+
+          if (data.event && data.event === 'payload') {
+            dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
+          } else if (data.event && data.event == 'pusher:pong') {
+            ; // ignore it
+          } else if (data.event) {
+            console.log('unknown pusher event:',data);
+          }
+        },
+        onreconnect: e => console.log('Sockette Reconnecting...', e),
+        onmaximum: e => console.log('Sockette Stop Attempting!', e),
+        onclose: e => { console.log('Sockette Closed!', e); if (rhPingInterval[race.id]) { clearInterval(rhPingInterval[race.id]); } },
+        onerror: e => { console.log('Sockette Error:', e); rhws[race.id].close(); }
+      });
+    })
+    .catch(error => {
+      dispatch({ type: CONNECT_RACEHERO_SOCKET_ERROR, payload: { raceId: race.id, error: error}});
+      console.log('dispatched CONNECT_RACEHERO_SOCKET_ERROR');
+      if (rhws[race.id]) {
+        rhws[race.id].close();
+      }
+    });
+  };  
+}
+
 
 export function refreshRaceHero(race) {
   if (!race.raceHeroName) {

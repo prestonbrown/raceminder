@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "express": "^4.16.3",
-    "request": "^2.86.0"
+    "request": "^2.87.0"
   },
   "devDependencies": {
-    "concurrently": "^3.5.0",
-    "nodemon": "^1.17.4"
+    "concurrently": "^3.6.0",
+    "nodemon": "^1.17.5"
   }
 }

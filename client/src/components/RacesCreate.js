@@ -19,7 +19,7 @@ import InputMask from 'react-input-mask';
 
 import { BarLoader } from 'react-spinners';
 
-import { createRace, createTrack, fetchTracks } from '../actions';
+import { createRace, createTrack } from '../actions';
 
 import TrackModal from './TrackModal';
 
@@ -56,8 +56,6 @@ class RacesCreate extends Component {
   }
 
   componentWillMount() {
-    //this.props.fetchTracks();
-
     let id = null;
     if (this.props.match && this.props.match.params.id) {
       id = this.props.match.params.id;
@@ -301,6 +299,7 @@ class RacesCreate extends Component {
           <Field label="Default Stint Length (hrs)" name="stintLength" type="number" component={this.renderField} />          
           <Field label="Race Hero Race Name" name="raceHeroName" type="text" component={this.renderField} />
           <Field label="Race Monitor Race ID" name="raceMonitorId" type="number" component={this.renderField} />
+          <Field label="Podium Live Event ID" name="podiumEventId" type="text" component={this.renderField} />
           <div className="btn-toolbar">
             <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
             <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>
@@ -339,7 +338,7 @@ function mapStateToProps({ drivers, tracks, cars, races }) {
   return { drivers, tracks, cars, races };
 }
 
-RacesCreate = connect(mapStateToProps, { createRace, createTrack, fetchTracks })(RacesCreate);
+RacesCreate = connect(mapStateToProps, { createRace, createTrack })(RacesCreate);
 
 export default reduxForm({
   form: 'RacesCreateForm',

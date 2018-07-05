@@ -102,7 +102,7 @@ class App extends Component {
                 <Route path={`${routes.CARS}/`} component={CarsIndex} />              
 
 
-                <Route path={`${routes.TRACKS}/:id`} render={({ match }) => <TrackModal isOpen={true} onClose={() => null} handleSubmit={values => this.props.createTrack(values)} track={tracks[match.params.id]} />} />
+                <Route path={`${routes.TRACKS}/:id`} render={({ match }) => <TrackModal isOpen={true} onClose={() => null} handleSubmit={values => { console.log('got values',values); return this.props.createTrack(values)}} track={tracks[match.params.id]} /> } />
                 <Route path={`${routes.RACES}/create`} render={() => <RacesCreate />} />
                 <Route path={`${routes.RACES}/manage/:id`} component={RacesManage} />
                 <Route path={`${routes.RACES}/:id`} component={RacesCreate} />

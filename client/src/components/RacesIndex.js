@@ -16,22 +16,24 @@ import { Link, withRouter } from 'react-router-dom';
 
 import { deleteRace } from '../actions';
 
-import '../styles/racesindex.css';
+//import '../styles/racesindex.css';
 
 let RaceCard = ({race, car, track, handleDelete, history}) => {
   const now = new moment();
-  const borderClass = now.isAfter(race.start) && now.isBefore(race.end) ? 'border-success' : (now.isAfter(race.end) ? 'border-secondary' : 'border-secondary');
-  const cardFaded = now.isAfter(race.end) ? 'card-faded' : ''
-  const background = now.isAfter(race.end) ? 'bg-secondary text-white' : '';
+  const borderStyle = now.isAfter(race.start) && now.isBefore(race.end) ? 'border-success' : (now.isAfter(race.end) ? 'border-light' : '');
+  const opacity = now.isAfter(race.end) ? '.8' : '1'
+  const filter = now.isAfter(race.end) ? 'brightness(70%)' : '';
+  //const background = now.isAfter(race.end) ? 'bg-secondary text-white' : '';
+  const background = '';
 
   return (
-    <div 
-      className={`card race-card shadow h-100 ${borderClass} ${background} ${cardFaded}`} 
-      onClick={e => { history.push(`/races/manage/${race.id}`) }}>
-      <div className="card-header bg-light text-dark">
+    <div className={`card h-100 ${borderStyle} ${background}`} style={{ opacity, filter }}>
+      <div className="card-header">
         <p className="card-text">{race.name} <NoteIcon race={race} /></p>
       </div>
-      <img className="card-image-top" src={car.picture} alt="race car" />
+      {/*<img className="card-image-top" src={car.picture} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />*/}
+      <img className="card-image-top" src={track.map} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />
+
       <div className="card-body">
         <div className="card-text mb-2">
           <div className="small em">{track.name}</div>

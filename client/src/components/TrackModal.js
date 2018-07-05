@@ -47,11 +47,10 @@ const FileInput = ({
 };
 
 class TrackForm extends Component {
-  componentWillMount() {
-    const { track } = this.props;
+  componentWillReceiveProps(newProps) {
+    const { track } = newProps;
    
-    if (track) {
-      console.log('initializing form with ',track);
+    if (track && track != this.props.track) {
       this.props.initialize(track);
     }
   }
@@ -102,10 +101,7 @@ class TrackModal extends Component {
 
   renderForm() {
     const { track } = this.props;
-    if (!track) {
-      return null;
-    }
-    
+
     return (
       <section>
         <ModalHeader toggle={this.toggle}>Track Details</ModalHeader>

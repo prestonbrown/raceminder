@@ -33,7 +33,8 @@ class StintForm extends Component {
   }
 
   estimatedEndingLapByFuel() {
-    if (!this.props.lpg || !this.props.startingFuelValue) {
+    const { track } = this.props;
+    if (!this.props.mpg || !this.props.startingFuelValue) {
       return 'unknown';
     }
 
@@ -41,7 +42,10 @@ class StintForm extends Component {
     if (!startingLap) {
       startingLap = 0;
     }
-    const totalLaps = Math.floor((this.props.startingFuelValue - this.props.car.desiredFuelReserve) * this.props.lpg);
+
+    const fuelAvail = this.props.startingFuelValue - this.props.car.desiredFuelReserve;
+    const maxDistance = fuelAvail * this.props.mpg;
+    const totalLaps = Math.floor(maxDistance / track.length);
     return totalLaps + startingLap;
   }
 
@@ -115,6 +119,7 @@ class StintForm extends Component {
             </FormGroup>
           </Col>
 
+          {/*
           <Col sm={6}>
             <FormGroup>
               <Label>Ends</Label>
@@ -126,6 +131,7 @@ class StintForm extends Component {
               <Field name="endingLap" component="input" type="number" parse={val => val ? parseInt(val, 10) : ''} className="form-control" step="1" />
             </FormGroup>
           </Col>
+          */}
         </Row>
 
         <FormGroup>
