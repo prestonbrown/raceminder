@@ -9,11 +9,11 @@
     "dev": "concurrently --kill-others-on-fail \"npm run-script server\" \"npm run-script client\""
   },
   "dependencies": {
-    "express": "^4.16.3",
-    "request": "^2.87.0"
+    "express": "^4.16.4",
+    "request": "^2.88.0"
   },
   "devDependencies": {
-    "concurrently": "^3.6.0",
-    "nodemon": "^1.17.5"
+    "concurrently": "^3.6.1",
+    "nodemon": "^1.18.10"
   }
 }
