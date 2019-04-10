@@ -44,7 +44,7 @@ class RacesManage extends Component {
 
     this.state = {
       stopModalOpen: false,
-      viewSelected: STINTS,
+      viewSelected: STOPS,
       stintModalOpen: false,
       flagColor: '#555',
       flag: faFlag,
@@ -432,8 +432,8 @@ class RacesManage extends Component {
 
     return (
       <tr 
-        key={data[0] + '-' + data[1] + '-' + data[2]} 
-        style={{cursor: 'pointer'}}
+        key={data[0] + '-' + data[1] + '-' + data[2]}
+        style={{cursor: 'pointer', color: data[4] == 'G' ? 'var(--green)' : (data[4] == 'Y' ? 'var(--yellow)' : 'inherit')}}
       >
         <th className="d-none d-sm-table-cell" scope="row">{data[0]}</th>
         <td>{data[1]}</td>        
@@ -543,28 +543,36 @@ class RacesManage extends Component {
     return 'Unknown';
   }    
   
-  currentDriverName(carId) {
-    const { racehero, racemonitor, cars } = this.props;
+  /**
+   * Return the current RaceMinder data object.
+   */
+  currentDriver(carId) {
+    const { racehero, racemonitor, race, drivers, cars } = this.props;
 
-    if (!cars) {
+    if (!cars || !race || !drivers) {
       return null;
     }
 
-    if ((!racehero || !racehero.racer_sessions) && (!racemonitor || !racemonitor.laps)) {
+    if ((!racehero || !racehero.racer_sessions)) {
       return 'No Live Data';
     }  
 
     if (racehero) {
-      const data = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
+      const session = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
       //console.log('got racehero data for car ',car.number,':',data);
 
-      if (data && data.name) {
-        return data.name;
+      if (session) {
+        const raceDrivers = _.map(race.drivers, id => drivers[id]);
+        return _.find(raceDrivers, d => (d.firstname + ' ' + d.lastname).toUpperCase() === session.name.toUpperCase());
       }
     }
 
-    return 'Unknown';
+    return null;
   }        
+
+  currentDriverName(driver) {
+    return driver.name;
+  }
 
   /**
    * Given a RaceMinder car ID, get racehero session ID for that car, based on comparing car numbers.
@@ -580,15 +588,15 @@ class RacesManage extends Component {
       return null;
     }  
 
-    const data = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
+    const session = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
     //console.log('got racehero data for car ',car.number,':',data);
 
-    if (data && data.name) {
-      return data.racer_session_id;
+    if (session && session.name) {
+      return session.racer_session_id;
     }
 
     return null;
-  }        
+  }
 
   /**
    * Given a RaceMinder driver ID, get session information for that driver, based on comparing driver names.
@@ -722,10 +730,14 @@ class RacesManage extends Component {
     const raceDrivers = _.map(race.drivers, driverId => drivers[driverId]);
     const driverNames = [];
     for (const driver of raceDrivers) {
-      console.log('driver ' + driver.firstname + ' ' + driver.lastname + ' average lap time: ' + Math.round(this.driverAvgLapTime(driver.id) * 1000) / 1000);
+      console.log('driver ' + driver.firstname + ' ' + driver.lastname + 
+        ' average lap time: ' + this.driverAvgLapTime(driver.id));
     }
   }
 
+  /**
+   * Given a RaceMinder driver ID, get the average lap time for that driver.
+   */
   driverAvgLapTime(driverId) {
     let sessionInfo = this.sessionInfoForDriver(driverId);
     //console.log('driver id',driverId,'avg lap time session info:',sessionInfo);
@@ -738,7 +750,8 @@ class RacesManage extends Component {
       return prev + cur;
     });
 
-    return laps.length > 0 ? sum / (laps.length - 1) / 1000 : sum / 1000; // skip 0 (on grid) lap
+    let avg = (laps.length > 0 ? sum / (laps.length - 1) : sum);
+    return moment(avg).format('mm:ss.SS');
   }
 
   renderTabs() {
@@ -823,6 +836,11 @@ class RacesManage extends Component {
                 <strong>Last Lap Time: </strong>
                 {this.lastLapTime(car.id)}
               </div>
+
+              <div>
+                <strong>Average Lap Time: </strong>
+                {this.driverAvgLapTime(this.currentDriver(car.id).id)}
+              </div>
             </Col>
             }
           </Row>
@@ -832,21 +850,21 @@ class RacesManage extends Component {
               <ButtonGroup>
                 <Button 
                   color="primary" 
+                  onClick={() => this.onViewSelected(LAPS)} 
+                  active={this.state.viewSelected === LAPS}>
+                  Laps
+                </Button>
+                <Button 
+                  color="secondary" 
                   onClick={() => this.onViewSelected(STINTS)} 
                   active={this.state.viewSelected === STINTS}>
                   Stints
                 </Button>
                 <Button 
-                  color="primary" 
+                  color="secondary" 
                   onClick={() => this.onViewSelected(STOPS)} 
                   active={this.state.viewSelected === STOPS}>
                   Stops
-                </Button>
-                <Button 
-                  color="secondary" 
-                  onClick={() => this.onViewSelected(LAPS)} 
-                  active={this.state.viewSelected === LAPS}>
-                  Laps
                 </Button>
               </ButtonGroup>
             </Col>
