@@ -41,21 +41,23 @@ class StopModal extends Component {
   }
 
   handleTimerStop = (start, end) => {
-    const { race } = this.props;
+    const { race, carId } = this.props;
 
     // if there is an active stint, set up the driver
     let driver = null;
     if (this.props.activeStintId) {
-      driver = race.stints[this.props.activeStintId].driver;
+      driver = race.stints[carId][this.props.activeStintId].driver;
     }
+
+    console.log('timer stopped, start:',start,'end:',end);
 
     // compute the new stopId so form will be updated
     // with these new values   
     //const newStopId = createStopId(race); 
-    this.props.createRaceStop(race.id, {
+    this.props.createRaceStop(race.id, carId, {
       start: start.format('Y-MM-DDTHH:mm:ss'),
       end: end.format('Y-MM-DDTHH:mm:ss'),
-      lap: this.props.lap,
+      lap: this.props.lap || null,
       driver
     });
 
@@ -63,9 +65,9 @@ class StopModal extends Component {
   }
 
   handleStopSubmit(values) {
-    const { race, activeStintId } = this.props;
-    console.log('stop got submitted, values:', values);
-    this.props.createRaceStop(race.id, values);
+    const { race, carId, activeStintId } = this.props;
+    //console.log('stop got submitted, values:', values);
+    this.props.createRaceStop(race.id, carId, values);
     this.setState({ showTimer: false });
 
     // if the stop comes in the middle of an active stint, split the stint
@@ -76,13 +78,13 @@ class StopModal extends Component {
       activeStint.end = values.start;
 
       // update active stint so end time is properly reflected
-      this.props.createRaceStint(race.id, activeStint);
+      this.props.createRaceStint(race.id, carId, activeStint);
 
       // if we are close to the next stint and driver changed to be the same as it lists,
       // assume we are adjusting the start time of the next existing stint (i.e.
       // not adding a new, not previously present stint).
       let now = moment();
-      let matches = _.filter(race.stints, stint => {
+      let matches = _.filter(race.stints[carId], stint => {
         const duration = moment.duration(moment(stint.start).diff(now));
         const timeUntil = duration.asMinutes();
         return (stint.driver === values.driver && timeUntil > 0 && timeUntil <= 15);
@@ -92,7 +94,7 @@ class StopModal extends Component {
         const nextStint = matches[0];
         nextStint.start = values.end;
 
-        this.props.createRaceStint(race.id, nextStint);
+        this.props.createRaceStint(race.id, carId, nextStint);
         this.toggle();
         return;
       }
@@ -111,7 +113,7 @@ class StopModal extends Component {
       // need to copy the ending lap # to the new stint too, but we aren't
       // storing that in the stop values yet
 
-      this.props.createRaceStint(race.id, newStint);
+      this.props.createRaceStint(race.id, carId, newStint);
     }
 
     // close modal
@@ -119,19 +121,22 @@ class StopModal extends Component {
   }
 
   renderForm() {
-    const { race, lap, race: { stints }, activeStintId, stopId } = this.props;
+    const { race, cars, lap, race: { stints }, activeStintId, carId, stopId } = this.props;
     let activeDriverId = null;
     if (activeStintId) {
-      activeDriverId = stints[activeStintId].driver;
+      activeDriverId = stints[carId][activeStintId].driver;
     }
 
+    const car = cars[carId];
     return (
       <section>
-        <ModalHeader toggle={this.toggle}>Pit Stop Details</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Pit Stop Details for Car #{car.number}</ModalHeader>
         <ModalBody>
           <StopForm 
             race={race}
+            cars={cars}
             lap={lap}
+            carId={carId}
             stopId={stopId} 
             activeDriverId={activeDriverId}
             onSubmit={this.handleStopSubmit.bind(this)} 

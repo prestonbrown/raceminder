@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import dotProp from 'dot-prop-immutable';
 
 import { 
   FETCH_RACES,
@@ -45,7 +46,6 @@ export default function (state = initialState, action) {
       let stopId = null;
 
       // lookup the correct race
-      let race = state[raceId];
       if (!values.id) {
         //stopId = createStopId(race);
         //values.id = stopId;
@@ -54,51 +54,27 @@ export default function (state = initialState, action) {
       }
 
       // add the stop to the race
-      newState = {
-        ...state,
-        // update our race object with the new stops array
-        [raceId]: {
-          ...race,
-          stops: Object.assign({}, race.stops, { [carId]: { [stopId]: values }}),
-          selectedStopId: stopId
-        }
-      };
+      newState = dotProp.set(state, `${raceId}.stops.${carId}.${stopId}`, values);
+      newState = dotProp.set(newState, `${raceId}.selectedStopId`, stopId);
 
       //localStorage.setItem('races', JSON.stringify(newState));
-      //console.log('state.races after adding stop:', newState);
       return newState;
     }
 
     case DELETE_RACE_STOP: {
       let { raceId, carId, stopId } = action.payload;
-      let race = state[raceId];
 
-      newState = { 
-        ...state, 
-        [raceId]: {
-          ...race,
-          stops: _.omit(state[raceId].stops[carId], stopId),
-          selectedStopId: null
-        }
-      };
+      newState = dotProp.delete(state, `${raceId}.stops.${carId}.${stopId}`);
+      newState = dotProp.set(newState, `${raceId}.selectedStopId`, null);
 
       //localStorage.setItem('races', JSON.stringify(newState));
-      //console.log('state.races after deleting stop:', newState);
       return newState;
     }
 
     case SET_SELECTED_STOP: {
       let { raceId, carId, stopId } = action.payload;
-      let race = state[raceId];
 
-      newState = {
-        ...state,
-        [raceId]: {
-          ...race,
-          selectedStopId: stopId
-        }
-      };
-
+      newState = dotProp.set(state, `${raceId}.selectedStopId`, stopId);
       return newState;
     }
 
@@ -107,7 +83,6 @@ export default function (state = initialState, action) {
       let stintId = null;
 
       // lookup the correct race
-      let race = state[raceId];
       if (!values.id) {
         //stintId = createStintId(race);
         //values.id = stintId;
@@ -116,15 +91,8 @@ export default function (state = initialState, action) {
       }
 
       // add or update the stint to the race
-      newState = {
-        ...state,
-        // update our race object with the new stops array
-        [raceId]: {
-          ...race,
-          stints: Object.assign({}, race.stints, { [carId]: { [stintId]: values } }),
-          selectedStintId: stintId
-        }
-      };
+      newState = dotProp.set(state, `${raceId}.stints.${carId}.${stintId}`, values);
+      newState = dotProp.set(newState, `${raceId}.selectedStintId`, stintId);
 
       //localStorage.setItem('races', JSON.stringify(newState));
       return newState;
@@ -132,35 +100,21 @@ export default function (state = initialState, action) {
 
     case DELETE_RACE_STINT: {
       let { raceId, carId, stintId } = action.payload;
-      let race = state[raceId];
-      newState = { 
-        ...state, 
-        [raceId]: {
-          ...race,
-          stints: _.omit(state[raceId].stints[carId], stintId),
-          selectedStintId: null
-        }
-      };
+
+      newState = dotProp.delete(state, `${raceId}.stints.${carId}.${stintId}`);
+      newState = dotProp.set(newState, `${raceId}.selectedStintId`, null);
 
       //localStorage.setItem('races', JSON.stringify(newState));
-      //console.log('state.races after deleting stop:', newState);
       return newState;
     }
 
     case SET_SELECTED_STINT: {
       let { raceId, carId, stintId } = action.payload;
-      let race = state[raceId];
 
-      newState = {
-        ...state,
-        [raceId]: {
-          ...race,
-          selectedStintId: stintId
-        }
-      };
-
+      newState = dotProp.set(state, `${raceId}.selectedStintId`, stintId);
       return newState;
     }
+
     default: {
       return state;
     }

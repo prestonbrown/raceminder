@@ -64,6 +64,7 @@ class RacesManage extends Component {
 
   componentWillUnmount() {
     clearInterval(this.activeStintInterval);
+    this.activeStintInterval = null;
     this.props.disconnectRaceHeroSocket(this.props.race);
     this.props.disconnectRaceMonitorSocket(this.props.race);
   }
@@ -87,6 +88,8 @@ class RacesManage extends Component {
       return;
     }
 
+    // check here if laps have changed and update render accordingly...
+
     if (newProps.racehero.latest_flag) {
       let flagColor = 'green';
       let flag = faFlag;
@@ -109,9 +112,12 @@ class RacesManage extends Component {
   }
 
   initialize(props) {
-    this.updateActiveStint(props);
+    if (this.activeStintInterval) {
+      clearInterval(this.activeStateInterval);
+      this.activeStateInterval = null;
+    }
 
-    //this.props.refreshRaceHero(props.race);
+    this.updateActiveStint(props);
 
     if (props.race.raceHeroName) {
       this.props.connectRaceHeroSocket(props.race);
@@ -121,11 +127,14 @@ class RacesManage extends Component {
       this.props.connectRaceMonitorSocket(props.race);
     }
 
+    // set active car
+    this.setState({ selectedCarId: props.race.cars[0]});
+
     // refresh once a minute
     this.activeStintInterval = setInterval(() => { 
       // update active stint based on time
       this.updateActiveStint(props);
-      this.updateCurrentLap();
+      this.updateLaps();
       // force re-render
       // this.setState(this.state);
       
@@ -134,11 +143,13 @@ class RacesManage extends Component {
     this.setState({ loading: false });
   }
 
-  toggleTab = tab => {
+  toggleTab = (tab, carId = null) => {
     if (this.state.activeTab !== tab) {
-      this.setState({
-        activeTab: tab
-      });
+      let newState = { activeTab: tab };
+      if (carId) {
+        newState.selectedCarId = carId;
+      }
+      this.setState(newState);
     }
   }
 
@@ -166,8 +177,8 @@ class RacesManage extends Component {
     //const newStintId = createStintId(race);
 
     // sort stints by time to figure out initial time guess
-    const stints = _.toArray(race.stints[carId])
-      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
+    const stints = race.stints && race.stints[carId] ? _.toArray(race.stints[carId])
+      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X')) : [];
     let start = null;
     let end = null;
 
@@ -218,7 +229,7 @@ class RacesManage extends Component {
       notes: ''
     };
 
-    this.props.createRaceStop(this.props.race.id, carId, data);
+    //this.props.createRaceStop(this.props.race.id, carId, data);
 
     // open stop dialog to edit it
     this.setState({ stopModalOpen: true });
@@ -233,8 +244,9 @@ class RacesManage extends Component {
     this.setState({ stopModalOpen: false});
   }
 
-  estimatedStopLapByFuel(stint) {
-    const { track, car } = this.props;
+  estimatedStopLapByFuel(carId, stint) {
+    const { track, cars } = this.props;
+    const car = cars[carId];
     let lpg = null;
     if (car.mpg) {
       lpg = car.mpg / track.length;
@@ -250,8 +262,9 @@ class RacesManage extends Component {
     return totalLaps + stint.startingLap;
   }
 
-  estimatedStopLapByTime(stint) {
-    const { race } = this.props;
+  estimatedStopLapByTime(carId, stint) {
+    const { race, cars } = this.props;
+    const car = cars[carId];
     if (!stint.start || !stint.end || !stint.startingLap || !race.avgLapTime) {
       return null;
     }
@@ -264,7 +277,7 @@ class RacesManage extends Component {
   }
 
 
-  renderStopRow(stop) {
+  renderStopRow(carId, stop) {
     const { race } = this.props;
     const duration = stop.start && stop.end ? 
       moment(moment(stop.end).diff(moment(stop.start))).format('mm:ss') : 
@@ -285,7 +298,7 @@ class RacesManage extends Component {
         <td>EST NEXT STOP LAP</td>
         <td>{stop.notes || ''}</td>
         <td className="text-right">
-          <Button color="link" onClick={e => { this.handleDeleteStop(stop.id); e.stopPropagation(); }}>
+          <Button color="link" onClick={e => { this.handleDeleteStop(carId, stop.id); e.stopPropagation(); }}>
             <FontAwesomeIcon 
               icon={faTrashAlt} 
             />
@@ -295,8 +308,13 @@ class RacesManage extends Component {
     );
   }
 
-  renderStopTable() {
+  renderStopTable(carId) {
     const { race } = this.props;
+
+    if (!race) {
+      return;
+    }
+
     return (
       <Table className="race-data-table" hover responsive dark>
         <thead className="table-sm">
@@ -313,14 +331,16 @@ class RacesManage extends Component {
           </tr>
         </thead>
         <tbody>
-          {_.map(race.stops, stop => this.renderStopRow(stop))}
+          {race.stops && race.stops[carId] ? _.map(race.stops[carId], stop => this.renderStopRow(carId, stop)) : null}
         </tbody>
       </Table>
       );
   }
 
-  renderStintRow(stint, index) {
-    const { race, car, track } = this.props;
+  renderStintRow(stint, carId, index) {
+    const { race, cars, track } = this.props;
+
+    const car = cars[carId];
 
     let after = '';
     let end = moment(stint.end);
@@ -332,7 +352,7 @@ class RacesManage extends Component {
       after = 'bg-secondary';
     }
     
-    const currentLap = this.currentLap();
+    const currentLap = this.state.currentLap[carId];
     const lapsTurned = currentLap && stint.startingLap ? currentLap - stint.startingLap : '(unset)';
 
     let fuelUsed = '(unknown)';
@@ -348,8 +368,8 @@ class RacesManage extends Component {
       fuelUsed = Math.round(fuelUsed * 10) / 10;
     }
 
-    let stopLapByFuel = this.estimatedStopLapByFuel(stint);
-    let stopLapByTime = this.estimatedStopLapByTime(stint);
+    let stopLapByFuel = this.estimatedStopLapByFuel(carId, stint);
+    let stopLapByTime = this.estimatedStopLapByTime(carId, stint);
     let stopLap = null;
     if (end < now) {
       stopLap = stint.endingLap ? stint.endingLap : 'unknown';
@@ -366,7 +386,7 @@ class RacesManage extends Component {
       <tr 
         key={stint.id} 
         className={after} 
-        onClick={() => { this.props.setSelectedStint(race.id, stint.id); this.setState({ stintModalOpen: true }); }} 
+        onClick={() => { this.props.setSelectedStint(race.id, carId, stint.id); this.setState({ stintModalOpen: true }); }} 
         style={{cursor: 'pointer'}}
       >
         <th className="d-none d-sm-table-cell" scope="row">{index+1}</th>
@@ -383,7 +403,7 @@ class RacesManage extends Component {
           <Button color="link">
             <FontAwesomeIcon 
               icon={faTrashAlt} 
-              onClick={e => { this.handleDeleteStint(stint.id); e.stopPropagation(); }} 
+              onClick={e => { this.handleDeleteStint(carId, stint.id); e.stopPropagation(); }} 
             />
           </Button>
         </td>
@@ -392,18 +412,17 @@ class RacesManage extends Component {
   }
 
   renderStintTable(carId) {
-    const { race, cars } = this.props;
+    const { race } = this.props;
 
-    if (!cars || !race.stints || !race.stints[carId]) {
-      return null;
+    if (!race) {
+      return;
     }
-
     // sorted stints for display
-    let stints = _.toArray(race.stints[carId])
-      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X'));
+    let stints = race.stints && race.stints[carId] ? _.toArray(race.stints[carId])
+      .sort((a, b) => moment(a.start).format('X') - moment(b.start).format('X')) : [];
     return (
           <Table className="race-data-table" hover responsive dark>
-            <thead className="table-sm" style={{ background: this.state.flagColor }}>
+            <thead className="table-sm">
               <tr>
                 <th className="d-none d-sm-table-cell" scope="col">Stint #</th>
                 <th scope="col">Start Time</th>
@@ -419,13 +438,13 @@ class RacesManage extends Component {
               </tr>
             </thead>
             <tbody>
-              {_.map(stints, (stint, index) => this.renderStintRow(stint, index))}
+              {_.map(stints, (stint, index) => this.renderStintRow(stint, carId, index))}
             </tbody>
           </Table>
       );
   }
 
-  renderLapRow(data, index) {
+  renderLapRow(data, carId, index) {
     let formatSeconds = function(secThousanths) {
       return secThousanths / 1000;
     }
@@ -451,8 +470,11 @@ class RacesManage extends Component {
       return 'No Live Data';
     }    
 
-    const sessionId = this.currentSessionId(carId);
-    const lapData = this.sessionLapData(sessionId);
+    const session = this.currentSession(carId);
+    let lapData = [];
+    if (session) {
+      lapData = this.sessionLapData(session.racer_session_id);
+    } 
     //console.log('lap data for racer ' + sessionId + ':', lapData);
 
     return (
@@ -466,251 +488,268 @@ class RacesManage extends Component {
           </tr>
         </thead>
         <tbody>
-          {_.map(lapData, (data, index) => this.renderLapRow(data, index))}
+          {_.map(lapData, (data, index) => this.renderLapRow(data, carId, index))}
         </tbody>
       </Table>
     );
   }
 
-  updateCurrentLap() {
-    const { race, racehero, racemonitor, cars } = this.props;
+  /***************************************************************************/
 
-    if (!cars) {
+  /**
+   * Given a RaceMinder car ID, get racehero session for that car, based on comparing car numbers.
+   */
+  currentSession(carId) {
+    const { racehero, cars } = this.props;
+
+    if (!cars || !racehero || !racehero.racer_sessions) {
+      return null;
+    }  
+
+    const car = cars[carId];
+    if (!car) {
       return null;
     }
 
-    if ((!racehero || !racehero.racer_sessions) && (!racemonitor || !racemonitor.laps)) {
-      return 'No Live Data';
-    }    
+    // get session by comparing race car numbers
+    const session = _.findLast(racehero.racer_sessions, s => s.racer_number.toUpperCase() === car.number.toUpperCase());
+    //console.log('got racehero data for car ',car.number,':',data);
 
-    _.map(race.cars, carId => {
-      if (racehero) {
-        const data = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
-        //console.log('got racehero data for car ',carNumber,':',data);
-
-        if (data && racehero.passings && data.racer_session_id) {
-          const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
-          //console.log('passings for ' + data.name, passings);
-          if (this.state.currentLap[carId] !== passings.current_lap) {
-            let currentLap = {...this.state.currentLap};
-            currentLap[carId] = passings.current_lap;
-            this.setState({ currentLap });
-            this.props.fetchRaceHeroLapData(race, data.racer_session_id);
-          }
-        }
-      } else if (racemonitor) {
-        const data = racemonitor.laps[cars[carId].number];
-        if (data) {
-          if (this.state.currentLap[carId] !== data.lap) {
-            let currentLap = {...this.state.currentLap};
-            currentLap[carId] = data.lap;
-            this.setState({ currentLap });
-          }
-        }
-      }
-    });
-
-
-    //return 'Unknown';
+    return session || null;
   }
 
-  currentPosition(carId) {
-    const { racehero, racemonitor, cars } = this.props;
-
-    if (!cars) {
-      return null;
-    }
-
-    if ((!racehero || !racehero.racer_sessions) && (!racemonitor || !racemonitor.laps)) {
-      return 'No Live Data';
-    }  
-
-    if (racehero) {
-      const data = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
-      //console.log('got racehero data for car ',car.number,':',data);
-
-      if (data && racehero.passings && data.racer_session_id) {
-        const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
-        return passings.position_in_class;
-      }
-    } else if (racemonitor) {
-      const data = racemonitor.laps[cars[carId].number];
-      if (data) {
-        return data.position;
-      }
-    }
-
-    return 'Unknown';
-  }    
-  
   /**
-   * Return the current RaceMinder data object.
+   * Return the current RaceMinder driver data object.
    */
   currentDriver(carId) {
-    const { racehero, racemonitor, race, drivers, cars } = this.props;
+    const { race, drivers } = this.props;
 
-    if (!cars || !race || !drivers) {
+    if (!race || !drivers) {
       return null;
     }
 
-    if ((!racehero || !racehero.racer_sessions)) {
-      return 'No Live Data';
-    }  
+    // find current session by car ID.
+    const session = this.currentSession(carId);
+    //console.log('got racehero data for car ',car.number,':',data);
 
-    if (racehero) {
-      const session = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
-      //console.log('got racehero data for car ',car.number,':',data);
+    if (session) {
+      const raceDrivers = _.map(race.drivers, id => drivers[id]);
 
-      if (session) {
-        const raceDrivers = _.map(race.drivers, id => drivers[id]);
-        return _.find(raceDrivers, d => (d.firstname + ' ' + d.lastname).toUpperCase() === session.name.toUpperCase());
-      }
+      // now match session driver name to any valid drivers of the car
+      return _.find(raceDrivers, d => (this.driverName(d, true) === session.name.toUpperCase()));
     }
 
     return null;
   }        
 
-  currentDriverName(driver) {
-    return driver.name;
-  }
-
   /**
-   * Given a RaceMinder car ID, get racehero session ID for that car, based on comparing car numbers.
+   * Given a RaceMinder car ID, get the last passing data for that car.
    */
-  currentSessionId(carId) {
-    const { racehero, racemonitor, cars } = this.props;
+  currentPassingData(carId) {
+    const { racehero, cars } = this.props;
 
-    if (!cars) {
-      return null;
-    }
-
-    if ((!racehero || !racehero.racer_sessions) && (!racemonitor || !racemonitor.laps)) {
+    if (!cars || !racehero || !racehero.racer_sessions) {
       return null;
     }  
 
-    const session = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
-    //console.log('got racehero data for car ',car.number,':',data);
+    const session = this.currentSession(carId);
 
-    if (session && session.name) {
-      return session.racer_session_id;
+    if (session && racehero.passings) {
+      return racehero.passings[session.racer_session_id];
     }
 
     return null;
   }
 
   /**
-   * Given a RaceMinder driver ID, get session information for that driver, based on comparing driver names.
+   * Given a RaceMinder car ID, return the current position of the car.
    */
-  sessionInfoForDriver(driverId) {
-    const { race, drivers, racehero } = this.props;
-
-    if (!race || !racehero) {
-      return null;
+  currentPosition(carId) {
+    const data = this.currentPassingData(carId);
+    if (data) {
+      return data.position_in_class;
     }
 
-    const driver = drivers[driverId];
-    if (!driver) {
-      return null;
-    }
+    return null;
+  }    
 
-    // look up racehero driver id.
-    if (racehero.racer_sessions) {
-      const session = _.find(racehero.racer_sessions, 
-        s => { 
-          //console.log('session driver name: ' + s.name.toUpperCase() + '; driver name: ' + (driver.firstname + ' ' + driver.lastname).toUpperCase());
-          return s.name.toUpperCase() === (driver.firstname + ' ' + driver.lastname).toUpperCase();
-      });
-      if (!session) {
-        return null;
-      }
-      return session;
+  /**
+   * Given a RaceMinder car ID, return the last lap time for that car.
+   */
+  lastLapTime(carId) {
+    const data = this.currentPassingData(carId);
+    if (data) {
+      return moment(data.last_lap_time_seconds * 1000).format('mm:ss.SS');
     }
 
     return null;
   }
 
-  driverLapData(driverId) {
+  /**
+   * Update lap information for all cars belonging to the
+   * race object
+   */
+  updateLaps() {
+    const { race, cars, racehero } = this.props;
+
+    if (!race || !cars || !racehero) {
+      return;
+    }
+
+    _.map(race.cars, carId => {
+      const session = this.currentSession(carId);
+
+      if (!session) {
+        console.log('no session for car ' + carId);
+        return;
+      }
+
+      const data = this.currentPassingData(session.racer_session_id);
+      if (!data && racehero.live_run_id) {
+        this.props.fetchRaceHeroLapData(race, session.racer_session_id);
+        return;
+      }
+
+      if (data && this.state.currentLap[carId] !== data.current_lap) {
+        console.log('old lap for car ' + carId + ': ' + this.state.currentLap[carId] + 
+          '; new lap: ' + data.current_lap)
+        let currentLap = {...this.state.currentLap};
+        currentLap[carId] = data.current_lap;
+        this.setState({ currentLap });
+
+        // if current lap of session has changed, we need to get fresh lap data for that session.
+        this.props.fetchRaceHeroLapData(race, session.racer_session_id);
+      }
+    });
+  }
+
+  /**
+   * Get the RaceMinder driver object for a driver id
+   */
+  getDriver(driverId) {
+    const { race, drivers } = this.props;
+
+    if (!race || !drivers) {
+      return null;
+    }
+
+    return drivers[driverId] || null;
+  }
+
+  /**
+   * Given a RaceMinder driver object, return the driver's full name.
+   */
+  driverName(driver, uppercase = false) {
+    let name = driver.firstname + ' ' + driver.lastname;
+    if (uppercase) {
+      return name.toUpperCase();
+    } else {
+      return name;
+    }
+  }
+
+  /**
+   * Given a RaceMinder driver, get ALL session information for that driver, 
+   * based on comparing driver names.
+   */
+  sessionsForDriver(driverId) {
     const { race, racehero } = this.props;
 
     if (!race || !racehero) {
-      return null;
+      return [];
     }
 
-    const session = this.sessionInfoForDriver(driverId);
-    if (!session) {
-      return null;
+    const driver = this.getDriver(driverId);
+    if (!driver) {
+      return [];
+    }
+    
+    // look up racehero sessions by driver name (first and last).
+    if (racehero.racer_sessions) {
+      return _.filter(racehero.racer_sessions, s => this.driverName(driver, true) === s.name.toUpperCase());
     }
 
-    const sessionId = session.racer_session_id;
-    if (!racehero.laps || !racehero.laps[sessionId]) {
-      return null;
-    }
-
-    return racehero.laps[sessionId];
+    return [];
   }
 
-  allDriverLapData() {
+  /**
+   * Return array of lap data (also an array) with indices being
+   * the session IDs of those laps.  If a driver has driven in 
+   * multiple sessions, multiple lap data arrays are possible / expected.
+   * If a car ID is provided, filter sessions so only those for the car
+   * are returned.
+   */
+  driverLapData(driverId, carId = null) {
+    const { race, cars, racehero } = this.props;
+
+    if (!race || (carId && !cars) || !racehero || !racehero.laps) {
+      return [];
+    }
+
+    let sessions = this.sessionsForDriver(driverId);
+    if (!sessions.length) {
+      return [];
+    }
+
+    if (carId) {
+      const car = cars[carId];
+      const carNum = car.number.toUpperCase();
+
+      sessions = _.filter(sessions, s => s.racer_number.toUpperCase() == carNum);
+    }
+
+    // first make a collection for each session id.
+    let laps = [];
+    for (const session of sessions) {
+      if (racehero.laps[session.racer_session_id]) {
+        laps = _.merge(laps, racehero.laps[session.racer_session_id]);
+      }
+    }
+
+    /*
+    console.log(sessions);
+    console.log('found laps: ', laps);
+    */
+   
+    return laps;
+  }
+
+  /**
+   * If we have lap data for a particular Racehero session Id, retrieve it.
+   */
+  sessionLapData(sessionId) {
+    const { racehero } = this.props;
+
+    if (!racehero || !racehero.laps) {
+      return [];
+    }
+
+    return racehero.laps[sessionId] || [];
+  }
+
+  allDriversLapData() {
     const { race } = this.props;
     if (!race) {
-      return null;
+      return [];
     }
     return _.map(race.drivers, driverId => this.driverLapData(driverId));
   }
 
-  sessionLapData(sessionId) {
-    const { racehero } = this.props;
-    if (!racehero || !racehero.laps[sessionId]) {
-      return null;
-    }
-    return racehero.laps[sessionId];
-  }
-
-
   allCarLapData(carId) {
     const { race, racehero, cars } = this.props;
     if (!race || !racehero || !cars) {
-      return null;
+      return [];
     }
     const car = cars[carId];
 
     const carSessions = _.filter(racehero.racer_sessions, s => s.racer_number.toUpperCase() === car.number.toUpperCase());
     const carSessionIds = _.map(carSessions, s => s.racer_session_id);
-    const allLapData = [];
+    let allLapData = [];
     for (const sessionId of carSessionIds) {
       allLapData.push(this.sessionLapData(sessionId));
     }
+
     return allLapData;
-  }
-
-  lastLapTime(carId) {
-    const { racehero, racemonitor, cars } = this.props;
-
-    if (!cars) {
-      return null;
-    }
-
-    if ((!racehero || !racehero.racer_sessions) && (!racemonitor || !racemonitor.laps)) {
-      return 'No Live Data';
-    }  
-
-    if (racehero) {
-      const data = _.find(racehero.racer_sessions, s => s.racer_number.toUpperCase() === cars[carId].number.toUpperCase());
-      //console.log('got racehero data for car ',carNumber,':',data);
-
-      if (data && racehero.passings && data.racer_session_id) {
-        const passings = _.find(racehero.passings, p => p.racer_session_id === data.racer_session_id);
-
-        const lapTime = moment(passings.last_lap_time_seconds * 1000).format('mm:ss.SS');
-        return lapTime;
-        //return passings.last_lap_time;
-      }
-    } else if (racemonitor) {
-      const data = racemonitor.laps[cars[carId].number];
-      if (data) {
-        return data.lapTime;
-      }
-    }
-    return 'Unknown';
   }
 
   remainingLapsByFuel() {
@@ -729,24 +768,32 @@ class RacesManage extends Component {
     const { race, drivers } = this.props;
     const raceDrivers = _.map(race.drivers, driverId => drivers[driverId]);
     const driverNames = [];
-    for (const driver of raceDrivers) {
-      console.log('driver ' + driver.firstname + ' ' + driver.lastname + 
-        ' average lap time: ' + this.driverAvgLapTime(driver.id));
-    }
+
+    return _.map(raceDrivers, d => 
+      <div key={d.id}>
+        <h3>
+          {this.driverName(d)}
+        </h3>
+        <div>
+          Average Lap Time: {this.driverAvgLapTime(d.id)}
+        </div>
+      </div>
+    );
   }
 
   /**
-   * Given a RaceMinder driver ID, get the average lap time for that driver.
+   * Given a RaceMinder driver ID, and optional Car ID, get the average 
+   * lap time(s) (for all applicable sessions) for that driver.
    */
-  driverAvgLapTime(driverId) {
-    let sessionInfo = this.sessionInfoForDriver(driverId);
+  driverAvgLapTime(driverId, carId = null) {
+    let sessions = this.sessionsForDriver(driverId);
     //console.log('driver id',driverId,'avg lap time session info:',sessionInfo);
-    let laps = this.driverLapData(driverId);
-    if (!laps) {
+    let laps = this.driverLapData(driverId, carId);
+    if (!laps.length) {
       return null;
     }
 
-    let sum = laps.map(lap => lap[2]).reduce((prev, cur) => { 
+    let sum = _.map(laps, l => l[2]).reduce((prev, cur) => { 
       return prev + cur;
     });
 
@@ -761,15 +808,13 @@ class RacesManage extends Component {
       const car = cars && cars[carId] ? cars[carId] : null;
 
       if (!car) {
-        console.log('no car found for id:',carId);
-        console.log('cars:',cars);
         return null;
       }
           
       return (
         <NavItem key={carId}>
           <NavLink className={this.state.activeTab == index+1 ? 'active' : ''}
-            onClick={() => { this.toggleTab(index+1); }}
+            onClick={() => { this.toggleTab(index+1, carId); }}
             >
             {`${car.name} #${car.number}`}
           </NavLink>
@@ -811,11 +856,11 @@ class RacesManage extends Component {
               />
             </Col>
 
-            { race &&
+            { race && this.currentDriver(car.id) &&
             <Col>
               <div>
                 <strong>Current Driver: </strong>
-                {this.currentDriverName(car.id)}
+                {this.driverName(this.currentDriver(car.id))}
               </div>
 
               <div>
@@ -825,11 +870,11 @@ class RacesManage extends Component {
             </Col>
             }
 
-            { race &&
+            { race && this.currentDriver(car.id) &&
             <Col> 
               <div>
                 <strong>Current Lap: </strong>
-                {this.state.currentLap[car.id]}
+                {this.state.currentLap[car.id] || 'N/A'}
               </div>
 
               <div>
@@ -871,7 +916,13 @@ class RacesManage extends Component {
 
             <Col className="ml-auto text-right">
               {this.state.viewSelected === STINTS &&
-                <Button onClick={() => this.handleAddStint()}>
+                <Button key="addStint" onClick={() => this.handleAddStint(car.id)}>
+                  <FontAwesomeIcon icon={faPlusSquare} className="mr-1" />
+                  Add
+                </Button>
+              }
+              {this.state.viewSelected === STOPS &&
+                <Button key="addStop" onClick={() => this.handleAddStop(car.id)}>
                   <FontAwesomeIcon icon={faPlusSquare} className="mr-1" />
                   Add
                 </Button>
@@ -1024,14 +1075,18 @@ class RacesManage extends Component {
 
         <StopModal 
           race={race}
+          cars={cars}
           stopId={race.selectedStopId}
+          carId={this.state.selectedCarId}
           activeStintId={this.state.activeStintId}
           isOpen={this.state.stopModalOpen} 
           onClose={this.handleStopModalClose} />
         
         <StintModal 
-          race={race} 
+          race={race}
+          cars={cars} 
           stintId={race.selectedStintId} 
+          carId={this.state.selectedCarId}
           activeStintId={this.state.activeStintId}
           isOpen={this.state.stintModalOpen} 
           onClose={this.handleStintModalClose} />

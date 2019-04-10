@@ -94,6 +94,7 @@ class StintForm extends Component {
 
   render() {
     const { handleSubmit, onSubmit, pristine, reset, submitting } = this.props;
+    const { race, drivers } = this.props;
 
     return (
       <Form onSubmit={handleSubmit}>
@@ -138,7 +139,7 @@ class StintForm extends Component {
           <Label>Driver</Label>
           <Field name="driver" component="select" className="form-control">
             <option key='' value=''>- Select a Driver -</option>
-            {_.map(this.props.drivers, ({ id, firstname, lastname }) => <option key={id} value={id}>{firstname} {lastname}</option>)}
+            {_.map(race.drivers, id => <option key={id} value={id}>{drivers[id].firstname} {drivers[id].lastname}</option>)}
           </Field>
         </FormGroup>
 
@@ -160,9 +161,10 @@ const selector = formValueSelector('StintForm');
 
 function mapStateToProps(state, ownProps) {
   const drivers = state.drivers;
-  const { race } = ownProps;
+  const { race, carId } = ownProps;
   const track = state.tracks[race.track];
-  const car = state.cars[race.car];
+
+  const car = state.cars[carId];
 
   let lpg = null;
   if (car.mpg) {

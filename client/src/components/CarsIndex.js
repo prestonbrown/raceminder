@@ -29,7 +29,7 @@ class CarsIndex extends Component {
       <li className="list-group-item" key={car.id}>
         <div class="media">
           <img className="mr-3" src={car.picture} style={{ width: "48px" }} alt="race car" />
-          <div class="media-body">
+          <div className="media-body">
             <h5>
               <Link to={`/cars/${car.id}`}>{car.firstname} {car.name}</Link>
             </h5>

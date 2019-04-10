@@ -18,10 +18,10 @@ momentLocalizer();
 
 class StopForm extends Component {
   componentWillMount() {
-    const { race, stopId } = this.props;
-    const stop = race.stops[stopId];
+    const { race, carId, stopId } = this.props;
+    const stop = race.stops[carId][stopId];
    
-    console.log('stopform will mount, stop:',stop)
+    //console.log('stopform will mount, stop:',stop)
     if (stop) {
       this.props.initialize(stop);
     }

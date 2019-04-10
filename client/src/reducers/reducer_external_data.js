@@ -48,10 +48,14 @@ export default function(state = initialState, action) {
         // if so we need to clear out session and pass data
         if (data.live_run_id && (!rhRaceState.live_run_id ||
           rhRaceState.live_run_id !== data.live_run_id)) {
-          rhRaceState.racer_sessions = [];
-          rhRaceState.passings = [];
+          rhRaceState.racer_sessions = {};
+          rhRaceState.passings = {};
           rhRaceState.laps = {};
           rhRaceState.live_run_id = data.live_run_id;
+        }
+
+        if (!data.live_run_id) {
+          rhRaceState.live_run_id = null;
         }
 
         if (!data.racer_sessions) {
@@ -62,19 +66,17 @@ export default function(state = initialState, action) {
 
         if (data.racer_sessions) {
           //console.log('got racehero payload:',data);
-          let sessions = rhRaceState.racer_sessions ? rhRaceState.racer_sessions : [];
-          let passings = rhRaceState.passings ? rhRaceState.passings : [];
+          let sessions = rhRaceState.racer_sessions ? rhRaceState.racer_sessions : {};
+          let passings = rhRaceState.passings ? rhRaceState.passings : {};
 
           // merge sessions
           for (const session of data.racer_sessions) {
-            sessions = _.filter(sessions, s => s.racer_session_id !== session.racer_session_id);
-            sessions.push(session);
+            sessions[session.racer_session_id] = session;
           }
 
           // merge passings
           for (const passing of data.passings) {
-            passings = _.filter(passings, s => s.racer_session_id !== passing.racer_session_id);
-            passings.push(passing);
+            passings[passing.racer_session_id] = passing;
           }
 
           rhRaceState.passings = passings;
@@ -93,15 +95,14 @@ export default function(state = initialState, action) {
     }
 
     case FETCH_RACEHERO_LAP_DATA: {
-        //console.log('in reducer for fetch lap data, payload: ', action.payload);
-        let {raceId, racerId, data} = action.payload;
+        let {raceId, sessionId, data} = action.payload;
 
         let laps = state.racehero[raceId] && state.racehero[raceId].laps ?
             _.cloneDeep(state.racehero[raceId].laps) :
             {};
 
         // merge lap data
-        laps[racerId] = data;
+        laps[sessionId] = data;
         //console.log('laps are now:', laps);
         newState = dotProp.set(state, `racehero.${raceId}.laps`, laps);
         localStorage.setItem('externalData', JSON.stringify(newState));

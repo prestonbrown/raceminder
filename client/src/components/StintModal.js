@@ -24,13 +24,14 @@ class StintModal extends Component {
   }
 
   renderForm() {
-    const { race, stintId } = this.props;
+    const { race, carId, stintId } = this.props;
     return (
       <section>
         <ModalHeader toggle={this.toggle}>Stint Details</ModalHeader>
         <ModalBody>
             <StintForm 
               race={race}
+              carId={carId}
               stintId={stintId} 
               onSubmit={this.handleStintSubmit.bind(this)} 
             />

@@ -196,6 +196,7 @@ export function createStopId(race) {
 
 export function createRaceStop(raceId, carId, values) {
   return dispatch => {
+    //console.log('create race stop got values: ', values);
     const id = values.id || racesDbRef.child(`${raceId}/stops/${carId}`).push().key;
     values.id = id;
     racesDbRef.child(`${raceId}/stops/${carId}/${id}`).set(values);
@@ -521,7 +522,7 @@ export function connectRaceHeroSocket(race) {
   };  
 }
 
-export function fetchRaceHeroLapData(race, racerId) {
+export function fetchRaceHeroLapData(race, sessionId) {
   let origin = window.location.protocol + '//' + window.location.host;
   const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
 
@@ -548,13 +549,13 @@ export function fetchRaceHeroLapData(race, racerId) {
         }
       } else {
         let path = match[1];
-        fetch(urlPrefix + path + racerId + '.json',
+        fetch(urlPrefix + path + sessionId + '.json',
           { headers: { origin }})
         .then(response => response.json())
         .then(data => {
           dispatch({
             type: FETCH_RACEHERO_LAP_DATA,
-            payload: { raceId: race.id, racerId: racerId, data: data.laps_data }
+            payload: { raceId: race.id, sessionId: sessionId, data: data.laps_data }
           });
         });
       }
