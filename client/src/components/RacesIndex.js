@@ -32,7 +32,9 @@ let RaceCard = ({race, car, track, handleDelete, history}) => {
         <p className="card-text">{race.name} <NoteIcon race={race} /></p>
       </div>
       {/*<img className="card-image-top" src={car.picture} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />*/}
-      <img className="card-image-top" src={track.map} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />
+      { track.map && 
+        <img className="card-image-top" src={track.map} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />
+      }
 
       <div className="card-body">
         <div className="card-text mb-2">
@@ -155,10 +157,10 @@ class RacesIndex extends Component {
     return (
       <div className="row">
       {_.map(sortedRaces, race =>
-        <div key={race.id} className="col-sm-4 mb-2"> 
+        <div key={race.id} className="col-sm-4 col-lg-3 mb-2"> 
           <RaceCard 
             race={race} 
-            car={cars[race.car]} 
+            car={cars[race.car]}
             track={tracks[race.track]} 
             handleDelete={() => this.onDeleteClicked(race.id)} />
         </div>
@@ -173,8 +175,15 @@ class RacesIndex extends Component {
       <div>
         <div className="mb-3 mt-1">
           <div className="float-right">
-            <Link className="btn btn-primary" to="/races/create">New Race</Link>
-            <Button active={this.state.hideCompleted} aria-pressed={this.state.hideCompleted} autoComplete="off" color="secondary" onClick={this.onHideCompletedClicked}>Hide Completed</Button>          
+            <Link className="btn btn-primary mr-1" to="/races/create">New Race</Link>
+            <Button 
+              active={this.state.hideCompleted} 
+              aria-pressed={this.state.hideCompleted} 
+              autoComplete="off" 
+              color="secondary" 
+              onClick={this.onHideCompletedClicked}>
+              Hide Completed
+            </Button>
           </div>
           <h3>Races</h3>
         </div>

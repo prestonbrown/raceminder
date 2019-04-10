@@ -88,7 +88,7 @@ class App extends Component {
         <BrowserRouter>
           <div>
             <RMNav authUser={this.state.authUser} />
-            <Container fluid>
+            <Container fluid className="mt-2 text-light">
               <Switch>
                 <Route exact path={routes.SIGN_IN} isPublic={true} component={() => <SignInPage />} />
                 <Route exact path={routes.ACCOUNT} component={() => <AccountPage />} />

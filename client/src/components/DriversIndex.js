@@ -40,7 +40,7 @@ class DriversIndex extends Component {
 
   render() {
     return (
-      <div>
+      <div className="text-light mr-1">
         <div className="float-right">
           <Button tag={Link} to="/drivers/create" color="primary">New Driver</Button>
         </div>  

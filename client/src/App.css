@@ -113,16 +113,16 @@ input::-webkit-inner-spin-button {
   color: rgba(255, 0, 0, .25);  
 }
 
-.race-data-table {
+.race-data-table, .race-laps-table {
   font-family: 'Roboto Condensed';
   font-size: 0.875rem;
 }
 
-.race-data-table th {
+.race-data-table th, .race-laps-table th {
   font-weight: 500;
 }
 
-.race-data-table td, .race-data-table th {
+.race-data-table td, .race-data-table th, .race-laps-table td, .race-laps-table th {
   padding: 0 .25rem;
   vertical-align: middle;
 }

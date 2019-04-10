@@ -41,7 +41,7 @@ export default function (state = initialState, action) {
     }
 
     case CREATE_RACE_STOP: {
-      let { raceId, values } = action.payload;
+      let { raceId, carId, values } = action.payload;
       let stopId = null;
 
       // lookup the correct race
@@ -59,7 +59,7 @@ export default function (state = initialState, action) {
         // update our race object with the new stops array
         [raceId]: {
           ...race,
-          stops: Object.assign({}, race.stops, { [stopId]: values }),
+          stops: Object.assign({}, race.stops, { [carId]: { [stopId]: values }}),
           selectedStopId: stopId
         }
       };
@@ -70,14 +70,14 @@ export default function (state = initialState, action) {
     }
 
     case DELETE_RACE_STOP: {
-      let { raceId, stopId } = action.payload;
+      let { raceId, carId, stopId } = action.payload;
       let race = state[raceId];
 
       newState = { 
         ...state, 
         [raceId]: {
           ...race,
-          stops: _.omit(state[raceId].stops, stopId),
+          stops: _.omit(state[raceId].stops[carId], stopId),
           selectedStopId: null
         }
       };
@@ -88,7 +88,7 @@ export default function (state = initialState, action) {
     }
 
     case SET_SELECTED_STOP: {
-      let { raceId, stopId } = action.payload;
+      let { raceId, carId, stopId } = action.payload;
       let race = state[raceId];
 
       newState = {
@@ -101,8 +101,9 @@ export default function (state = initialState, action) {
 
       return newState;
     }
+
     case CREATE_RACE_STINT: {
-      let { raceId, values } = action.payload;
+      let { raceId, carId, values } = action.payload;
       let stintId = null;
 
       // lookup the correct race
@@ -120,7 +121,7 @@ export default function (state = initialState, action) {
         // update our race object with the new stops array
         [raceId]: {
           ...race,
-          stints: Object.assign({}, race.stints, { [stintId]: values }),
+          stints: Object.assign({}, race.stints, { [carId]: { [stintId]: values } }),
           selectedStintId: stintId
         }
       };
@@ -130,13 +131,13 @@ export default function (state = initialState, action) {
     }
 
     case DELETE_RACE_STINT: {
-      let { raceId, stintId } = action.payload;
+      let { raceId, carId, stintId } = action.payload;
       let race = state[raceId];
       newState = { 
         ...state, 
         [raceId]: {
           ...race,
-          stints: _.omit(state[raceId].stints, stintId),
+          stints: _.omit(state[raceId].stints[carId], stintId),
           selectedStintId: null
         }
       };
@@ -146,9 +147,8 @@ export default function (state = initialState, action) {
       return newState;
     }
 
-
     case SET_SELECTED_STINT: {
-      let { raceId, stintId } = action.payload;
+      let { raceId, carId, stintId } = action.payload;
       let race = state[raceId];
 
       newState = {

@@ -127,8 +127,8 @@ componentWillMount() {
           <Field label="First Name" name="firstname" type="text" autoFocus component={this.renderField} />
           <Field label="Last Name" name="lastname" type="text" component={this.renderField} />
 
-          <div className="btn-toolbar">
-            <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
+          <div className="btn-toolbar float-right">
+            <Button type="submit" color="primary" className="mr-1" disabled={pristine || submitting}>Save</Button>
             {this.renderCancelButton()}
           </div>
         </Form>

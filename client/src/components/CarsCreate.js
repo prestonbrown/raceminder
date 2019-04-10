@@ -407,7 +407,7 @@ class CarsCreate extends Component {
         <h3 className="clearfix">{label}</h3>
         <Form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
           <Field label="Car Name" name="name" type="text" autoFocus component={this.renderField} />
-          <Field label="Car Number" name="number" type="number" component={this.renderField} />
+          <Field label="Car Number" name="number" type="text" component={this.renderField} />
           <Field label="Make / Model" name="model" type="text" component={this.renderField} />
           <Field label="Fuel Capacity" name="fuelCapacity" type="number" component={this.renderField} />
           <Field label="Desired Fuel Reserve" name="desiredFuelReserve" type="number" component={this.renderField} />
@@ -430,8 +430,8 @@ class CarsCreate extends Component {
               picture={this.props.pictureValue} />
           </FormGroup>
 
-          <div className="btn-toolbar">
-            <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
+          <div className="btn-toolbar float-right">
+            <Button type="submit" color="primary" className="mr-1" disabled={pristine || submitting}>Save</Button>
             <Button color="secondary" tag={Link} to="/">Cancel</Button>
           </div>
         </Form>

@@ -40,6 +40,8 @@ export const CONNECT_RACEHERO_SOCKET_SUCCESS = 'CONNECT_RACEHERO_SOCKET_SUCCESS'
 export const CONNECT_RACEHERO_SOCKET_ERROR = 'CONNECT_RACEHERO_SOCKET_ERROR';
 export const DISCONNECT_RACEHERO_SOCKET = 'DISCONNECT_RACEHERO_SOCKET';
 export const RACEHERO_SOCKET_PUSH = 'RACEHERO_SOCKET_PUSH';
+export const FETCH_RACEHERO_LAP_DATA = 'RACEHERO_LAP_DATA';
+export const CLEAR_RACEHERO_DATA = 'CLEAR_RACEHERO_DATA';
 
 export const CONNECT_PODIUM_SOCKET_STARTED = 'CONNECT_PODIUM_SOCKET_STARTED';
 export const CONNECT_PODIUM_SOCKET_SUCCESS = 'CONNECT_PODIUM_SOCKET_SUCCESS';
@@ -153,7 +155,7 @@ export function deleteCar(id) {
       type: DELETE_CAR,
       payload: id
     });
-  }
+  };
 }
 
 export function fetchRaces() {
@@ -192,39 +194,39 @@ export function createStopId(race) {
 }
 */
 
-export function createRaceStop(raceId, values) {
+export function createRaceStop(raceId, carId, values) {
   return dispatch => {
-    const id = values.id || racesDbRef.child(`${raceId}/stops`).push().key;
+    const id = values.id || racesDbRef.child(`${raceId}/stops/${carId}`).push().key;
     values.id = id;
-    racesDbRef.child(`${raceId}/stops/${id}`).set(values);
+    racesDbRef.child(`${raceId}/stops/${carId}/${id}`).set(values);
     dispatch({
       type: CREATE_RACE_STOP,
-      payload: { raceId, values }
+      payload: { raceId, carId, values }
     });
   };
 }
 
-export function deleteRaceStop(raceId, stopId) {
+export function deleteRaceStop(raceId, carId, stopId) {
   return dispatch => {
-    racesDbRef.child(`${raceId}/stops/${stopId}`).remove();
+    racesDbRef.child(`${raceId}/stops/${carId}/${stopId}`).remove();
     dispatch({
       type: DELETE_RACE_STOP,
-      payload: { raceId, stopId }
+      payload: { raceId, carId, stopId }
     });
   };
 }
 
-export function setSelectedStop(raceId, stopId) {
+export function setSelectedStop(raceId, carId, stopId) {
   return {
     type: SET_SELECTED_STOP,
-    payload: { raceId, stopId }
+    payload: { raceId, carId, stopId }
   };
 }
 
-export function setSelectedStint(raceId, stintId) {
+export function setSelectedStint(raceId, carId, stintId) {
   return {
     type: SET_SELECTED_STINT,
-    payload: { raceId, stintId }
+    payload: { raceId, carId, stintId }
   };
 }
 
@@ -241,24 +243,24 @@ export function createStintId(race) {
 }
 */
 
-export function createRaceStint(raceId, values) {
+export function createRaceStint(raceId, carId, values) {
   return dispatch => {
-    const id = values.id || racesDbRef.child(`${raceId}/stints`).push().key;
+    const id = values.id || racesDbRef.child(`${raceId}/stints/${carId}`).push().key;
     values.id = id;
-    racesDbRef.child(`${raceId}/stints/${id}`).set(values);
+    racesDbRef.child(`${raceId}/stints/${carId}/${id}`).set(values);
     dispatch({
       type: CREATE_RACE_STINT,
-      payload: { raceId, values }
+      payload: { raceId, carId, values }
     });
   };
 }
 
-export function deleteRaceStint(raceId, stintId) {
+export function deleteRaceStint(raceId, carId, stintId) {
   return dispatch => {
-    racesDbRef.child(`${raceId}/stints/${stintId}`).remove();
+    racesDbRef.child(`${raceId}/stints/${carId}/${stintId}`).remove();
     dispatch({
       type: DELETE_RACE_STINT,
-      payload: { raceId, stintId }
+      payload: { raceId, carId, stintId }
     });
   };
 }
@@ -497,7 +499,7 @@ export function connectRaceHeroSocket(race) {
 
           if (data.event && data.event === 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
-          } else if (data.event && data.event == 'pusher:pong') {
+          } else if (data.event && data.event === 'pusher:pong') {
             ; // ignore it
           } else if (data.event) {
             console.log('unknown pusher event:',data);
@@ -517,6 +519,54 @@ export function connectRaceHeroSocket(race) {
       }
     });
   };  
+}
+
+export function fetchRaceHeroLapData(race, racerId) {
+  let origin = window.location.protocol + '//' + window.location.host;
+  const urlPrefix = 'https://cors-anywhere.herokuapp.com/http://racehero.io';
+
+  if (!race.raceHeroName) {
+    return {
+      type: CONNECT_RACEHERO_SOCKET_ERROR,
+      payload: { raceId: race.id, error: 'No race hero race name is set for this race.' }
+    };
+  }
+
+  return (dispatch, getState) => {
+    fetch(urlPrefix + '/events/' + normalizeRaceHeroRaceName(race.raceHeroName),
+      { headers: { origin }})
+    .then(response => response.text())
+    .then(data => {
+      let re = /json_base_for_racer: '(\S+)?'/gm;
+      let match = re.exec(data);
+      if (!match) {
+        // this is when the race isn't currently running (finished)      
+        re = /new PusherService\("(\S+)?"\)/gm;
+        match = re.exec(data);
+        if (!match) {
+          throw new Error('No Pusher application ID found in data:',data);
+        }
+      } else {
+        let path = match[1];
+        fetch(urlPrefix + path + racerId + '.json',
+          { headers: { origin }})
+        .then(response => response.json())
+        .then(data => {
+          dispatch({
+            type: FETCH_RACEHERO_LAP_DATA,
+            payload: { raceId: race.id, racerId: racerId, data: data.laps_data }
+          });
+        });
+      }
+    });
+  };
+}
+
+export function clearRaceHeroData(race) {
+    return {
+      type: CLEAR_RACEHERO_DATA,
+      payload: { raceId: race.id }
+    };
 }
 
 const podiumPingInterval = {};
@@ -622,7 +672,7 @@ export function connectPodiumSocket(race) {
 
           if (data.event && data.event === 'payload') {
             dispatch({ type: RACEHERO_SOCKET_PUSH, payload: { raceId: race.id, data: JSON.parse(data.data).payload }});
-          } else if (data.event && data.event == 'pusher:pong') {
+          } else if (data.event && data.event === 'pusher:pong') {
             ; // ignore it
           } else if (data.event) {
             console.log('unknown pusher event:',data);
@@ -643,7 +693,6 @@ export function connectPodiumSocket(race) {
     });
   };  
 }
-
 
 export function refreshRaceHero(race) {
   if (!race.raceHeroName) {

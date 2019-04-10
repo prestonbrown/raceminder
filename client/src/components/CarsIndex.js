@@ -27,7 +27,15 @@ class CarsIndex extends Component {
   renderCars() {
     return _.map(this.props.cars, car =>
       <li className="list-group-item" key={car.id}>
-        <Link to={`/cars/${car.id}`}>{car.firstname} {car.name}</Link>
+        <div class="media">
+          <img className="mr-3" src={car.picture} style={{ width: "48px" }} alt="race car" />
+          <div class="media-body">
+            <h5>
+              <Link to={`/cars/${car.id}`}>{car.firstname} {car.name}</Link>
+            </h5>
+          </div>
+        </div>
+
         <div className="float-right">
           <div className="btn-group">
             <Link to={`/cars/${car.id}`} className="mr-1"><FontAwesomeIcon icon={faEdit} /></Link>

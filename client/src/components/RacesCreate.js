@@ -22,8 +22,11 @@ import { BarLoader } from 'react-spinners';
 import { createRace, createTrack } from '../actions';
 
 import TrackModal from './TrackModal';
+import Log from './Log';
 
 import 'react-widgets/dist/css/react-widgets.css';
+import '../styles/racescreate.css';
+
 
 /*
 const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
@@ -101,7 +104,6 @@ class RacesCreate extends Component {
   }
 
   handleModalClose = () => {
-    //console.log('closing stint modal via state');
     this.setState({ modalOpen: false});
   }
 
@@ -118,15 +120,15 @@ class RacesCreate extends Component {
     return (
       <FormGroup row>
         <Label sm={2}>{label}</Label>
-        <Col sm={10}>
+        <Col sm={4}>
           <Input 
             valid={touched && error ? false : (touched ? true : null) } 
             invalid={touched && error ? true : false } 
             {...input} 
             {...rest}
           />
-        </Col>
         <FormFeedback>{error}</FormFeedback>
+        </Col>
       </FormGroup>
     );    
   }
@@ -149,6 +151,39 @@ class RacesCreate extends Component {
     );
   }
 
+  renderCarsMultiSelect(field) {
+    const { meta: { touched, error }, input } = field;
+
+    const data = _.map(this.props.cars, car => ({ id: car.id, name: car.name }));
+    const inputProps = {};
+    if (touched && error) {
+      inputProps.invalid = '';
+    } else if (touched && !error) {
+      inputProps.valid = '';
+    }
+
+    console.log('cars error: ', error);
+    return (
+      <FormGroup row>
+        <Label sm={2}>{field.label}</Label>
+        <Col sm={10}>
+          <Multiselect
+            { ...input }
+            onBlur={() => input.onBlur()}
+            value={input.value || []} // requires value to be an array
+            data={data}
+            //defaultValue={input.value || []}
+            valueField="id"
+            textField="name"
+            inputProps={inputProps}
+            placeholder="Enter cars"
+          />
+          <FormFeedback style={ { display: touched && error ? "block" : "hidden" } }>{error}</FormFeedback>
+        </Col>
+      </FormGroup>
+    );
+  }
+
   renderCarField(field) {
     const {meta: {touched, error}} = field;
 
@@ -164,11 +199,11 @@ class RacesCreate extends Component {
             <option key='' value=''>- Select a Car -</option>
             {_.map(this.props.cars, car => <option key={car.id} value={car.id}>{car.name}: {car.model}</option>)}
           </Input>
+          <FormFeedback>{error}</FormFeedback>
         </Col>
         <Col>
-          <span>or <Button color="secondary" tag={Link} to="/cars/create">Create New Car</Button></span>
+          <span>or <Button color="secondary" className="ml-2" tag={Link} to="/cars/create">Create New Car</Button></span>
         </Col>
-        <FormFeedback>{error}</FormFeedback>
       </FormGroup>
     );
   }
@@ -197,9 +232,10 @@ class RacesCreate extends Component {
             valueField="id"
             textField="name"
             inputProps={inputProps}
+            placeholder="Enter driver names"
           />
+          <FormFeedback style={ { display: touched && error ? "block" : "hidden" } }>{error}</FormFeedback>
         </Col>
-        <FormFeedback>{error}</FormFeedback>
       </FormGroup>
     );
   }
@@ -215,6 +251,7 @@ class RacesCreate extends Component {
           <option key="">Choose a Driver</option>
           {_.map(this.props.drivers, (driver) => <option key={driver.id}>{driver.firstname} {driver.lastname}</option>)}
         </select>
+        <FormFeedback>{error}</FormFeedback>
       </FormGroup>
     );
   }
@@ -250,13 +287,17 @@ class RacesCreate extends Component {
               <Field label="Track" name="track" component={this.renderTrackField.bind(this)} />
             </Col>
             <Col>
-              <span>or <Button onClick={this.openModal}>Create New Track</Button></span>
+              <span>or <Button onClick={this.openModal} className="ml-2">Create New Track</Button></span>
             </Col>
           </FormGroup>
-          <Field label="Car" name="car" component={this.renderCarField.bind(this)} />
+
+          {/* <Field label="Car" name="car" component={this.renderCarField.bind(this)} /> */}
+          <Field label="Cars" name="cars" parse={values => { if (!values) return; return values.map(value => value.id); }} component={this.renderCarsMultiSelect.bind(this)} />
           <Field label="Drivers" name="drivers" parse={values => { if (!values) return; return values.map(value => value.id); }} component={this.renderDriversMultiSelect.bind(this)} />
-          <Field label="Starts On" name="start" type="datetime-local" component={this.renderField} />
-          <Field label="Ends On" name="end" type="datetime-local" component={this.renderField} />
+
+          <Field label="Scheduled Start" name="start" type="datetime-local" component={this.renderField} />
+          <Field label="Scheduled Finish" name="end" type="datetime-local" component={this.renderField} />
+
           <Field label="Required Stops" name="requiredStops" type="number" component={this.renderField} />
           <Field 
             label="Average Lap Time" 
@@ -285,7 +326,7 @@ class RacesCreate extends Component {
               } 
               let mins = parseInt(val / 60, 10);
               let secs = parseInt(val % 60, 10);
-              let res = `${mins}:${secs}`;
+              let res = `${mins}:`.padStart(2, '0') + `${secs}`.padStart(2, '0');
               //console.log('format input:',val,', result:',res, 'String(val % 60)',String(val%60)); 
               return res; 
             }}
@@ -293,15 +334,16 @@ class RacesCreate extends Component {
             mask="C:AB" 
             tag={InputMask} 
             maskChar="_" 
-            formatChars={{ 'C': '[1-9]', 'A': '[0-5]', 'B': '[0-9]' }} 
+            formatChars={{ 'C': '[0-9]', 'A': '[0-5]', 'B': '[0-9]' }} 
             component={this.renderField} 
           />
+
           <Field label="Default Stint Length (hrs)" name="stintLength" type="number" component={this.renderField} />          
           <Field label="Race Hero Race Name" name="raceHeroName" type="text" component={this.renderField} />
           <Field label="Race Monitor Race ID" name="raceMonitorId" type="number" component={this.renderField} />
           <Field label="Podium Live Event ID" name="podiumEventId" type="text" component={this.renderField} />
-          <div className="btn-toolbar">
-            <Button type="submit" color="primary" disabled={pristine || submitting}>Save</Button>
+          <div className="btn-toolbar float-right">
+            <Button type="submit" color="primary" className="mr-1" disabled={pristine || submitting}>Save</Button>
             <Button color="secondary" onClick={this.props.history.goBack}>Cancel</Button>
           </div>
         </Form>
@@ -327,7 +369,11 @@ function validate(values) {
     errors.track = 'You must choose a track.';
   }
 
-  if (!values.drivers) {
+  if (!Array.isArray(values.cars) || values.cars.length === 0) {
+    errors.cars = 'You must select at least one car.'
+  }
+
+  if (!Array.isArray(values.drivers) || values.drivers.length === 0) {
     errors.drivers = 'You must select one or more drivers.';
   }
 
