@@ -18,8 +18,9 @@ class StintModal extends Component {
   }
 
   handleStintSubmit(values) {
+    const { race, carId } = this.props;
     console.log('stint got submitted, values:', values);
-    this.props.createRaceStint(this.props.race.id, values);
+    this.props.createRaceStint(race.id, carId, values);
     this.toggle();
   }
 

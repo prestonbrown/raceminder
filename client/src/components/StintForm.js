@@ -16,8 +16,8 @@ momentLocalizer();
 
 class StintForm extends Component {
   componentWillMount() {
-    const { race, stintId } = this.props;
-    const stint = race.stints[stintId];
+    const { race, stintId, carId } = this.props;
+    const stint = race.stints[carId][stintId];
 
     console.log('stint form got race:', race);
     console.log('stint form got stint:', stint);    

@@ -28,7 +28,7 @@ let RaceCard = ({race, car, track, handleDelete, history}) => {
 
   return (
     <div className={`card h-100 ${borderStyle} ${background}`} style={{ opacity, filter }}>
-      <div className="card-header">
+      <div className="card-header text-dark">
         <p className="card-text">{race.name} <NoteIcon race={race} /></p>
       </div>
       {/*<img className="card-image-top" src={car.picture} alt="race car" style={{ height: '150px', objectFit: 'cover' }} />*/}

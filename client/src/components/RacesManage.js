@@ -44,7 +44,7 @@ class RacesManage extends Component {
 
     this.state = {
       stopModalOpen: false,
-      viewSelected: STOPS,
+      viewSelected: LAPS,
       stintModalOpen: false,
       flagColor: '#555',
       flag: faFlag,
@@ -97,7 +97,7 @@ class RacesManage extends Component {
       if (newProps.racehero.latest_flag.color === 'green') {
         flagColor = 'rgb(58,181,50)';
       } else if (newProps.racehero.latest_flag.color === 'finish' || 
-        newProps.racehero.latest_flag.color == 'stop') {
+        newProps.racehero.latest_flag.color === 'stop') {
         flagColor = 'white';
         flag = faFlagCheckered;
       } else {
@@ -219,6 +219,7 @@ class RacesManage extends Component {
     //const { race } = this.props;
     //const newStopId = createStopId(race);
 
+    /*
     const data = {
       start: null,
       end: null,
@@ -229,7 +230,8 @@ class RacesManage extends Component {
       notes: ''
     };
 
-    //this.props.createRaceStop(this.props.race.id, carId, data);
+    this.props.createRaceStop(this.props.race.id, carId, data);
+    */
 
     // open stop dialog to edit it
     this.setState({ stopModalOpen: true });
@@ -264,7 +266,7 @@ class RacesManage extends Component {
 
   estimatedStopLapByTime(carId, stint) {
     const { race, cars } = this.props;
-    const car = cars[carId];
+    //const car = cars[carId];
     if (!stint.start || !stint.end || !stint.startingLap || !race.avgLapTime) {
       return null;
     }
@@ -352,7 +354,7 @@ class RacesManage extends Component {
       after = 'bg-secondary';
     }
     
-    const currentLap = this.state.currentLap[carId];
+    const currentLap = this.state.currentLap[carId] || null;
     const lapsTurned = currentLap && stint.startingLap ? currentLap - stint.startingLap : '(unset)';
 
     let fuelUsed = '(unknown)';
@@ -391,8 +393,8 @@ class RacesManage extends Component {
       >
         <th className="d-none d-sm-table-cell" scope="row">{index+1}</th>
         <td>{(stint.start && moment(stint.start).format('LTS')) || '(unset)'}</td>
-        <td>{stint.startingLap || '(unset)'}</td>
-        <td>currentLap ({lapsTurned} laps)</td>
+        <td>{Number.isInteger(stint.startingLap) ? stint.startingLap : '(unset)'}</td>
+        <td>{currentLap || 'unknown'} ({lapsTurned} laps)</td>
         <td>{fuelUsed}</td>
         <td>{fuelRemaining}</td>
         <td className="d-none d-sm-table-cell">{(stint.end && moment(stint.end).format('LTS')) || '(unset)'}</td>
@@ -452,7 +454,7 @@ class RacesManage extends Component {
     return (
       <tr 
         key={data[0] + '-' + data[1] + '-' + data[2]}
-        style={{cursor: 'pointer', color: data[4] == 'G' ? 'var(--green)' : (data[4] == 'Y' ? 'var(--yellow)' : 'inherit')}}
+        style={{cursor: 'pointer', color: data[4] === 'G' ? 'var(--green)' : (data[4] === 'Y' ? 'var(--yellow)' : 'inherit')}}
       >
         <th className="d-none d-sm-table-cell" scope="row">{data[0]}</th>
         <td>{data[1]}</td>        
@@ -463,7 +465,6 @@ class RacesManage extends Component {
   }
 
   renderLapsTable(carId) {
-    const { race, cars } = this.props;
     const { racehero } = this.props;
 
     if (!racehero) {
@@ -495,6 +496,19 @@ class RacesManage extends Component {
   }
 
   /***************************************************************************/
+
+  /**
+   * return all session data.
+   */
+  allSessions() {
+    const { racehero } = this.props;
+
+    if (!racehero) {
+      return {};
+    }
+
+    return racehero.racer_sessions;
+  }
 
   /**
    * Given a RaceMinder car ID, get racehero session for that car, based on comparing car numbers.
@@ -695,7 +709,7 @@ class RacesManage extends Component {
       const car = cars[carId];
       const carNum = car.number.toUpperCase();
 
-      sessions = _.filter(sessions, s => s.racer_number.toUpperCase() == carNum);
+      sessions = _.filter(sessions, s => s.racer_number.toUpperCase() === carNum);
     }
 
     // first make a collection for each session id.
@@ -711,6 +725,26 @@ class RacesManage extends Component {
     console.log('found laps: ', laps);
     */
    
+    return laps;
+  }
+
+  driverNameLapData(name) {
+    const { racehero } = this.props;
+
+    if (!racehero || !racehero.laps) {
+      return [];
+    }
+
+    let sessions = this.allSessions();
+    sessions = _.filter(sessions, s => s.name.toUpperCase() === name.toUpperCase());
+
+    let laps = [];
+    for (const session of sessions) {
+      if (racehero.laps[session.racer_session_id]) {
+        laps = _.merge(laps, racehero.laps[session.racer_session_id]);
+      }
+    }
+
     return laps;
   }
 
@@ -765,12 +799,27 @@ class RacesManage extends Component {
   }
 
   renderDriverStuff() {
-    const { race, drivers } = this.props;
+    const { race, racehero, drivers } = this.props;
     const raceDrivers = _.map(race.drivers, driverId => drivers[driverId]);
-    const driverNames = [];
 
-    return _.map(raceDrivers, d => 
-      <div key={d.id}>
+    if (!racehero) {
+      return;
+    }
+    
+    const moreDrivers = _.map(this.allSessions(), s => 
+      <div key={"driver_info_"+s.racer_session_id}>
+        <h3>
+          {s.name}
+        </h3>
+        <div>
+          Average Lap Time: {this.driverNameAvgLapTime(s.name)}
+        </div>
+      </div>
+      );
+
+    return [
+      _.map(raceDrivers, d => 
+      <div key={"driver_info_"+d.id}>
         <h3>
           {this.driverName(d)}
         </h3>
@@ -778,25 +827,34 @@ class RacesManage extends Component {
           Average Lap Time: {this.driverAvgLapTime(d.id)}
         </div>
       </div>
-    );
+      ),
+      moreDrivers,
+    ];
   }
 
   /**
-   * Given a RaceMinder driver ID, and optional Car ID, get the average 
+   * Given a RaceMinder driver ID or a driver name, and optional Car ID, get the average 
    * lap time(s) (for all applicable sessions) for that driver.
    */
   driverAvgLapTime(driverId, carId = null) {
-    let sessions = this.sessionsForDriver(driverId);
-    //console.log('driver id',driverId,'avg lap time session info:',sessionInfo);
     let laps = this.driverLapData(driverId, carId);
     if (!laps.length) {
       return null;
     }
 
-    let sum = _.map(laps, l => l[2]).reduce((prev, cur) => { 
-      return prev + cur;
-    });
+    let sum = _.map(laps, l => l[2]).reduce((prev, cur) => prev + cur);
 
+    let avg = (laps.length > 0 ? sum / (laps.length - 1) : sum);
+    return moment(avg).format('mm:ss.SS');
+  }
+
+  driverNameAvgLapTime(name) {
+    let laps = this.driverNameLapData(name);
+    if (!laps.length) {
+      return null;
+    }
+
+    let sum = _.map(laps, l => l[2]).reduce((prev, cur) => prev + cur);
     let avg = (laps.length > 0 ? sum / (laps.length - 1) : sum);
     return moment(avg).format('mm:ss.SS');
   }
@@ -813,7 +871,7 @@ class RacesManage extends Component {
           
       return (
         <NavItem key={carId}>
-          <NavLink className={this.state.activeTab == index+1 ? 'active' : ''}
+          <NavLink className={this.state.activeTab === index+1 ? 'active' : ''}
             onClick={() => { this.toggleTab(index+1, carId); }}
             >
             {`${car.name} #${car.number}`}
@@ -825,7 +883,7 @@ class RacesManage extends Component {
     return [
       navs,
       <NavItem key="driversTab">
-        <NavLink className={this.state.activeTab == race.cars.length+1 ? 'active' : ''}
+        <NavLink className={this.state.activeTab === race.cars.length+1 ? 'active' : ''}
           onClick={() => { this.toggleTab(race.cars.length+1); }}
           >
           Driver Stats
@@ -894,19 +952,16 @@ class RacesManage extends Component {
             <Col>
               <ButtonGroup>
                 <Button 
-                  color="primary" 
                   onClick={() => this.onViewSelected(LAPS)} 
                   active={this.state.viewSelected === LAPS}>
                   Laps
                 </Button>
                 <Button 
-                  color="secondary" 
                   onClick={() => this.onViewSelected(STINTS)} 
                   active={this.state.viewSelected === STINTS}>
                   Stints
                 </Button>
                 <Button 
-                  color="secondary" 
                   onClick={() => this.onViewSelected(STOPS)} 
                   active={this.state.viewSelected === STOPS}>
                   Stops
@@ -916,13 +971,13 @@ class RacesManage extends Component {
 
             <Col className="ml-auto text-right">
               {this.state.viewSelected === STINTS &&
-                <Button key="addStint" onClick={() => this.handleAddStint(car.id)}>
+                <Button key="addStint" color="primary" onClick={() => this.handleAddStint(car.id)}>
                   <FontAwesomeIcon icon={faPlusSquare} className="mr-1" />
                   Add
                 </Button>
               }
               {this.state.viewSelected === STOPS &&
-                <Button key="addStop" onClick={() => this.handleAddStop(car.id)}>
+                <Button key="addStop" color="primary" onClick={() => this.handleAddStop(car.id)}>
                   <FontAwesomeIcon icon={faPlusSquare} className="mr-1" />
                   Add
                 </Button>
@@ -935,9 +990,16 @@ class RacesManage extends Component {
               {
                 (() => {
                   switch(this.state.viewSelected) {
-                    case STOPS: return this.renderStopTable(car.id); break;
-                    case STINTS: return this.renderStintTable(car.id); break;
-                    case LAPS: return this.renderLapsTable(car.id); break;
+                    case STOPS: 
+                    return this.renderStopTable(car.id); 
+                    break;
+                    case STINTS: 
+                    return this.renderStintTable(car.id); 
+                    break;
+                    case LAPS: 
+                    default: 
+                    return this.renderLapsTable(car.id); 
+                    break;
                   }
                 })()
               }
@@ -960,7 +1022,7 @@ class RacesManage extends Component {
   }
 
   renderHeader() {
-    const { race, cars, track, racehero, racemonitor } = this.props;
+    const { race, track, racehero, racemonitor } = this.props;
 
     if (!race) {
       return null;
@@ -1047,7 +1109,7 @@ class RacesManage extends Component {
   }
 
   render() {
-    const { race, cars, track, racehero, racemonitor } = this.props;
+    const { race, cars } = this.props;
    
     if (this.state.loading) {
       return(
